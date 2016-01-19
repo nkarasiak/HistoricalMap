@@ -7,15 +7,9 @@ import dataraster
 import scipy as sp
 import scipy.ndimage
 
-im,proj,geo=dataraster.open_data('map.tif')
-[nl,nc,d]=im.shape
-out = sp.empty((nl,nc,d),dtype=im.dtype.name)
-
-
-
 
 """
-  Filter class to isolate the forest and delete lines and names.
+  Filter class to isolate the forest and delete dark lines/fonts above.
 
 
   ATTRIBUTES :
@@ -28,44 +22,36 @@ out = sp.empty((nl,nc,d),dtype=im.dtype.name)
 
 """
 class historicalFilter:    
-    
+    def __init__(self, inimage,outname,inShapeGrey,inShapeMedian):
+        im,proj,geo=self.loadImage(inimage)
+        greyf=self.greyClose(im,inShapeGrey)
+        medianf=self.median(greyf,inShapeMedian)
+        self.writeImage(outname,medianf,geo,proj)
+                
     def loadImage(self,inimage):
         im,proj,geo=dataraster.open_data(inimage)
-        [nl,nc,d]=im.shape
-        out = sp.empty((nl,nc,d),dtype=im.dtype.name)
-        return im,proj,geo,out
+        return im,proj,geo
+        
     def writeImage(self,outname,ioimage,geo,proj):
         dataraster.write_data(outname,ioimage,proj,geo)
+        
     def greyClose(self,inim,inshape=11):
+        [nl,nc,d]=inim.shape
+        out = sp.empty((nl,nc,d),dtype=inim.dtype.name)
         for i in range(d):
             out[:,:,i]=sp.ndimage.morphology.grey_closing(inim[:,:,i],size=(inshape,inshape))
-        return out.astype(im.dtype.name)
+        return out.astype(inim.dtype.name)
     
     def median(self,inim,inshape=11):
+        [nl,nc,d]=inim.shape
+        out = sp.empty((nl,nc,d),dtype=inim.dtype.name)
         for i in range(d):
             out[:,:,i]=sp.ndimage.filters.median_filter(inim[:,:,i],size=(inshape,inshape))
-        return out.astype(im.dtype.name)
-    def filtersAndSave(self,inimage,outname,inshapegrey,inshapemedian):
-        im,proj,geo,imout=self.loadImage(inimage)
-        greyf=self.greyClose(im,inshapegrey)
-        medianf=self.median(greyf,inshapemedian)
-        self.writeImage(outname,medianf,geo,proj)
-        
-
+        return out.astype(inim.dtype.name)
+       
 
 if __name__=='__main__':
     # Create an instance of historicalFilter class
-    filtering=historicalFilter()
+    filtering=historicalFilter('map.tif','filtered',11,11)
     
-    filtering.filtersAndSave('map.tif','filtered',11,11)
-    # Load map
-    #im,proj,geo,imout=filtering.loadImage('map.tif')
-    # Applying grey filter then median filter)
-    #greyf=filtering.greyClose(im,11)
-    #print 'greyf is done'
-    #medianf=filtering.median(greyf,11)
-    #print 'medianf is done'
-    
-    # Save filtered image
-    #filtering.writeImage('namefiltered',medianf,geo,proj)
-    
+
