@@ -24,37 +24,71 @@ from scipy import ndimage
 
 """
 class historicalFilter:    
-    def __init__(self, inimage,outname,inShapeGrey,inShapeMedian):
-        im,proj,geo=self.loadImage(inimage)
-        greyf=self.greyClose(im,inShapeGrey)
-        medianf=self.median(greyf,inShapeMedian)
-        self.writeImage(outname,medianf,geo,proj)
+    def __init__(self, inImage,outname,inShapeGrey,inShapeMedian):
+        try:
+            im,proj,geo,nl,nc,d=self.loadImage(inImage)
+        except:
+            print "Impossible to load the image"
+#        try:
+#            out = sp.empty((nl,nc,d),dtype=im.dtype.name)            
+#        except:
+#            print "Impossible to create empty table"
+        
+#        greyf=self.greyClose(im,inShapeGrey)
+#        medianf=self.median(greyf,inShapeMedian)
+        try:
+            filteredImage=self.filterBand(im,inShapeGrey,inShapeMedian,nl,nc,d)
+        except:
+            print "Impossible to filter"
+        try:
+            self.writeImage(outname,filteredImage,geo,proj)
+        except:
+            print "Impossible to save the output image"
                 
-    def loadImage(self,inimage):
-        im,proj,geo=dataraster.open_data(inimage)
-        return im,proj,geo
+    def loadImage(self,inImage):
+        im,proj,geo=dataraster.open_data(inImage)
+        nl,nc,d=im.shape
+        return im,proj,geo,nl,nc,d
         
-    def writeImage(self,outname,ioimage,geo,proj):
-        dataraster.write_data(outname,ioimage,proj,geo)
+    def writeImage(self,outname,outimage,geo,proj):
+        dataraster.write_data(outname,outimage,proj,geo)
         
-    def greyClose(self,inim,inshape=11):
-        [nl,nc,d]=inim.shape
-        out = sp.empty((nl,nc,d),dtype=inim.dtype.name)
-        for i in range(d):
-            out[:,:,i]=ndimage.morphology.grey_closing(inim[:,:,i],size=(inshape,inshape))
-        return out.astype(inim.dtype.name)
+    def greyClose(self,inIm,out,inShapeGrey=11):
+        out[:,:]=ndimage.morphology.grey_closing(inIm[:,:],size=(inShapeGrey,inShapeGrey))
+        return out.astype(inIm.dtype.name)
     
-    def median(self,inim,inshape=11):
-        [nl,nc,d]=inim.shape
-        out = sp.empty((nl,nc,d),dtype=inim.dtype.name)
+    def median(self,inIm,out,inShapeMedian=11):
+        out[:,:]=ndimage.filters.median_filter(inIm[:,:],size=(inShapeMedian,inShapeMedian))
+        return out.astype(inIm.dtype.name)
+        
+    def filterBand(self,inIm,inShapeGrey,inShapeMedian,nl,nc,d):
+        """
+        Filter band per band with greyClose and median
+        Generate empty table then fill it with greyClose and median filter above it.
+        
+        Input :
+            inIm : the loaded image (array)
+            inShapeGrey : odd number (int)
+            inShapeMedian : odd number (int)
+            nl : number of lines of the table (int)
+            nc : number of columns of the table (int)
+            d : number of dimension (int)
+            
+        Output :
+            out : filtered band (array)
+        """
+        
+        out = sp.empty((nl,nc,d),dtype=inIm.dtype.name)
         for i in range(d):
-            out[:,:,i]=ndimage.filters.median_filter(inim[:,:,i],size=(inshape,inshape))
-        return out.astype(inim.dtype.name)
-       
-
+            greyF=self.greyClose(inIm[:,:,i],out[:,:,i],inShapeGrey)
+            medianF=self.median(greyF,out[:,:,i],inShapeMedian)
+            out[:,:,i]=medianF[:,:]    
+        return out                
+        
 if __name__=='__main__':
     # historicalFilter class
     folder="data/"
     filtering=historicalFilter(folder+'map.tif',folder+'filtered',11,11)
+
     
 
