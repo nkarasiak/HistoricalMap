@@ -7,9 +7,6 @@ import dataraster
 import scipy as sp
 import scipy.ndimage
 
-"""
-
-"""
 im,proj,geo=dataraster.open_data('map.tif')
 [nl,nc,d]=im.shape
 out = sp.empty((nl,nc,d),dtype=im.dtype.name)
@@ -32,35 +29,36 @@ out = sp.empty((nl,nc,d),dtype=im.dtype.name)
 """
 class historicalFilter:    
     
-    def __init__(inimage):
+    def loadImage(self,inimage):
         im,proj,geo=dataraster.open_data(inimage)
         [nl,nc,d]=im.shape
         out = sp.empty((nl,nc,d),dtype=im.dtype.name)
-        return im, proj, geo, out
-        
-    def greyclose(inim,inshape=11):
+        return im,proj,geo,out
+    def writeImage(self,outname,ioimage,geo,proj):
+        dataraster.write_data(outname,ioimage,proj,geo)
+    def greyClose(self,inim,inshape=11):
         for i in range(d):
             out[:,:,i]=sp.ndimage.morphology.grey_closing(inim[:,:,i],size=(inshape,inshape))
         return out.astype(im.dtype.name)
     
-    def median(inim,inshape=11):
+    def median(self,inim,inshape=11):
         for i in range(d):
             out[:,:,i]=sp.ndimage.filters.median_filter(inim[:,:,i],size=(inshape,inshape))
         return out.astype(im.dtype.name)
+
+
+if __name__=='__main__':
+    # Create an instance of historicalFilter class
+    filtering=historicalFilter()
     
-historicalFilter.__init__('map.tif')
-
-#greyclose=greyclose(im)
-
-#medianfilter=median(im)
-#minfilter=minfilter(medianfilter)
-#maxfilter=maxfilter(im)
-#minfilter=minfilter(maxfilter)
-#medianfilter=median(minfilter)
-#greyfilter=greyclose(medianfilter)
-#dataraster.write_data('grey',greyclose,proj,geo)
-#dataraster.write_data('min',medianfilter,proj,geo)
-#median=filtermedian(greyclose)
-
-
-# grey=sp.ndimage.morphology.grey_closing(levelone)
+    # Load map
+    im,proj,geo,imout=filtering.loadImage('map.tif')
+    # Applying grey filter then median filter)
+    greyf=filtering.greyClose(im,11)
+    print 'greyf is done'
+    medianf=filtering.median(greyf,11)
+    print 'medianf is done'
+    
+    # Save filtered image
+    filtering.writeImage('namefiltered',medianf,geo,proj)
+    
