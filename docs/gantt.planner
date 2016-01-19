@@ -1,0 +1,146 @@
+<?xml version="1.0"?>
+<project name="" company="" manager="" phase="" project-start="20160118T000000Z" mrproject-version="2" calendar="1">
+  <properties/>
+  <phases/>
+  <calendars>
+    <day-types>
+      <day-type id="0" name="Travaill&#xE9;" description="Un jour de travail normal"/>
+      <day-type id="1" name="Ch&#xF4;m&#xE9;" description="Un jour ch&#xF4;m&#xE9; normal"/>
+      <day-type id="2" name="Utiliser la base" description="Utilise un jour du calendrier de base"/>
+    </day-types>
+    <calendar id="1" name="D&#xE9;faut">
+      <default-week mon="0" tue="0" wed="0" thu="0" fri="0" sat="1" sun="1"/>
+      <overridden-day-types>
+        <overridden-day-type id="0">
+          <interval start="0800" end="1200"/>
+          <interval start="1300" end="1700"/>
+        </overridden-day-type>
+      </overridden-day-types>
+      <days/>
+    </calendar>
+  </calendars>
+  <tasks>
+    <task id="1" name="Premi&#xE8;re approche du projet" note="" work="136800" start="20160118T000000Z" end="20160120T170000Z" work-start="20160118T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+      <task id="2" name="Documentation des filtres sur Scipy" note="" work="14400" start="20160119T000000Z" end="20160119T120000Z" work-start="20160119T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+        <constraint type="start-no-earlier-than" time="20160119T000000Z"/>
+      </task>
+      <task id="3" name="Cr&#xE9;ation d'un prototype UML" note="" work="10800" start="20160118T000000Z" end="20160118T110000Z" work-start="20160118T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="4" name="Cr&#xE9;ation d'un prototype GANTT" note="" work="10800" start="20160118T000000Z" end="20160118T110000Z" work-start="20160118T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="5" name="Cr&#xE9;ation et installation du d&#xE9;p&#xF4;t GitHub" note="" work="14400" start="20160119T000000Z" end="20160119T120000Z" work-start="20160119T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+        <constraint type="must-start-on" time="20160119T000000Z"/>
+      </task>
+      <task id="6" name="Documentation et prise en main g&#xE9;n&#xE9;rale" note="" work="86400" duration="86400" start="20160118T000000Z" end="20160120T170000Z" work-start="20160118T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-duration"/>
+    </task>
+    <task id="7" name="Programmation" note="" work="748800" start="20160120T170000Z" end="20160208T170000Z" work-start="20160121T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+      <task id="8" name="Adaptation d'Historical Map &#xE0; Python" note="" work="460800" start="20160120T170000Z" end="20160201T170000Z" work-start="20160121T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+        <task id="9" name="Filtrage" note="" work="57600" start="20160120T170000Z" end="20160122T170000Z" work-start="20160121T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+          <predecessors>
+            <predecessor id="1" predecessor-id="1" type="FS"/>
+          </predecessors>
+        </task>
+        <task id="10" name="Apprentissage" note="" work="201600" start="20160120T170000Z" end="20160129T170000Z" work-start="20160121T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+          <predecessors>
+            <predecessor id="1" predecessor-id="1" type="FS"/>
+          </predecessors>
+        </task>
+        <task id="11" name="Classification" note="" work="201600" duration="172800" start="20160122T170000Z" end="20160201T170000Z" work-start="20160125T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-duration">
+          <constraint type="start-no-earlier-than" time="20160118T000000Z"/>
+          <predecessors>
+            <predecessor id="1" predecessor-id="9" type="FS"/>
+          </predecessors>
+        </task>
+      </task>
+      <task id="12" name="Test et correction du code Python" note="" work="288000" start="20160201T170000Z" end="20160208T170000Z" work-start="20160202T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+        <constraint type="start-no-earlier-than" time="20160126T000000Z"/>
+        <predecessors>
+          <predecessor id="1" predecessor-id="11" type="FS"/>
+        </predecessors>
+      </task>
+    </task>
+    <task id="13" name="Interface Qgis" note="" work="288000" duration="432000" start="20160122T170000Z" end="20160212T170000Z" work-start="20160125T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-duration">
+      <task id="14" name="Prototype d'interface" note="" work="57600" duration="28800" start="20160122T170000Z" end="20160125T170000Z" work-start="20160125T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-duration">
+        <predecessors>
+          <predecessor id="1" predecessor-id="9" type="FS"/>
+          <predecessor id="1" predecessor-id="1" type="FS"/>
+        </predecessors>
+      </task>
+      <task id="15" name="Cr&#xE9;ation du plugin" note="" work="230400" start="20160208T170000Z" end="20160212T170000Z" work-start="20160209T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+        <predecessors>
+          <predecessor id="1" predecessor-id="12" type="FS"/>
+          <predecessor id="1" predecessor-id="14" type="FS"/>
+        </predecessors>
+      </task>
+    </task>
+    <task id="16" name="R&#xE9;daction du rapport" note="" work="187200" start="20160122T000000Z" end="20160219T100000Z" work-start="20160122T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+      <task id="17" name="R&#xE9;daction du rapport" note="" work="172800" duration="576000" start="20160122T000000Z" end="20160218T170000Z" work-start="20160122T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-duration">
+        <constraint type="must-start-on" time="20160122T000000Z"/>
+      </task>
+      <task id="18" name="Relecture" note="" work="14400" start="20160218T170000Z" end="20160219T100000Z" work-start="20160219T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+        <constraint type="start-no-earlier-than" time="20160118T000000Z"/>
+        <predecessors>
+          <predecessor id="1" predecessor-id="17" type="FS"/>
+        </predecessors>
+      </task>
+    </task>
+    <task id="19" name="Pr&#xE9;paration Oral" note="" work="28800" start="20160222T000000Z" end="20160222T120000Z" work-start="20160222T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+      <task id="20" name="Powerpoint" note="" work="18000" start="20160222T000000Z" end="20160222T103000Z" work-start="20160222T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+        <constraint type="must-start-on" time="20160222T000000Z"/>
+      </task>
+      <task id="21" name="R&#xE9;p&#xE9;titions" note="" work="10800" start="20160222T103000Z" end="20160222T120000Z" work-start="20160222T103000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+        <predecessors>
+          <predecessor id="1" predecessor-id="20" type="FS"/>
+        </predecessors>
+      </task>
+    </task>
+    <task id="22" name="Test, correction, validation" note="" work="316800" duration="144000" start="20160212T170000Z" end="20160219T170000Z" work-start="20160215T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-duration">
+      <predecessors>
+        <predecessor id="1" predecessor-id="13" type="FS"/>
+      </predecessors>
+      <task id="23" name="Test" note="" work="28800" start="20160212T170000Z" end="20160215T170000Z" work-start="20160215T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="24" name="Correction" note="" work="288000" duration="144000" start="20160212T170000Z" end="20160219T170000Z" work-start="20160215T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-duration">
+        <predecessors>
+          <predecessor id="1" predecessor-id="1" type="FS"/>
+        </predecessors>
+      </task>
+    </task>
+  </tasks>
+  <resource-groups/>
+  <resources>
+    <resource id="1" name="Antoine" short-name="" type="1" units="0" email="" note="" std-rate="0"/>
+    <resource id="2" name="Nicolas" short-name="" type="1" units="0" email="" note="" std-rate="0"/>
+  </resources>
+  <allocations>
+    <allocation task-id="14" resource-id="1" units="100"/>
+    <allocation task-id="24" resource-id="1" units="100"/>
+    <allocation task-id="22" resource-id="1" units="50"/>
+    <allocation task-id="6" resource-id="1" units="50"/>
+    <allocation task-id="15" resource-id="1" units="100"/>
+    <allocation task-id="21" resource-id="1" units="100"/>
+    <allocation task-id="20" resource-id="1" units="100"/>
+    <allocation task-id="11" resource-id="1" units="58"/>
+    <allocation task-id="9" resource-id="1" units="100"/>
+    <allocation task-id="12" resource-id="1" units="100"/>
+    <allocation task-id="2" resource-id="1" units="100"/>
+    <allocation task-id="3" resource-id="1" units="100"/>
+    <allocation task-id="18" resource-id="1" units="100"/>
+    <allocation task-id="13" resource-id="1" units="13"/>
+    <allocation task-id="17" resource-id="1" units="15"/>
+    <allocation task-id="16" resource-id="1" units="100"/>
+    <allocation task-id="24" resource-id="2" units="100"/>
+    <allocation task-id="22" resource-id="2" units="50"/>
+    <allocation task-id="6" resource-id="2" units="50"/>
+    <allocation task-id="14" resource-id="2" units="100"/>
+    <allocation task-id="15" resource-id="2" units="100"/>
+    <allocation task-id="21" resource-id="2" units="100"/>
+    <allocation task-id="20" resource-id="2" units="100"/>
+    <allocation task-id="11" resource-id="2" units="58"/>
+    <allocation task-id="10" resource-id="2" units="100"/>
+    <allocation task-id="12" resource-id="2" units="100"/>
+    <allocation task-id="5" resource-id="2" units="100"/>
+    <allocation task-id="4" resource-id="2" units="100"/>
+    <allocation task-id="18" resource-id="2" units="100"/>
+    <allocation task-id="13" resource-id="2" units="13"/>
+    <allocation task-id="17" resource-id="2" units="15"/>
+    <allocation task-id="16" resource-id="2" units="100"/>
+  </allocations>
+</project>
