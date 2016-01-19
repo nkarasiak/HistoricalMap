@@ -45,20 +45,27 @@ class historicalFilter:
         for i in range(d):
             out[:,:,i]=sp.ndimage.filters.median_filter(inim[:,:,i],size=(inshape,inshape))
         return out.astype(im.dtype.name)
+    def filtersAndSave(self,inimage,outname,inshapegrey,inshapemedian):
+        im,proj,geo,imout=self.loadImage(inimage)
+        greyf=self.greyClose(im,inshapegrey)
+        medianf=self.median(greyf,inshapemedian)
+        self.writeImage(outname,medianf,geo,proj)
+        
 
 
 if __name__=='__main__':
     # Create an instance of historicalFilter class
     filtering=historicalFilter()
     
+    filtering.filtersAndSave('map.tif','filtered',11,11)
     # Load map
-    im,proj,geo,imout=filtering.loadImage('map.tif')
+    #im,proj,geo,imout=filtering.loadImage('map.tif')
     # Applying grey filter then median filter)
-    greyf=filtering.greyClose(im,11)
-    print 'greyf is done'
-    medianf=filtering.median(greyf,11)
-    print 'medianf is done'
+    #greyf=filtering.greyClose(im,11)
+    #print 'greyf is done'
+    #medianf=filtering.median(greyf,11)
+    #print 'medianf is done'
     
     # Save filtered image
-    filtering.writeImage('namefiltered',medianf,geo,proj)
+    #filtering.writeImage('namefiltered',medianf,geo,proj)
     
