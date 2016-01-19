@@ -4,14 +4,14 @@
 
 """
 
-import dataraster
+import openraster
 import scipy as sp
 import scipy.ndimage
 
 """
 
 """
-im,proj,geo=dataraster.open_data('map.tif')
+im,proj,geo=openraster.open_data('map.tif')
 [nl,nc,d]=im.shape
 out = sp.empty((nl,nc,d),dtype=im.dtype.name)
 
@@ -59,8 +59,8 @@ maxfilter=maxfilter(im)
 minfilter=minfilter(maxfilter)
 medianfilter=median(minfilter)
 #greyfilter=greyclose(medianfilter)
-#dataraster.write_data('grey',greyclose,proj,geo)
-dataraster.write_data('min',medianfilter,proj,geo)
+#openraster.write_data('grey',greyclose,proj,geo)
+openraster.write_data('min',medianfilter,proj,geo)
 #median=filtermedian(greyclose)
 
 
