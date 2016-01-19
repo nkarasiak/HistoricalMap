@@ -5,7 +5,7 @@
 
 import dataraster
 import scipy as sp
-import scipy.ndimage
+from scipy import ndimage
 
 
 """
@@ -41,19 +41,20 @@ class historicalFilter:
         [nl,nc,d]=inim.shape
         out = sp.empty((nl,nc,d),dtype=inim.dtype.name)
         for i in range(d):
-            out[:,:,i]=sp.ndimage.morphology.grey_closing(inim[:,:,i],size=(inshape,inshape))
+            out[:,:,i]=ndimage.morphology.grey_closing(inim[:,:,i],size=(inshape,inshape))
         return out.astype(inim.dtype.name)
     
     def median(self,inim,inshape=11):
         [nl,nc,d]=inim.shape
         out = sp.empty((nl,nc,d),dtype=inim.dtype.name)
         for i in range(d):
-            out[:,:,i]=sp.ndimage.filters.median_filter(inim[:,:,i],size=(inshape,inshape))
+            out[:,:,i]=ndimage.filters.median_filter(inim[:,:,i],size=(inshape,inshape))
         return out.astype(inim.dtype.name)
        
 
 if __name__=='__main__':
     # historicalFilter class
-    filtering=historicalFilter('data/map.tif','filtered',11,11)
+    folder="data/"
+    filtering=historicalFilter(folder+'map.tif',folder+'filtered',11,11)
     
 
