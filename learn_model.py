@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import scipy as sp
-import function_data_raster as funraster
+import dataraster as funraster
 import argparse
 import os
 import accuracy_index as ai
