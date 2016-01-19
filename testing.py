@@ -8,16 +8,15 @@ import scipy as sp
 import scipy.ndimage
 
 
+
 """
   Filter class to isolate the forest and delete dark lines/fonts above.
 
 
-  Input :
+  ATTRIBUTES :
     inmin : image to filter
     inshape: shape of the convolution matrix used
     
-  Output :
-  
   METHODS :
     filtergreyclose()
     filtermedian()
@@ -53,7 +52,7 @@ class historicalFilter:
        
 
 if __name__=='__main__':
-    # historicalFilter class
-    filtering=historicalFilter('data/map.tif','filtered',11,11)
+    # Create an instance of historicalFilter class
+    filtering=historicalFilter('map.tif','filtered',11,11)
     
 

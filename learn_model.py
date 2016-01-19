@@ -8,6 +8,7 @@ import accuracy_index as ai
 import pickle
 import tempfile
 import gmm_ridge as gmmr
+from osgeo import gdal
 from sklearn import neighbors
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
@@ -59,9 +60,14 @@ if __name__=='__main__':
     # Convert vector to raster
     temp_folder = tempfile.mkdtemp()
     filename = os.path.join(temp_folder, 'temp.tif') 
+    """Old version using OTB 
     OTB_application = 'otbcli_Rasterization -in '+args.in_layer+' -out '+filename+' uint8 -im '+args.in_raster+' -mode attribute -mode.attribute.field '+args.field
     os.system(OTB_application)
-
+    """
+    # New conversion with GDAL
+    GDAL_rasterize = 'gdal.RasterizeLayer(' +args.in_layer+',[1],'+filename+', None, None, [1],[\'ALL_TOUCHED=TRUE\'])'
+    os.system(GDAL_rasterize)
+    
     # Load Training set
     X,Y =  funraster.get_samples_from_roi(args.in_raster,filename)
     [n,d] = X.shape
