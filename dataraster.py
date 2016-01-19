@@ -55,58 +55,6 @@ def open_data(filename):
     data = None
     return im,GeoTransform,Projection
 
-def open_data_ndvi(filename,R=3,IR=4):
-    '''
-    The function open and load the image given its name. 
-    The type of the data is checked from the file and the scipy array is initialized accordingly.
-    Input:
-        filename: the name of the file
-    Output:
-        im: the data cube
-        GeoTransform: the geotransform information 
-        Projection: the projection information
-    '''
-    data = gdal.Open(filename,gdal.GA_ReadOnly)
-    if data is None:
-        print 'Impossible to open '+filename
-        exit()
-    nc = data.RasterXSize
-    nl = data.RasterYSize
-    d  = 2
-    
-    # Get the type of the data
-    gdal_dt = data.GetRasterBand(1).DataType
-    if gdal_dt == gdal.GDT_Byte:
-        dt = 'uint8'
-    elif gdal_dt == gdal.GDT_Int16:
-        dt = 'int16'
-    elif gdal_dt == gdal.GDT_UInt16:
-        dt = 'uint16'
-    elif gdal_dt == gdal.GDT_Int32:
-        dt = 'int32'
-    elif gdal_dt == gdal.GDT_UInt32:
-        dt = 'uint32'
-    elif gdal_dt == gdal.GDT_Float32:
-        dt = 'float32'
-    elif gdal_dt == gdal.GDT_Float64:
-        dt = 'float64'
-    elif gdal_dt == gdal.GDT_CInt16 or gdal_dt == gdal.GDT_CInt32 or gdal_dt == gdal.GDT_CFloat32 or gdal_dt == gdal.GDT_CFloat64 :
-        dt = 'complex64'
-    else:
-        print 'Data type unkown'
-        exit()
-    
-    # Initialize the array
-    im = sp.empty((nl,nc,d),dtype=dt) 
-    
-    im[:,:,0]=data.GetRasterBand(R).ReadAsArray()
-    im[:,:,1]=data.GetRasterBand(IR).ReadAsArray()
-    
-    GeoTransform = data.GetGeoTransform()
-    Projection = data.GetProjection()
-    data = None
-    return im,GeoTransform,Projection
-
 def write_data(outname,im,GeoTransform,Projection):
     '''
     The function write the image on the  hard drive.
