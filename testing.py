@@ -6,7 +6,7 @@
 import dataraster
 import scipy as sp
 import scipy.ndimage
-
+import time
 
 
 """
@@ -53,6 +53,9 @@ class historicalFilter:
 
 if __name__=='__main__':
     # Create an instance of historicalFilter class
-    filtering=historicalFilter('map.tif','filtered',11,11)
+    t1=time.clock()
+    filtering=historicalFilter('data/minGeoDec1.tif','data/minGeoDec1_filtered.tif',11,11)
+    t2=time.clock()
+    print t2-t1
     
 
