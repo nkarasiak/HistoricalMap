@@ -6,7 +6,7 @@
 import dataraster
 import scipy as sp
 from scipy import ndimage
-
+import time
 
 """
   Filter class to isolate the forest and delete dark lines/fonts above.
@@ -88,7 +88,11 @@ class historicalFilter:
 if __name__=='__main__':
     # historicalFilter class
     folder="data/"
+    t1=time.clock()
     filtering=historicalFilter(folder+'map.tif',folder+'filtered',11,11)
+    t2=time.clock()
+    resultat=t2-t1
+    print resultat
 
     
 
