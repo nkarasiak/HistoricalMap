@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 """
+HistoricalMap Plugin for Qgis
+Made by Nicolas Karasiak and Antoine Lomellini
+...
+...
 
 """
 
@@ -9,41 +13,31 @@ from scipy import ndimage
 import time
 
 """
-  Filter class to isolate the forest and delete dark lines and fonts.
+  Filter class to isolate the forest and delete dark lines and fonts from historical map
 
   Input :
-    inmin : image to filter
-    inshape: shape of the convolution matrix used
+    inmImage : image to filter (text.jpg, text.tif...)
+    outName : outname name of the filtered file (text)
+    inShapeGrey : Size for the grey closing convolution matrix (odd number, int)
+    inShapeMedian : Size for the median convolution matrix (odd  number, int)
     
   Output :
-  
-  METHODS :
-    filtergreyclose()
-    filtermedian()
+    New filtered file
     
 """
 class historicalFilter:    
     def __init__(self, inImage,outName,inShapeGrey,inShapeMedian):
-        """
-        Initialize the historicalFilter class
-        
-        Given imagename, loads it, filter each band with greyfilter then medianfilter then save it as outname
-        
-        Input :
-            inImage : 
-            outName : 
-            inShapeGrey : 
-            inShapeMedian : 
-        Output :
-        """
+        # Try to load the image with dataraster.py (loadImage function)
         try:
             im,proj,geo,nl,nc,d=self.loadImage(inImage)
         except:
             print "Impossible to load the image"
+        # Filter band per band using greyclosing and median filter
         try:
             filteredImage=self.filterBand(im,inShapeGrey,inShapeMedian,nl,nc,d)
         except:
             print "Impossible to filter"
+        # Saving file
         try:
             self.writeImage(outName,filteredImage,geo,proj)
         except:
@@ -55,29 +49,47 @@ class historicalFilter:
         It makes a scipy array (im), give the projection, the geotransform and basics shape (nl,nc,d)
         
         Input : 
-            inImage : tif...
+            inImage : map.tif...
         
         Output : 
-            im : image as array
+            im : image as array (array)
             proj : the projection information
             geo : the geotransform information
-            nl : number of lines
-            nc :  number of columns
-            d : number of dimension
+            nl : number of lines (int)
+            nc :  number of columns (int)
+            d : number of dimension (int)
             
         """
         im,proj,geo=dataraster.open_data(inImage)
         nl,nc,d=im.shape
-        return im,proj,geo,nl,nc,d
+        return im,geo,proj,nl,nc,d
         
-    def writeImage(self,outname,outimage,geo,proj):
-        dataraster.write_data(outname,outimage,proj,geo)
+    def writeImage(self,outName,inImage,geo,proj):
+        """
+        Save the filtered array as an image
+        
+        Input :
+            outName : Name of the output file
+            inImage : Image to save
+            geo : the geotransform information
+            proj : the projection information
+            
+        Output :
+            No return, but write image
+        """
+        dataraster.write_data(outName,inImage,geo,proj)
         
     def greyClose(self,inIm,out,inShapeGrey=11):
+        """
+        Perfom GreyClosing filter with square size as inShapeGrey, default is 11.
+        """
         out[:,:]=ndimage.morphology.grey_closing(inIm[:,:],size=(inShapeGrey,inShapeGrey))
         return out.astype(inIm.dtype.name)
     
     def median(self,inIm,out,inShapeMedian=11):
+        """
+        Perfom median filter with square size as inShapeMedian, default is 11.
+        """
         out[:,:]=ndimage.filters.median_filter(inIm[:,:],size=(inShapeMedian,inShapeMedian))
         return out.astype(inIm.dtype.name)
         
@@ -112,7 +124,7 @@ if __name__=='__main__':
     folder="data/"
     file="map.tif"
     t1=time.clock()
-    filtering=historicalFilter(folder+file,folder+file+'_filtered.tif',11,11)
+    filtering=historicalFilter(folder+file,folder+'new_filtered.tif',11,11)
     t2=time.clock()
     print t2-t1,'seconds'
 
