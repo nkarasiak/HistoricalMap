@@ -9,8 +9,7 @@ from scipy import ndimage
 import time
 
 """
-  Filter class to isolate the forest and delete dark lines/fonts above.
-
+  Filter class to isolate the forest and delete dark lines and fonts.
 
   Input :
     inmin : image to filter
@@ -21,21 +20,17 @@ import time
   METHODS :
     filtergreyclose()
     filtermedian()
-
+    
 """
 class historicalFilter:    
     def __init__(self, inImage,outname,inShapeGrey,inShapeMedian):
+        """
+        
+        """
         try:
             im,proj,geo,nl,nc,d=self.loadImage(inImage)
         except:
             print "Impossible to load the image"
-#        try:
-#            out = sp.empty((nl,nc,d),dtype=im.dtype.name)            
-#        except:
-#            print "Impossible to create empty table"
-        
-#        greyf=self.greyClose(im,inShapeGrey)
-#        medianf=self.median(greyf,inShapeMedian)
         try:
             filteredImage=self.filterBand(im,inShapeGrey,inShapeMedian,nl,nc,d)
         except:
@@ -46,6 +41,22 @@ class historicalFilter:
             print "Impossible to save the output image"
                 
     def loadImage(self,inImage):
+        """
+        This function loads the image given its name.
+        It makes a scipy array (im), give the projection, the geotransform and basics shape (nl,nc,d)
+        
+        Input : 
+            inImage : tif...
+        
+        Output : 
+            im : image as array
+            proj : the projection information
+            geo : the geotransform information
+            nl : number of lines
+            nc :  number of columns
+            d : number of dimension
+            
+        """
         im,proj,geo=dataraster.open_data(inImage)
         nl,nc,d=im.shape
         return im,proj,geo,nl,nc,d
@@ -77,21 +88,24 @@ class historicalFilter:
         Output :
             out : filtered band (array)
         """
-        
-        out = sp.empty((nl,nc,d),dtype=inIm.dtype.name)
+        try:
+            out = sp.empty((nl,nc,d),dtype=inIm.dtype.name)
+        except:
+            print "Can't create empty table"    
         for i in range(d):
             greyF=self.greyClose(inIm[:,:,i],out[:,:,i],inShapeGrey)
             medianF=self.median(greyF,out[:,:,i],inShapeMedian)
-            out[:,:,i]=medianF[:,:]    
+            out[:,:,i]=medianF[:,:]
         return out                
         
 if __name__=='__main__':
     # historicalFilter class
     folder="data/"
+    file="map.tif"
     t1=time.clock()
-    filtering=historicalFilter(folder+'map.tif',folder+'filtered',11,11)
+    filtering=historicalFilter(folder+file,folder+file,11,11)
     t2=time.clock()
-    print t2-t1
+    print t2-t1,'seconds'
 
     
 
