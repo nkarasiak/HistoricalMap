@@ -23,9 +23,18 @@ import time
     
 """
 class historicalFilter:    
-    def __init__(self, inImage,outname,inShapeGrey,inShapeMedian):
+    def __init__(self, inImage,outName,inShapeGrey,inShapeMedian):
         """
+        Initialize the historicalFilter class
         
+        Given imagename, loads it, filter each band with greyfilter then medianfilter then save it as outname
+        
+        Input :
+            inImage : 
+            outName : 
+            inShapeGrey : 
+            inShapeMedian : 
+        Output :
         """
         try:
             im,proj,geo,nl,nc,d=self.loadImage(inImage)
@@ -36,7 +45,7 @@ class historicalFilter:
         except:
             print "Impossible to filter"
         try:
-            self.writeImage(outname,filteredImage,geo,proj)
+            self.writeImage(outName,filteredImage,geo,proj)
         except:
             print "Impossible to save the output image"
                 
@@ -103,7 +112,7 @@ if __name__=='__main__':
     folder="data/"
     file="map.tif"
     t1=time.clock()
-    filtering=historicalFilter(folder+file,folder+file,11,11)
+    filtering=historicalFilter(folder+file,folder+file+'_filtered.tif',11,11)
     t2=time.clock()
     print t2-t1,'seconds'
 
