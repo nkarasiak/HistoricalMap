@@ -1,19 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import scipy as sp
-import dataraster as funraster
+import function_data_raster as funraster
 import argparse
 import os
 import accuracy_index as ai
 import pickle
 import tempfile
 import gmm_ridge as gmmr
-from osgeo import gdal
 from sklearn import neighbors
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.cross_validation import StratifiedKFold
 from sklearn.grid_search import GridSearchCV
+from osgeo import ogr,gdal
 
 # Scale function
 def scale(x,M=None,m=None):
@@ -47,10 +47,10 @@ def scale(x,M=None,m=None):
 
 if __name__=='__main__':
     # Initiliaze parser
-    parser = argparse.ArgumentParser(description="Train a fixed hierarchical classifier on a given remote sensing image")
+    parser = argparse.ArgumentParser(description="Train a classifier on a given remote sensing image")
     parser.add_argument("-in_raster",help="Raster image to be classifier",type=str)
     parser.add_argument("-in_layer",help="Vector file containing the label",type=str)
-    parser.add_argument("-field",help="Name of the field containing the class information",type=str,choices=['Level1','Level2','Level3'],default='Level1')
+    parser.add_argument("-field",help="Name of the field containing the class information",type=str,default='Class')
     parser.add_argument("-split",help="Amount in percentage of the validation samples that are used for training",type=float,default=0.5)
     parser.add_argument("-seed",help="Set the random generetor to a given state",type=int,default=0)
     parser.add_argument("-model",help="Filename of the model. Not save per default",type=str,default=None)
@@ -59,14 +59,21 @@ if __name__=='__main__':
 
     # Convert vector to raster
     temp_folder = tempfile.mkdtemp()
-    filename = os.path.join(temp_folder, 'temp.tif') 
-    """Old version using OTB 
-    OTB_application = 'otbcli_Rasterization -in '+args.in_layer+' -out '+filename+' uint8 -im '+args.in_raster+' -mode attribute -mode.attribute.field '+args.field
-    os.system(OTB_application)
-    """
-    # New conversion with GDAL
-    GDAL_rasterize = 'gdal.RasterizeLayer(' +args.in_layer+',[1],'+filename+', None, None, [1],[\'ALL_TOUCHED=TRUE\'])'
-    os.system(GDAL_rasterize)
+    filename = os.path.join(temp_folder, 'temp.tif')
+    
+    data = gdal.Open(args.in_raster,gdal.GA_ReadOnly)
+    shp = ogr.Open(args.in_layer)
+    lyr = shp.GetLayer()
+    
+    # Create temporary data set
+    driver = gdal.GetDriverByName('GTiff')
+    dst_ds = driver.Create(filename,data.RasterXSize,data.RasterYSize, 1,gdal.GDT_Byte)
+    dst_ds.SetGeoTransform(data.GetGeoTransform())
+    dst_ds.SetProjection(data.GetProjection())
+    OPTIONS = 'ATTRIBUTE='+args.field
+    gdal.RasterizeLayer(dst_ds, [1], lyr, None,options=[OPTIONS])
+
+    data,dst_ds,shp,lyt=None,None,None,None
     
     # Load Training set
     X,Y =  funraster.get_samples_from_roi(args.in_raster,filename)
