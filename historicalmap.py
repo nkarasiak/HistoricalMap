@@ -34,8 +34,8 @@ class historicalFilter:
 #        except:
 #            print "Impossible to create empty table"
         
-#        greyf=self.greyClose(im,inShapeGrey)
-#        medianf=self.median(greyf,inShapeMedian)
+        greyf=self.greyClose(im,inShapeGrey)
+        medianf=self.median(greyf,inShapeMedian)
         try:
             filteredImage=self.filterBand(im,inShapeGrey,inShapeMedian,nl,nc,d)
         except:
