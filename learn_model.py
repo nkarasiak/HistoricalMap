@@ -39,7 +39,7 @@ def scale(x,M=None,m=None):
     den = M-m
     for i in range(d):
         if den[i] != 0:
-            xs[:,i] = (2*(x[:,i]-M[i])/den[i])+1
+            xs[:,i] = 2*(x[:,i]-m[i])/den[i]-1
         else:
             xs[:,i]=x[:,i]
 
@@ -66,7 +66,7 @@ def train(inRaster,inVector,inField,inSplit,inSeed,inModel,inClassifier):
     data = gdal.Open(inRaster,gdal.GA_ReadOnly)
     shp = ogr.Open(inVector)
     lyr = shp.GetLayer()
-  
+
     # Create temporary data set
     driver = gdal.GetDriverByName('GTiff')
     dst_ds = driver.Create(filename,data.RasterXSize,data.RasterYSize, 1,gdal.GDT_Byte)
@@ -75,9 +75,11 @@ def train(inRaster,inVector,inField,inSplit,inSeed,inModel,inClassifier):
     OPTIONS = 'ATTRIBUTE='+inField
     gdal.RasterizeLayer(dst_ds, [1], lyr, None,options=[OPTIONS])
     data,dst_ds,shp,lyr=None,None,None,None
+
     
     # Load Training set
     X,Y =  dataraster.get_samples_from_roi(inRaster,filename)
+    
     [n,d] = X.shape
     C = int(Y.max())
     SPLIT = inSplit
@@ -110,11 +112,11 @@ def train(inRaster,inVector,inField,inSplit,inSeed,inModel,inClassifier):
 
     # Train Classifier
     if inClassifier == 'GMM':
-        tau=10.0**sp.arange(-8,8,0.5)
+        # tau=10.0**sp.arange(-8,8,0.5)
         model = gmmr.GMMR()
         model.learn(x,y)
-        htau,err = model.cross_validation(x,y,tau)
-        model.tau = htau
+        # htau,err = model.cross_validation(x,y,tau)
+        # model.tau = htau
     elif inClassifier == 'RF':
         param_grid_rf = dict(n_estimators=5**sp.arange(1,5),max_features=sp.arange(1,int(sp.sqrt(d))+10,2))
         y.shape=(y.size,)    
@@ -158,4 +160,5 @@ def train(inRaster,inVector,inField,inSplit,inSeed,inModel,inClassifier):
         output.close()
 
 if __name__=='__main__':
-    train('data/map_filtered.tif','data/forestShape.shp','type',0.5,0,None,'GMM')
+    train('data/minGeoDec1.tif','data/ROI_m.shp','Class',0.5,0,None,'GMM')
+    # train('/home/sigma/Bureau/test/fabas_12_10_2013.tif','/home/sigma/Bureau/test/ref_fabas.shp','Class',0.5,0,None,'GMM')
