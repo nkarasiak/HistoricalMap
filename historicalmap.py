@@ -97,16 +97,19 @@ class historicalFilter:
                 print 'Cannot save band '+i+' on image '+outName
         
 
+"""
 class learnParcel(inRaster,inVector,inField,inClassifier,inModel,inSplit,inSeed):
-    def __init__:
-        
-        
-    def :
-def learn(inRaster,inVector,inField,inClassifier,inModel,inSplit,inSeed):
+    def __init__(self):
+    print 'nothing'        
+
+    def learn(inRaster,inVector,inField,inClassifier,inModel,inSplit,inSeed):
     learn_model.train('data/minGeoDec1.tif','data/ROI_m.shp','type')
+    
+"""    
+    
 if __name__=='__main__':
     # get inFile (data/map) and inExtension (.tif)
-    inFile,inExtension = os.path.splitext('../projet/test/map.tif')
+    inFile,inExtension = os.path.splitext('data/map.tif')
     
     t1=time.clock()
     filtering=historicalFilter(inFile+inExtension,inFile+'_filtered'+inExtension,11 ,11)

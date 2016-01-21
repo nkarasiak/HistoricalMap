@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import scipy as sp
-import dataraster
+import function_data_raster as dataraster
 import argparse
 import os
 import accuracy_index as ai
@@ -57,7 +57,7 @@ def scale(x,M=None,m=None):
 #    parser.add_argument("-classifier",help="Classifier type",type=str,default='GMM',choices=['GMM','SVM','RF','KNN'])
 #    args = parser.parse_args()
 
-def train(inRaster,inVector,inField,inSplit=0.5,inSeed=0,inModel=None,inClassifier='GMM'):
+def train(inRaster,inVector,inField,inSplit,inSeed,inModel,inClassifier):
     
     # Convert vector to raster
     temp_folder = tempfile.mkdtemp()
@@ -158,4 +158,4 @@ def train(inRaster,inVector,inField,inSplit=0.5,inSeed=0,inModel=None,inClassifi
         output.close()
 
 if __name__=='__main__':
-    train('data/minGeoDec1.tif','data/ROI_mFusion.shp','type')
+    train('data/map_filtered.tif','data/forestShape.shp','type',0.5,0,None,'GMM')
