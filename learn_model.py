@@ -45,24 +45,26 @@ def scale(x,M=None,m=None):
 
     return xs,M,m
 
-if __name__=='__main__':
-    # Initiliaze parser
-    parser = argparse.ArgumentParser(description="Train a classifier on a given remote sensing image")
-    parser.add_argument("-in_raster",help="Raster image to be classifier",type=str)
-    parser.add_argument("-in_layer",help="Vector file containing the label",type=str)
-    parser.add_argument("-field",help="Name of the field containing the class information",type=str,default='Class')
-    parser.add_argument("-split",help="Amount in percentage of the validation samples that are used for training",type=float,default=0.5)
-    parser.add_argument("-seed",help="Set the random generetor to a given state",type=int,default=0)
-    parser.add_argument("-model",help="Filename of the model. Not save per default",type=str,default=None)
-    parser.add_argument("-classifier",help="Classifier type",type=str,default='GMM',choices=['GMM','SVM','RF','KNN'])
-    args = parser.parse_args()
+#if __name__=='__main__':
+#    # Initiliaze parser
+#    parser = argparse.ArgumentParser(description="Train a classifier on a given remote sensing image")
+#    parser.add_argument("-in_raster",help="Raster image to be classifier",type=str)
+#    parser.add_argument("-in_layer",help="Vector file containing the label",type=str)
+#    parser.add_argument("-field",help="Na    e class information",type=str,default='Class')
+#    parser.add_argument("-split",help="Amount in percentage of the validation samples that are used for training",type=float,default=0.5)
+#    parser.add_argument("-seed",help="Set the random generetor to a given state",type=int,default=0)
+#    parser.add_argument("-model",help="Filename of the model. Not save per default",type=str,default=None)
+#    parser.add_argument("-classifier",help="Classifier type",type=str,default='GMM',choices=['GMM','SVM','RF','KNN'])
+#    args = parser.parse_args()
 
+def train(inRaster,inVector,inField,inSplit=0.5,inSeed=0,inModel=None,inClassifier='GMM'):
+    
     # Convert vector to raster
     temp_folder = tempfile.mkdtemp()
     filename = os.path.join(temp_folder, 'temp.tif')
     
-    data = gdal.Open(args.in_raster,gdal.GA_ReadOnly)
-    shp = ogr.Open(args.in_layer)
+    data = gdal.Open(inRaster,gdal.GA_ReadOnly)
+    shp = ogr.Open(inVector)
     lyr = shp.GetLayer()
   
     # Create temporary data set
@@ -70,15 +72,15 @@ if __name__=='__main__':
     dst_ds = driver.Create(filename,data.RasterXSize,data.RasterYSize, 1,gdal.GDT_Byte)
     dst_ds.SetGeoTransform(data.GetGeoTransform())
     dst_ds.SetProjection(data.GetProjection())
-    OPTIONS = 'ATTRIBUTE='+args.field
-    nana=gdal.RasterizeLayer(dst_ds, [1], lyr, None,options=[OPTIONS])
-    data,dst_ds,shp,lyt=None,None,None,None
+    OPTIONS = 'ATTRIBUTE='+inField
+    gdal.RasterizeLayer(dst_ds, [1], lyr, None,options=[OPTIONS])
+    data,dst_ds,shp,lyr=None,None,None,None
     
     # Load Training set
-    X,Y =  dataraster.get_samples_from_roi(args.in_raster,filename)
+    X,Y =  dataraster.get_samples_from_roi(inRaster,filename)
     [n,d] = X.shape
     C = int(Y.max())
-    SPLIT = args.split
+    SPLIT = inSplit
     os.remove(filename)
     os.rmdir(temp_folder)
     
@@ -93,7 +95,7 @@ if __name__=='__main__':
         xt = sp.array([]).reshape(0,d)
         yt = sp.array([]).reshape(0,1)
         
-        sp.random.seed(args.seed) # Set the random generator state
+        sp.random.seed(inSeed) # Set the random generator state
         for i in range(C):            
             t = sp.where((i+1)==Y)[0]
             nc = t.size
@@ -107,13 +109,13 @@ if __name__=='__main__':
         x,y=X,Y
 
     # Train Classifier
-    if args.classifier == 'GMM':
+    if inClassifier == 'GMM':
         tau=10.0**sp.arange(-8,8,0.5)
         model = gmmr.GMMR()
         model.learn(x,y)
         htau,err = model.cross_validation(x,y,tau)
         model.tau = htau
-    elif args.classifier == 'RF':
+    elif inClassifier == 'RF':
         param_grid_rf = dict(n_estimators=5**sp.arange(1,5),max_features=sp.arange(1,int(sp.sqrt(d))+10,2))
         y.shape=(y.size,)    
         cv = StratifiedKFold(y, n_folds=5)
@@ -121,7 +123,7 @@ if __name__=='__main__':
         grid.fit(x, y)
         model = grid.best_estimator_
         model.fit(x,y)        
-    elif args.classifier == 'SVM':
+    elif inClassifier == 'SVM':
         param_grid_svm = dict(gamma=2.0**sp.arange(-4,4), C=10.0**sp.arange(-2,5))
         y.shape=(y.size,)    
         cv = StratifiedKFold(y, n_folds=5)
@@ -129,7 +131,7 @@ if __name__=='__main__':
         grid.fit(x, y)
         model = grid.best_estimator_
         model.fit(x,y)
-    elif args.classifier == 'KNN':
+    elif inClassifier == 'KNN':
         param_grid_knn = dict(n_neighbors = sp.arange(1,50,5))
         y.shape=(y.size,)    
         cv = StratifiedKFold(y, n_folds=5)
@@ -140,19 +142,20 @@ if __name__=='__main__':
 
     # Assess the quality of the model
     if SPLIT < 1 :
-        # if  args.classifier == 'GMM':
+        # if  inClassifier == 'GMM':
         #     yp = model.predict(xt)[0]
         # else:
         yp = model.predict(xt)
         CONF = ai.CONFUSION_MATRIX()
         CONF.compute_confusion_matrix(yp,yt)
-        sp.savetxt(str(args.classifier)+'_'+str(args.seed)+'_confu.csv',CONF.confusion_matrix,delimiter=',',fmt='%1.4d')
+        sp.savetxt(str(inClassifier)+'_'+str(inSeed)+'_confu.csv',CONF.confusion_matrix,delimiter=',',fmt='%1.4d')
         
 
     # Save Tree model
-    if args.model is not None:
-        output = open(args.model, 'wb')
+    if inModel is not None:
+        output = open(inModel, 'wb')
         pickle.dump([model,M,m], output)
         output.close()
 
-
+if __name__=='__main__':
+    train('data/minGeoDec1.tif','data/ROI_mFusion.shp','type')
