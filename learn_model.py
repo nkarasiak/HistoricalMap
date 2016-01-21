@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import scipy as sp
-import function_data_raster as funraster
+import dataraster
 import argparse
 import os
 import accuracy_index as ai
@@ -39,7 +39,7 @@ def scale(x,M=None,m=None):
     den = M-m
     for i in range(d):
         if den[i] != 0:
-            xs[:,i] = 2*(x[:,i]-M[i])/den[i]
+            xs[:,i] = (2*(x[:,i]-M[i])/den[i])+1
         else:
             xs[:,i]=x[:,i]
 
@@ -64,25 +64,24 @@ if __name__=='__main__':
     data = gdal.Open(args.in_raster,gdal.GA_ReadOnly)
     shp = ogr.Open(args.in_layer)
     lyr = shp.GetLayer()
-    
+  
     # Create temporary data set
     driver = gdal.GetDriverByName('GTiff')
     dst_ds = driver.Create(filename,data.RasterXSize,data.RasterYSize, 1,gdal.GDT_Byte)
     dst_ds.SetGeoTransform(data.GetGeoTransform())
     dst_ds.SetProjection(data.GetProjection())
     OPTIONS = 'ATTRIBUTE='+args.field
-    gdal.RasterizeLayer(dst_ds, [1], lyr, None,options=[OPTIONS])
-
+    nana=gdal.RasterizeLayer(dst_ds, [1], lyr, None,options=[OPTIONS])
     data,dst_ds,shp,lyt=None,None,None,None
     
     # Load Training set
-    X,Y =  funraster.get_samples_from_roi(args.in_raster,filename)
+    X,Y =  dataraster.get_samples_from_roi(args.in_raster,filename)
     [n,d] = X.shape
     C = int(Y.max())
     SPLIT = args.split
     os.remove(filename)
     os.rmdir(temp_folder)
-
+    
     # Scale the data
     X,M,m = scale(X)
 
@@ -155,4 +154,5 @@ if __name__=='__main__':
         output = open(args.model, 'wb')
         pickle.dump([model,M,m], output)
         output.close()
+
 

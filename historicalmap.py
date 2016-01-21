@@ -11,6 +11,7 @@ from osgeo import gdal
 import time
 import dataraster
 import scipy as sp
+import learn_model
 from scipy import ndimage
 import os
 
@@ -27,6 +28,7 @@ import os
     New filtered file
     
 """
+
 
 class historicalFilter:    
     def __init__(self, inImage,outName,inShapeGrey,inShapeMedian):
@@ -93,7 +95,8 @@ class historicalFilter:
                 temp = None
             except:
                 print 'Cannot save band '+i+' on image '+outName
-            
+        
+    
 
 if __name__=='__main__':
     # get inFile (data/map) and inExtension (.tif)

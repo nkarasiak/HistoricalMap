@@ -165,8 +165,11 @@ def get_samples_from_roi(raster_name,roi_name):
                 cols = nc - j
 
             # Load the reference data
+            
             ROI = roi.GetRasterBand(1).ReadAsArray(j, i, cols, lines)
+            
             t = sp.nonzero(ROI)
+            
             if t[0].size > 0:
                 Y = sp.concatenate((Y,ROI[t].reshape((t[0].shape[0],1)).astype('uint8')))
                 # Load the Variables

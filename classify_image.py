@@ -39,7 +39,7 @@ def scale(x,M=None,m=None):  # TODO:  DO IN PLACE SCALING
     den = M-m
     for i in range(d):
         if den[i] != 0:
-            xs[:,i] = 2*(x[:,i]-M[i])/den[i]
+            xs[:,i] = 2*(x[:,i]-M[i])/den[i]+1
         else:
             xs[:,i]=x[:,i]
 

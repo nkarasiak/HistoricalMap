@@ -30,7 +30,6 @@ class CONFUSION_MATRIX:
         # Compute Kappa
         nl = sp.sum(self.confusion_matrix,axis=1)
         nc = sp.sum(self.confusion_matrix,axis=0)
-        
         self.Kappa = ((n**2)*self.OA - sp.sum(nc*nl))/(n**2-sp.sum(nc*nl))
         
         # TBD Variance du Kappa
