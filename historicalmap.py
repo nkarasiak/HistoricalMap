@@ -109,9 +109,9 @@ class learnParcel(inRaster,inVector,inField,inClassifier,inModel,inSplit,inSeed)
     
 if __name__=='__main__':
     # get inFile (data/map) and inExtension (.tif)
-    inFile,inExtension = os.path.splitext('data/map.tif')
+    inFile,inExtension = os.path.splitext('data/minGeoDec1.tif')
     
     t1=time.clock()
-    filtering=historicalFilter(inFile+inExtension,inFile+'_filtered'+inExtension,11 ,11)
+    filtering=historicalFilter(inFile+inExtension,inFile+'_filtered'+inExtension,9 ,9)
     t2=time.clock()
     print 'Filtering done in ',t2-t1,'seconds'
