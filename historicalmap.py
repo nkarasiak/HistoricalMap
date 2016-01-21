@@ -52,7 +52,10 @@ class historicalFilter:
             out : filtered image (array)
         """
         # open data with Gdal
-        data,im=dataraster.open_data_band(inImage)
+        try:
+            data,im=dataraster.open_data_band(inImage)
+        except:
+            print 'Cannot open image'
 
         # get proj,geo and dimension (d) from data
         proj = data.GetProjection()
