@@ -118,7 +118,8 @@ if __name__=='__main__':
 #    filteredImage=inFile+'_filtered'+inExtension
 #    filtering=historicalFilter(inFile+inExtension,filteredImage,11,11)
     
-    #lm.train('data/map_filtered.tif','data/train.shp','Class',0.5,0,'data/ModelGMM','GMM')   
+    #    lm.train('data/map_filtered.tif','data/train.shp','Class',0.5,0,'data/ModelRF','RF')   
+    lm.train('data/100mo/minGeoDec1_filtered.tif','data/100mo/ROI_m.shp','Class',0.5,0,'data/100mo/ModelGMM','GMM')   
     #clf.inRaster,inModel,inMask,inOut,NODATA
     print 'Learning done in',time.clock()-t1,'seconds'
     

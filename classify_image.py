@@ -110,9 +110,14 @@ def predict_image(raster_name,classif_name,model,mask_name=None,NODATA=-10000,SC
                 X[:,ind] = raster.GetRasterBand(int(ind+1)).ReadAsArray(j, i, cols, lines).reshape(cols*lines)
                 
             # Do the prediction
-            mask_temp=mask.GetRasterBand(1).ReadAsArray(j, i, cols, lines).reshape(cols*lines)
-            t = sp.where((mask_temp!=0) & (X[:,0]!=NODATA))[0]
-            yp=sp.zeros((cols*lines,))
+            if mask is None:
+                mask_temp=raster.GetRasterBand(1).ReadAsArray(j, i, cols, lines).reshape(cols*lines)
+                t = sp.where((mask_temp!=0) & (X[:,0]!=NODATA))[0]
+                yp=sp.zeros((cols*lines,))
+            else :
+                mask_temp=mask.GetRasterBand(1).ReadAsArray(j, i, cols, lines).reshape(cols*lines)
+                t = sp.where((mask_temp!=0) & (X[:,0]!=NODATA))[0]
+                yp=sp.zeros((cols*lines,))
 
             # TODO: Change this part accorindgly ...
             if t.size > 0:
@@ -130,9 +135,9 @@ def predict_image(raster_name,classif_name,model,mask_name=None,NODATA=-10000,SC
 if __name__=='__main__':
     # Initiliaze parser
     
-    inRaster='data/map.tif'
+    inRaster='data/map_filtered.tif'
     inModel='data/ModelGMM'
-    inMask='data/train.shp'
+    # inMask='data/train.shp'
     inField='Class'
     out='data/outGMM.tif'
     inNODATA=-10000
@@ -160,6 +165,7 @@ if __name__=='__main__':
     """
     rasterize with Gdal
     """
+    """
     # Convert vector to raster
     temp_folder = tempfile.mkdtemp()
     filename = os.path.join(temp_folder, 'temp.tif')
@@ -169,14 +175,14 @@ if __name__=='__main__':
     lyr = shp.GetLayer()
 
     # Create temporary data set
-    driver = gdal.GetDriverByName('GTiff')
-    dst_ds = driver.Create(filename,data.RasterXSize,data.RasterYSize, 1,gdal.GDT_Byte)
-    dst_ds.SetGeoTransform(data.GetGeoTransform())
-    dst_ds.SetProjection(data.GetProjection())
-    OPTIONS = 'ATTRIBUTE='+inField
-    gdal.RasterizeLayer(dst_ds, [1], lyr, None,options=[OPTIONS])
-    data,dst_ds,shp,lyr=None,None,None,None
-
+        driver = gdal.GetDriverByName('GTiff')
+        dst_ds = driver.Create(filename,data.RasterXSize,data.RasterYSize, 1,gdal.GDT_Byte)
+        dst_ds.SetGeoTransform(data.GetGeoTransform())
+        dst_ds.SetProjection(data.GetProjection())
+        OPTIONS = 'ATTRIBUTE='+inField
+        gdal.RasterizeLayer(dst_ds, [1], lyr, None,options=[OPTIONS])
+        data,dst_ds,shp,lyr=None,None,None,None
+    """
     # Load model
     model = open(inModel,'rb') # TODO: Update to scale the data 
     if model is None:
@@ -188,6 +194,27 @@ if __name__=='__main__':
         model.close()
 
     # Process the data
-    predict_image(inRaster,out,tree,mask_name=filename,NODATA=inNODATA,SCALE=[M,m])
-    os.remove(filename)
-    os.rmdir(temp_folder)
+    predict_image(inRaster,out,tree,None,NODATA=inNODATA,SCALE=[M,m])
+    
+    
+    # Vectorize with field inField
+    
+    
+    sourceRaster = gdal.Open(out)
+    band = sourceRaster.GetRasterBand(1)
+    bandArray = band.ReadAsArray()
+    outShapefile = "data/test/polygonized"
+    driver = ogr.GetDriverByName("ESRI Shapefile")
+    driver.DeleteDataSource(outShapefile+".shp")
+    driver.SetGeoTransform(sourceRaster.GetGeoTransform())
+    outDatasource = driver.CreateDataSource(outShapefile+ ".shp")
+    outLayer = outDatasource.CreateLayer("polygonized", srs=None)
+    newField = ogr.FieldDefn(inField, ogr.OFTInteger)
+    outLayer.CreateField(newField)
+
+    gdal.Polygonize(band, None,outLayer, 0,[],callback=None)  
+    outDatasource.Destroy()
+    sourceRaster = None
+    
+    #os.remove(filename)
+    #os.rmdir(temp_folder)
