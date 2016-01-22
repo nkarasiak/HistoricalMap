@@ -206,15 +206,35 @@ if __name__=='__main__':
     outShapefile = "data/test/polygonized"
     driver = ogr.GetDriverByName("ESRI Shapefile")
     driver.DeleteDataSource(outShapefile+".shp")
-    driver.SetGeoTransform(sourceRaster.GetGeoTransform())
     outDatasource = driver.CreateDataSource(outShapefile+ ".shp")
     outLayer = outDatasource.CreateLayer("polygonized", srs=None)
     newField = ogr.FieldDefn(inField, ogr.OFTInteger)
     outLayer.CreateField(newField)
-
+        
     gdal.Polygonize(band, None,outLayer, 0,[],callback=None)  
     outDatasource.Destroy()
     sourceRaster = None
+    
+    # Add area
+    ds = ogr.Open( 'data/test/polygonized.shp', update = 1 )
+    
+    lyr = ds.GetLayerByIndex(0)
+    lyr.ResetReading()
+    
+    field_defn = ogr.FieldDefn( "Area", ogr.OFTReal )
+    lyr.CreateField(field_defn)
+    
+    for i in lyr:
+        # feat = lyr.GetFeature(i) 
+        geom = i.GetGeometryRef()
+        area = geom.GetArea()
+        print 'Area =', area
+        lyr.SetFeature(i)
+        i.SetField( "Area", area )
+        lyr.SetFeature(i)
+        if area<6000:
+            lyr.DeleteFeature(i.GetFID())
+    ds = None
     
     #os.remove(filename)
     #os.rmdir(temp_folder)
