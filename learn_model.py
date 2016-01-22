@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import scipy as sp
 import function_data_raster as dataraster
-import argparse
+#import argparse
 import os
 import accuracy_index as ai
 import pickle
@@ -16,6 +16,7 @@ from sklearn.grid_search import GridSearchCV
 from osgeo import ogr,gdal
 
 # Scale function
+
 def scale(x,M=None,m=None):
     ''' Function that standardize the data
         Input:
@@ -57,7 +58,7 @@ def scale(x,M=None,m=None):
 #    parser.add_argument("-classifier",help="Classifier type",type=str,default='GMM',choices=['GMM','SVM','RF','KNN'])
 #    args = parser.parse_args()
 
-def train(inRaster,inVector,inField,inSplit,inSeed,inModel,inClassifier):
+def train(inRaster,inVector,inField='Class',inSplit=0.5,inSeed=0,inModel=None,inClassifier='GMM'):
     
     # Convert vector to raster
     temp_folder = tempfile.mkdtemp()
@@ -159,6 +160,8 @@ def train(inRaster,inVector,inField,inSplit,inSeed,inModel,inClassifier):
         pickle.dump([model,M,m], output)
         output.close()
 
+
+#train('data/minGeoDec1_filtered.tif','data/ROI_m.shp','Class',0.5,0,None,'GMM')
 if __name__=='__main__':
-    train('data/minGeoDec1.tif','data/ROI_m.shp','Class',0.5,0,None,'GMM')
-    # train('/home/sigma/Bureau/test/fabas_12_10_2013.tif','/home/sigma/Bureau/test/ref_fabas.shp','Class',0.5,0,None,'GMM')
+    train('data/minGeoDec1_filtered.tif','data/ROI_m.shp','Class',0.5,0,'GeodecGMM','GMM')
+##    # train('/home/sigma/Bureau/test/fabas_12_10_2013.tif','/home/sigma/Bureau/test/ref_fabas.shp','Class',0.5,0,None,'GMM')

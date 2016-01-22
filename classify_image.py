@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import scipy as sp
-import argparse
+#import argparse
 import os
 import pickle
-from osgeo import gdal
+from osgeo import gdal, ogr
 import tempfile
 import gmm_ridge as gmmr
 from sklearn import neighbors
@@ -39,7 +39,7 @@ def scale(x,M=None,m=None):  # TODO:  DO IN PLACE SCALING
     den = M-m
     for i in range(d):
         if den[i] != 0:
-            xs[:,i] = 2*(x[:,i]-M[i])/den[i]+1
+            xs[:,i] = 2*(x[:,i]-m[i])/den[i]-1
         else:
             xs[:,i]=x[:,i]
 
@@ -129,30 +129,65 @@ def predict_image(raster_name,classif_name,model,mask_name=None,NODATA=-10000,SC
 
 if __name__=='__main__':
     # Initiliaze parser
-    parser = argparse.ArgumentParser(description="Classifiy an remote sensing image using fixed tree model")
-    parser.add_argument("-in_raster",help="Raster image to be classifier",type=str)
-    parser.add_argument("-in_model",help="Model",type=str)
-    parser.add_argument("-in_mask",help="Mask of selected pixel to be classified",type=str)
-    parser.add_argument("-out",help="Name of the output classified image",type=str)
-    parser.add_argument("-NODATA",help="NO DATA value",type=int, default=-10000)
-    args = parser.parse_args()
+    
+    inRaster='data/map.tif'
+    inModel='data/ModelGMM'
+    inMask='data/train.shp'
+    inField='Class'
+    out='data/outGMM.tif'
+    inNODATA=-10000
+    
+#    parser = argparse.ArgumentParser(description="Classifiy an remote sensing image using fixed tree model")
+#    parser.add_argument("-in_raster",help="Raster image to be classifier",type=str)
+#    parser.add_argument("-in_model",help="Model",type=str)
+#    parser.add_argument("-in_mask",help="Mask of selected pixel to be classified",type=str)
+#    parser.add_argument("-out",help="Name of the output classified image",type=str)
+#    parser.add_argument("-NODATA",help="NO DATA value",type=int, default=-10000)
+#    args = parser.parse_args()
 
     # Build raster mask
+    """ 
+    rasterize with OTB 
+
     temp_folder = tempfile.mkdtemp()
     filename = os.path.join(temp_folder, 'temp.tif')
-    OTB_application = 'otbcli_Rasterization -in '+args.in_mask+' -out '+filename+' uint8 -im '+args.in_raster+' -mode attribute -mode.attribute.field Forest'
+   
+    OTB_application = 'otbcli_Rasterization -in '+inMask+' -out '+filename+' uint8 -im '+inRaster+' -mode attribute -mode.attribute.field '+inField    
     os.system(OTB_application)
+
+    """
     
+    """
+    rasterize with Gdal
+    """
+    # Convert vector to raster
+    temp_folder = tempfile.mkdtemp()
+    filename = os.path.join(temp_folder, 'temp.tif')
+    
+    data = gdal.Open(inRaster,gdal.GA_ReadOnly)
+    shp = ogr.Open(inMask)
+    lyr = shp.GetLayer()
+
+    # Create temporary data set
+    driver = gdal.GetDriverByName('GTiff')
+    dst_ds = driver.Create(filename,data.RasterXSize,data.RasterYSize, 1,gdal.GDT_Byte)
+    dst_ds.SetGeoTransform(data.GetGeoTransform())
+    dst_ds.SetProjection(data.GetProjection())
+    OPTIONS = 'ATTRIBUTE='+inField
+    gdal.RasterizeLayer(dst_ds, [1], lyr, None,options=[OPTIONS])
+    data,dst_ds,shp,lyr=None,None,None,None
+
     # Load model
-    model = open(args.in_model,'rb') # TODO: Update to scale the data 
+    model = open(inModel,'rb') # TODO: Update to scale the data 
     if model is None:
         print "Model not load"
         exit()
     else:
         tree,M,m = pickle.load(model)
+        
         model.close()
 
     # Process the data
-    predict_image(args.in_raster,args.out,tree,mask_name=filename,NODATA=args.NODATA,SCALE=[M,m])
+    predict_image(inRaster,out,tree,mask_name=filename,NODATA=inNODATA,SCALE=[M,m])
     os.remove(filename)
     os.rmdir(temp_folder)

@@ -11,7 +11,8 @@ from osgeo import gdal
 import time
 import dataraster
 import scipy as sp
-import learn_model
+import learn_model as lm
+import classify_image as clf
 from scipy import ndimage
 import os
 
@@ -109,9 +110,19 @@ class learnParcel(inRaster,inVector,inField,inClassifier,inModel,inSplit,inSeed)
     
 if __name__=='__main__':
     # get inFile (data/map) and inExtension (.tif)
-    inFile,inExtension = os.path.splitext('data/minGeoDec1.tif')
-    
+    #inFile,inExtension = os.path.splitext('data/map_rpj.tif')
     t1=time.clock()
-    filtering=historicalFilter(inFile+inExtension,inFile+'_filtered'+inExtension,9 ,9)
+
+#    inFile,inExtension = os.path.splitext('data/map.tif')
+#    print 'Filtering done in ',time.clock()-t1,'seconds'
+#    filteredImage=inFile+'_filtered'+inExtension
+#    filtering=historicalFilter(inFile+inExtension,filteredImage,11,11)
+    
+    #lm.train('data/map_filtered.tif','data/train.shp','Class',0.5,0,'data/ModelGMM','GMM')   
+    #clf.inRaster,inModel,inMask,inOut,NODATA
+    print 'Learning done in',time.clock()-t1,'seconds'
+    
+    
+    
     t2=time.clock()
-    print 'Filtering done in ',t2-t1,'seconds'
+    
