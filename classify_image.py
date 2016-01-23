@@ -233,7 +233,6 @@ if __name__=='__main__':
         i.SetField( "Area", area )
         lyr.SetFeature(i)
         if area<6000:
-            if lyr.
             lyr.DeleteFeature(i.GetFID())
     ds = None
     
