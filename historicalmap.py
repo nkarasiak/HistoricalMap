@@ -97,33 +97,33 @@ class historicalFilter:
             except:
                 print 'Cannot save band '+i+' on image '+outName
         
-
-"""
-class learnParcel(inRaster,inVector,inField,inClassifier,inModel,inSplit,inSeed):
-    def __init__(self):
-    print 'nothing'        
-
-    def learn(inRaster,inVector,inField,inClassifier,inModel,inSplit,inSeed):
-    learn_model.train('data/minGeoDec1.tif','data/ROI_m.shp','type')
-    
-"""    
     
 if __name__=='__main__':
     # get inFile (data/map) and inExtension (.tif)
-    #inFile,inExtension = os.path.splitext('data/map_rpj.tif')
+    #
     t1=time.clock()
 
 #    inFile,inExtension = os.path.splitext('data/map.tif')
 #    print 'Filtering done in ',time.clock()-t1,'seconds'
 #    filteredImage=inFile+'_filtered'+inExtension
-#    filtering=historicalFilter(inFile+inExtension,filteredImage,11,11)
+#    
+    # Filter image
+    inImage='data/100mo/minGeoDec1.tif'
+    inFile,inExtension = os.path.splitext(inImage) # Split filename and extension
+    outFilter=inFile+'_filtered'+inExtension
     
-    #    lm.train('data/map_filtered.tif','data/train.shp','Class',0.5,0,'data/ModelRF','RF')   
-    lm.train('data/100mo/minGeoDec1_filtered.tif','data/100mo/ROI_m.shp','Class',0.5,0,'data/100mo/ModelGMM','GMM')   
-    #clf.inRaster,inModel,inMask,inOut,NODATA
-    print 'Learning done in',time.clock()-t1,'seconds'
+    filtered=historicalFilter(inFile+inExtension,outFilter,inShapeGrey=9,inShapeMedian=9)
+    print 'Image saved as : '+outFilter
+    # Learn Model     
+    outModel='data/100mo/ModelGMM'
+    model=lm.learn_model(inRaster=outFilter,inVector='data/100mo/ROI_m.shp',inField='Class',inSplit=0.5,inSeed=0,outModel=outModel,inClassifier='GMM')   
+    print 'Model saved as : '+outModel
+    # Classify image
+    outRaster='data/100mo/outGMM.tif'
+    outShpFolder='data/100mo/outSHP'
+    classified=clf.classifyImage(inRaster=outFilter,inModel=outModel,outRaster='data/100mo/outGMM.tif',outShpFolder='data/100mo/outSHP',inMinSize=8,inMask=None,inField='Class',inNODATA=-10000)
     
     
-    
-    t2=time.clock()
-    
+    print 'Classified image at : '+outRaster
+    print 'Shp folder in : ' +outShpFolder
+    print '3 Steps done in',time.clock()-t1,'seconds'
