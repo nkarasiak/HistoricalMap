@@ -250,7 +250,7 @@ class learn_model:
     
         return xs,M,m
         
-class classifyImage:
+class classifyImage():
     """
     Classify image with learn clasifier and learned model
 
@@ -353,6 +353,7 @@ class classifyImage:
                 xs[:,i]=x[:,i]
     
         return xs
+        
     def predict_image(self,raster_name,classif_name,model,mask_name=None,NODATA=-10000,SCALE=None):
         '''
             The function classify the whole raster image, using per block image analysis. The classifier is given in classifier and options in kwargs
