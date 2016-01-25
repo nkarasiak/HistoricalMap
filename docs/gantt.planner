@@ -74,7 +74,7 @@
       </task>
     </task>
     <task id="18" name="R&#xE9;daction du rapport" note="" work="187200" start="20160122T000000Z" end="20160219T100000Z" work-start="20160122T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
-      <task id="19" name="R&#xE9;daction du rapport" note="" work="172800" duration="576000" start="20160122T000000Z" end="20160218T170000Z" work-start="20160122T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-duration">
+      <task id="19" name="R&#xE9;daction du rapport" note="" work="172800" duration="576000" start="20160122T000000Z" end="20160218T170000Z" work-start="20160122T080000Z" percent-complete="15" priority="0" type="normal" scheduling="fixed-duration">
         <constraint type="must-start-on" time="20160122T000000Z"/>
       </task>
       <task id="20" name="Relecture" note="" work="14400" start="20160218T170000Z" end="20160219T100000Z" work-start="20160219T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
