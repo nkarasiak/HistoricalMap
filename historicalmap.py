@@ -2,7 +2,7 @@
 """
 HistoricalMap Plugin for Qgis
 Made by Nicolas Karasiak and Antoine Lomellini
-Teacher : Mathieu Fauvel
+Teacher : Mathieu Fauvel, David Sheeren & Claude Monteil
 
 
 
