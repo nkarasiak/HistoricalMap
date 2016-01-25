@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import scipy as sp
-import function_data_raster as dataraster
+import dataraster
 #import argparse
 import os
 import accuracy_index as ai
@@ -16,7 +16,23 @@ from sklearn.grid_search import GridSearchCV
 from osgeo import ogr,gdal
 
 # Scale function
+"""
+  Learn model with a shp file and a raster image
 
+  Input :
+    inRaster : Filtered image name ('sample_filtered.tif',str)
+    inVector : outname name of the filtered file ('training.shp',str)
+    inField : Column name where are stored class number (str)
+    inSplit : (int)
+    inSeed : (int)
+    outModel : Name of the model to save, will be compulsory for the 3rd step (classifying)
+    inClassifier : GMM,KNN,SVM, or RF. (str)
+    
+  Output :
+    Model file
+    Confusion Matrix
+    
+"""
 class learn_model:
     def __init__(self,inRaster,inVector,inField='Class',inSplit=0.5,inSeed=0,outModel=None,inClassifier='GMM'):
         
@@ -164,6 +180,5 @@ class learn_model:
 
 
 #train('data/minGeoDec1_filtered.tif','data/ROI_m.shp','Class',0.5,0,None,'GMM')
-#if __name__=='__main__':
-#    train('data/minGeoDec1_filtered.tif','data/ROI_m.shp','Class',0.5,0,'GeodecGMM','GMM')
-##    # train('/home/sigma/Bureau/test/fabas_12_10_2013.tif','/home/sigma/Bureau/test/ref_fabas.shp','Class',0.5,0,None,'GMM')
+if __name__=='__main__':
+    train('data/map_filtered.tif','data/train.shp','Class',0.5,0,'data/ModelGMM','GMM')

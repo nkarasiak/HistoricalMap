@@ -14,6 +14,26 @@ from osgeo import gdal, ogr
 #from sklearn.grid_search import GridSearchCV
 
 # Scale function
+
+"""
+  Classify image with learn clasifier and learned model
+
+  Input :
+    inRaster : Filtered image name ('sample_filtered.tif',str)
+    inModel : outname name of the filtered file ('training.shp',str)
+    outRaster : Raster name to save ('classifiedimage.tif', str)
+    outShpFolder : Folder where will be stored shp files ('shps',str)
+    inMinSize : min size in acre for the forest, ex 6 means all polygons below 6000 m2 (int)
+    TODO inMask : Mask size where no classification is done                                     |||| NOT YET IMPLEMENTED
+    inField : Column name where are stored class number (str)
+    inNODATA : if NODATA (int)
+        
+  Output :
+    Raster image and the simple classification
+    SHP file with deleted polygon below inMinSize
+    
+"""
+
 class classifyImage:
     def __init__(self,inRaster,inModel,outRaster,outShpFolder='data/outSHP',inMinSize=6000,inMask=None,inField='Class',inNODATA=-10000):
             # Load model
@@ -185,7 +205,6 @@ class classifyImage:
         # Clean/Close variables    
         raster = None
         dst_ds = None
-
 
 
 if __name__=='__main__':
