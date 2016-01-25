@@ -102,7 +102,7 @@ class historicalFilter:
             except:
                 print 'Cannot save band '+i+' on image '+outName
                 
-class learn_model:
+class learnModel:
     """
     Learn model with a shp file and a raster image
     
@@ -286,8 +286,7 @@ class classifyImage():
        
         
         # Vectorize with field inField
-        
-        
+                
         sourceRaster = gdal.Open(outRaster)
         band = sourceRaster.GetRasterBand(1)
         bandArray = band.ReadAsArray()
@@ -459,12 +458,12 @@ if __name__=='__main__':
     print 'Image saved as : '+outFilter
     
     # Learn Model...
-    outModel='data/ModelGMM'
     inVector='data/train.shp'
     inClassifier='GMM'
+    outModel='data/Model'+str(inClassifier)
     inSeed=0
     
-    model=learn_model(inRaster=outFilter,inVector=inVector,inField='Class',inSplit=0.5,inSeed=inSeed,outModel=outModel,outMatrix=inFile,inClassifier=inClassifier)   
+    model=learnModel(inRaster=outFilter,inVector=inVector,inField='Class',inSplit=0.5,inSeed=inSeed,outModel=outModel,outMatrix=inFile,inClassifier=inClassifier)   
     print 'Model saved as : '+outModel
     print 'Confusion matrix saved as : '+str(inFile)+'_'+str(inClassifier)+'_'+str(inSeed)+'_confu.csv'
     
