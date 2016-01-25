@@ -113,6 +113,7 @@ class learn_model:
         inSplit : (int)
         inSeed : (int)
         outModel : Name of the model to save, will be compulsory for the 3rd step (classifying)
+        outMatrix : Default the name of the file inRaster(minus the extension)_inClassifier_inSeed_confu.csv (str)
         inClassifier : GMM,KNN,SVM, or RF. (str)
         
     Output :
@@ -281,7 +282,7 @@ class classifyImage():
             model.close()
     
         # Process the data
-        self.predict_image(inRaster,outRaster,tree,None,NODATA=inNODATA,SCALE=[M,m])
+        self.predict_image(inRaster,outRaster,tree,None,inNODATA,SCALE=[M,m])
        
         
         # Vectorize with field inField
@@ -354,23 +355,23 @@ class classifyImage():
     
         return xs
         
-    def predict_image(self,raster_name,classif_name,model,mask_name=None,NODATA=-10000,SCALE=None):
+    def predict_image(self,inRaster,outRaster,model,inMask=None,NODATA=-10000,SCALE=None):
         '''
             The function classify the whole raster image, using per block image analysis. The classifier is given in classifier and options in kwargs
         '''
         # Open Raster and get additionnal information
-        raster = gdal.Open(raster_name,gdal.GA_ReadOnly)
+        raster = gdal.Open(inRaster,gdal.GA_ReadOnly)
         if raster is None:
-            print 'Impossible to open '+raster_name
+            print 'Impossible to open '+inRaster
             exit()
         
         # If provided, open mask
-        if mask_name is None:
+        if inMask is None:
             mask=None
         else:
-            mask = gdal.Open(mask_name,gdal.GA_ReadOnly)
+            mask = gdal.Open(inMask,gdal.GA_ReadOnly)
             if mask is None:
-                print 'Impossible to open '+mask_name
+                print 'Impossible to open '+inMask
                 exit()
             # Check size
             if (raster.RasterXSize != mask.RasterXSize) or (raster.RasterYSize != mask.RasterYSize):
@@ -397,7 +398,7 @@ class classifyImage():
         
         ## Initialize the output
         driver = gdal.GetDriverByName('GTiff')
-        dst_ds = driver.Create(classif_name, nc,nl, 1, gdal.GDT_Byte)
+        dst_ds = driver.Create(outRaster, nc,nl, 1, gdal.GDT_Byte)
         dst_ds.SetGeoTransform(GeoTransform)
         dst_ds.SetProjection(Projection)
         out = dst_ds.GetRasterBand(1)
