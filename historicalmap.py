@@ -120,7 +120,7 @@ class learn_model:
         Confusion Matrix
         
     """
-    def __init__(self,inRaster,inVector,inField='Class',inSplit=0.5,inSeed=0,outModel=None,inClassifier='GMM'):
+    def __init__(self,inRaster,inVector,inField='Class',inSplit=0.5,inSeed=0,outModel=None,outMatrix=None,inClassifier='GMM'):
            
         # Convert vector to raster
         temp_folder = tempfile.mkdtemp()
@@ -213,7 +213,7 @@ class learn_model:
             yp = model.predict(xt)
             CONF = ai.CONFUSION_MATRIX()
             CONF.compute_confusion_matrix(yp,yt)
-            sp.savetxt(str(inClassifier)+'_'+str(inSeed)+'_confu.csv',CONF.confusion_matrix,delimiter=',',fmt='%1.4d')
+            sp.savetxt(str(outMatrix)+'_'+str(inClassifier)+'_'+str(inSeed)+'_confu.csv',CONF.confusion_matrix,delimiter=',',fmt='%1.4d')
             
     
         # Save Tree model
@@ -445,7 +445,7 @@ class classifyImage():
 if __name__=='__main__':
     
     t1=time.clock()
-#    
+    
     # Image to work on
 
     inImage='data/map.tif'
@@ -460,8 +460,12 @@ if __name__=='__main__':
     # Learn Model...
     outModel='data/ModelGMM'
     inVector='data/train.shp'
-    model=learn_model(inRaster=outFilter,inVector=inVector,inField='Class',inSplit=0.5,inSeed=0,outModel=outModel,inClassifier='GMM')   
+    inClassifier='GMM'
+    inSeed=0
+    
+    model=learn_model(inRaster=outFilter,inVector=inVector,inField='Class',inSplit=0.5,inSeed=inSeed,outModel=outModel,outMatrix=inFile,inClassifier=inClassifier)   
     print 'Model saved as : '+outModel
+    print 'Confusion matrix saved as : '+str(inFile)+'_'+str(inClassifier)+'_'+str(inSeed)+'_confu.csv'
     
     # Classify image...
     outRaster='data/outGMM.tif'
