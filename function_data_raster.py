@@ -206,6 +206,8 @@ def get_samples_from_roi(raster_name,roi_name):
     ## Read block data
     X = sp.array([]).reshape(0,d)
     Y = sp.array([]).reshape(0,1)
+    
+    
     for i in range(0,nl,y_block_size):
         if i + y_block_size < nl: # Check for size consistency in Y
             lines = y_block_size
@@ -217,8 +219,9 @@ def get_samples_from_roi(raster_name,roi_name):
             else:
                 cols = nc - j
 
-            # Load the reference data
+            # Load the reference data         
             ROI = roi.GetRasterBand(1).ReadAsArray(j, i, cols, lines)
+            
             t = sp.nonzero(ROI)
             if t[0].size > 0:
                 Y = sp.concatenate((Y,ROI[t].reshape((t[0].shape[0],1)).astype('uint8')))
@@ -288,7 +291,7 @@ def predict_image(raster_name,classif_name,classifier,mask_name=None):
     
     ## Set the classifiers
     if classifier['name'] is 'NPFS':
-        ## With GMM
+        ## With GMM
         model = classifier['model']
         ids = classifier['ids']
         nv = len(ids)
