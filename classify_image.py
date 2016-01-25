@@ -191,3 +191,4 @@ class classifyImage:
 if __name__=='__main__':
     classified=classifyImage(inRaster='data/map_filtered.tif',inModel='data/ModelGMM',outRaster='data/outGMM.tif',outShpFolder='data/outSHP',inMinSize=6000,inMask=None,inField='Class',inNODATA=-10000)
 
+
