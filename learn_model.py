@@ -35,7 +35,7 @@ from osgeo import ogr,gdal
 """
 class learn_model:
     def __init__(self,inRaster,inVector,inField='Class',inSplit=0.5,inSeed=0,outModel=None,inClassifier='GMM'):
-        
+           
         # Convert vector to raster
         temp_folder = tempfile.mkdtemp()
         filename = os.path.join(temp_folder, 'temp.tif')

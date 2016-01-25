@@ -2,22 +2,21 @@
 """
 HistoricalMap Plugin for Qgis
 Made by Nicolas Karasiak and Antoine Lomellini
-Teacher : Mathieu Fauvel
-
-
-
+Teacher : Mathieu Fauvel, David Sheeren
+Where ? ENSAT @ Toulouse
+Github : https://github.com/lennepkade/Historical-Map/
 """
-from osgeo import gdal
+
 import time
 import dataraster
-import scipy as sp
 import learn_model as lm
 import classify_image as clf
 from scipy import ndimage
 import os
 
+
 """
-  Filter class to isolate the forest and delete dark lines and fonts from historical map
+  Filter class to isolate the forest, delete dark lines and fonts from Historical Map
 
   Input :
     inImage : image name to filter ('text.tif',str)
@@ -26,7 +25,7 @@ import os
     inShapeMedian : Size for the median convolution matrix (odd  number, int)
     
   Output :
-    New filtered file
+    -- Nothing except a raster file (outName)
     
 """
 
@@ -46,13 +45,13 @@ class historicalFilter:
         Generate empty table then fill it with greyClose and median filter above it.
         
         Input :
-            inIm : the loaded image (array)
-            inShapeGrey : odd number (int)
-            inShapeMedian : odd number (int)
-            d : number of dimension (int)
-            
+            inImage : image name to filter ('text.tif',str)
+            outName : outname name of the filtered file (str)
+            inShapeGrey : Size for the grey closing convolution matrix (odd number, int)
+            inShapeMedian : Size for the median convolution matrix (odd  number, int)
+        
         Output :
-            out : filtered image (array)
+            -- Nothing except a raster file (outName)
         """
         # open data with Gdal
         try:
@@ -99,29 +98,30 @@ class historicalFilter:
         
     
 if __name__=='__main__':
-    # get inFile (data/map) and inExtension (.tif)
-    #
-    t1=time.clock()
-
-#    inFile,inExtension = os.path.splitext('data/map.tif')
-#    print 'Filtering done in ',time.clock()-t1,'seconds'
-#    filteredImage=inFile+'_filtered'+inExtension
-#    
-    # Filter image
-    inImage='data/100mo/minGeoDec1.tif'
-    inFile,inExtension = os.path.splitext(inImage) # Split filename and extension
-    outFilter=inFile+'_filtered'+inExtension
     
-    filtered=historicalFilter(inFile+inExtension,outFilter,inShapeGrey=9,inShapeMedian=9)
+    t1=time.clock()
+#    
+    # Image to work on
+
+    inImage='data/map.tif'
+        
+    inFile,inExtension = os.path.splitext(inImage) # Split filename and extension
+    outFilter=inFile+'_filtered'+inExtension 
+    
+    # Filtering....
+    filtered=historicalFilter(inFile+inExtension,outFilter,inShapeGrey=11,inShapeMedian=11)
     print 'Image saved as : '+outFilter
-    # Learn Model     
-    outModel='data/100mo/ModelGMM'
-    model=lm.learn_model(inRaster=outFilter,inVector='data/100mo/ROI_m.shp',inField='Class',inSplit=0.5,inSeed=0,outModel=outModel,inClassifier='GMM')   
+    
+    # Learn Model...
+    outModel='data/ModelGMM'
+    inVector='data/train.shp'
+    model=lm.learn_model(inRaster=outFilter,inVector=inVector,inField='Class',inSplit=0.5,inSeed=0,outModel=outModel,inClassifier='GMM')   
     print 'Model saved as : '+outModel
-    # Classify image
-    outRaster='data/100mo/outGMM.tif'
-    outShpFolder='data/100mo/outSHP'
-    classified=clf.classifyImage(inRaster=outFilter,inModel=outModel,outRaster='data/100mo/outGMM.tif',outShpFolder='data/100mo/outSHP',inMinSize=8,inMask=None,inField='Class',inNODATA=-10000)
+    
+    # Classify image...
+    outRaster='data/outGMM.tif'
+    outShpFolder='data/outSHP'
+    classified=clf.classifyImage(inRaster=outFilter,inModel=outModel,outRaster=outRaster,outShpFolder=outShpFolder,inMinSize=8,inMask=None,inField='Class',inNODATA=-10000)
     
     
     print 'Classified image at : '+outRaster

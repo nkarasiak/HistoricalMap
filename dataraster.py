@@ -46,6 +46,11 @@ def open_data_band(filename):
     
     # Initialize the array
     im = sp.empty((nl,nc),dtype=dt) 
+    return data,im
+
+'''
+Old function that open all the bands
+'''
 #    
 #    for i in range(d):
 #        im[:,:,i]=data.GetRasterBand(i+1).ReadAsArray()
@@ -53,7 +58,7 @@ def open_data_band(filename):
 #    GeoTransform = data.GetGeoTransform()
 #    Projection = data.GetProjection()
 #    data = None
-    return data,im
+
 
 def write_data_band(outname,im,d,GeoTransform,Projection):
     '''
@@ -98,6 +103,9 @@ def write_data_band(outname,im,d,GeoTransform,Projection):
     
     return dst_ds
     
+    '''
+    Old function that cannot manage to write on each band outside the script
+    '''
 #    if d==1:
 #        out = dst_ds.GetRasterBand(1)
 #        out.WriteArray(im)
