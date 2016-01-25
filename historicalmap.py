@@ -20,8 +20,8 @@ import os
   Filter class to isolate the forest and delete dark lines and fonts from historical map
 
   Input :
-    inmImage : image to filter (text.jpg, text.tif...)
-    outName : outname name of the filtered file (text)
+    inImage : image name to filter ('text.tif',str)
+    outName : outname name of the filtered file (str)
     inShapeGrey : Size for the grey closing convolution matrix (odd number, int)
     inShapeMedian : Size for the median convolution matrix (odd  number, int)
     
