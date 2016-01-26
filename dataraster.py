@@ -60,9 +60,9 @@ Old function that open all the bands
 #    data = None
 
 
-def write_data_band(outname,im,d,GeoTransform,Projection):
+def create_empty_tiff(outname,im,d,GeoTransform,Projection):
     '''
-    The function write the image on the  hard drive.
+    The function write an empty image on the hard drive.
     Input: 
         outname: the name of the file to be written
         im: the image cube
