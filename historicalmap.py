@@ -72,7 +72,7 @@ class historicalFilter:
 
         # create empty geotiff with d dimension, geotransform & projection
         try:
-            outFile=dataraster.write_data_band(outName,im,d,geo,proj)
+            outFile=dataraster.create_empty_tiff(outName,im,d,geo,proj)
         except:
             print 'Cannot write empty image '+outName
         
