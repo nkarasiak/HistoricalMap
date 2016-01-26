@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>HistoricalMap</class>
- <widget class="QDialog" name="HistoricalMap">
+ <widget class="QFrame" name="HistoricalMap">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -12,6 +12,12 @@
   </property>
   <property name="windowTitle">
    <string>HistoricalMap - Automatic vectorizing old forests</string>
+  </property>
+  <property name="frameShape">
+   <enum>QFrame::StyledPanel</enum>
+  </property>
+  <property name="frameShadow">
+   <enum>QFrame::Raised</enum>
   </property>
   <widget class="QTabWidget" name="tabWidget">
    <property name="geometry">
@@ -26,7 +32,7 @@
     <string/>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
@@ -126,9 +132,6 @@
        <height>41</height>
       </rect>
      </property>
-     <property name="filters">
-      <set>QgsMapLayerProxyModel::PluginLayer|QgsMapLayerProxyModel::RasterLayer</set>
-     </property>
     </widget>
     <widget class="QgsSpinBox" name="inShapeGrey">
      <property name="geometry">
@@ -153,9 +156,6 @@
      <property name="singleStep">
       <number>2</number>
      </property>
-     <property name="value">
-      <number>11</number>
-     </property>
     </widget>
     <widget class="QgsSpinBox" name="inShapeMedian">
      <property name="geometry">
@@ -179,9 +179,6 @@
      </property>
      <property name="singleStep">
       <number>2</number>
-     </property>
-     <property name="value">
-      <number>11</number>
      </property>
     </widget>
    </widget>
@@ -332,6 +329,22 @@
       </property>
      </item>
     </widget>
+    <widget class="QgsFieldComboBox" name="mFieldComboBox">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>106</y>
+       <width>211</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="editable">
+      <bool>true</bool>
+     </property>
+     <property name="duplicatesEnabled">
+      <bool>false</bool>
+     </property>
+    </widget>
     <widget class="QgsMapLayerComboBox" name="trainingcell">
      <property name="geometry">
       <rect>
@@ -383,59 +396,6 @@
        <y>190</y>
        <width>211</width>
        <height>27</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QgsFieldComboBox" name="mFieldComboBox">
-     <property name="geometry">
-      <rect>
-       <x>160</x>
-       <y>110</y>
-       <width>160</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="filters">
-      <set>QgsFieldProxyModel::String</set>
-     </property>
-    </widget>
-    <widget class="QgsRelationReferenceWidget" name="mRelationReference">
-     <property name="geometry">
-      <rect>
-       <x>360</x>
-       <y>130</y>
-       <width>132</width>
-       <height>27</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QListWidget" name="listWidget">
-     <property name="geometry">
-      <rect>
-       <x>170</x>
-       <y>230</y>
-       <width>191</width>
-       <height>121</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QgsDataDefinedButton" name="mDataDefinedButton">
-     <property name="geometry">
-      <rect>
-       <x>400</x>
-       <y>60</y>
-       <width>30</width>
-       <height>26</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QgsColorButtonV2" name="mColorButton">
-     <property name="geometry">
-      <rect>
-       <x>390</x>
-       <y>190</y>
-       <width>120</width>
-       <height>28</height>
       </rect>
      </property>
     </widget>
@@ -550,46 +510,10 @@
       <string>Classified image :</string>
      </property>
     </widget>
-    <widget class="QgsMapLayerComboBox" name="mMapLayerComboBox_4">
-     <property name="geometry">
-      <rect>
-       <x>160</x>
-       <y>30</y>
-       <width>211</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="filters">
-      <set>QgsMapLayerProxyModel::PluginLayer|QgsMapLayerProxyModel::RasterLayer</set>
-     </property>
-    </widget>
-    <widget class="QgsMapLayerComboBox" name="trainingcell_2">
-     <property name="geometry">
-      <rect>
-       <x>160</x>
-       <y>70</y>
-       <width>211</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="filters">
-      <set>QgsMapLayerProxyModel::PluginLayer|QgsMapLayerProxyModel::PolygonLayer</set>
-     </property>
-    </widget>
    </widget>
   </widget>
  </widget>
  <customwidgets>
-  <customwidget>
-   <class>QgsColorButtonV2</class>
-   <extends>QToolButton</extends>
-   <header>qgscolorbuttonv2.h</header>
-  </customwidget>
-  <customwidget>
-   <class>QgsDataDefinedButton</class>
-   <extends>QToolButton</extends>
-   <header>qgsdatadefinedbutton.h</header>
-  </customwidget>
   <customwidget>
    <class>QgsFieldComboBox</class>
    <extends>QComboBox</extends>
@@ -599,11 +523,6 @@
    <class>QgsMapLayerComboBox</class>
    <extends>QComboBox</extends>
    <header>qgsmaplayercombobox.h</header>
-  </customwidget>
-  <customwidget>
-   <class>QgsRelationReferenceWidget</class>
-   <extends>QWidget</extends>
-   <header>qgsrelationreferencewidget.h</header>
   </customwidget>
   <customwidget>
    <class>QgsSpinBox</class>
