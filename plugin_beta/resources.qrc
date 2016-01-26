@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/HistoricalMap" >
+        <file>icon.png</file>
+    </qresource>
+</RCC>
