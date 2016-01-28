@@ -21,8 +21,13 @@
  ***************************************************************************/
 """
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
-from PyQt4.QtGui import QAction, QIcon, QFileDialog
+
+from PyQt4.QtGui import QAction, QIcon, QFileDialog, QDialog
+from qgis.gui import QgsMessageBar
 from qgis.core import *
+import pdb
+
+
 import function_historical_map as fhm
 import qgis.utils
 # Initialize Qt resources from file resources.py
@@ -32,7 +37,7 @@ from historical_map_dialog import HistoricalMapDialog
 import os.path
 
 
-class HistoricalMap:
+class HistoricalMap( QDialog ):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -43,8 +48,12 @@ class HistoricalMap:
             application at run time.
         :type iface: QgsInterface
         """
-        # Save reference to the QGIS interface
+        QDialog.__init__(self)
+        sender = self.sender()
+        """
+        """# Save reference to the QGIS interface
         self.iface = iface
+        
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
@@ -70,11 +79,20 @@ class HistoricalMap:
         self.toolbar = self.iface.addToolBar(u'HistoricalMap')
         self.toolbar.setObjectName(u'HistoricalMap')
 
-        ## Init to choose output file
+        ## Init to choose file (to load or to save)
         self.dlg.outRaster.clear()
-        self.dlg.selectFile.clicked.connect(self.select_output_file)
-        self.dlg.btnRun.clicked.connect(self.run)
-        
+        self.dlg.selectRaster.clicked.connect(self.select_output_file)
+        self.dlg.outModel.clear()
+        self.dlg.selectModel.clicked.connect(self.select_output_file)
+        self.dlg.outMatrix.clear()
+        self.dlg.selectMatrix.clicked.connect(self.select_output_file)
+        self.dlg.btnFilter.clicked.connect(self.runFilter)
+        self.dlg.btnTrain.clicked.connect(self.runTrain)
+        self.dlg.btnClassify.clicked.connect(self.runClassify)
+        self.dlg.inModel.clear()
+        self.dlg.selectModelStep3.clicked.connect(self.select_load_file)
+        self.dlg.outRasterClass.clear()
+        self.dlg.selectRasterStep3.clicked.connect(self.select_output_file)
         
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -172,7 +190,7 @@ class HistoricalMap:
         self.add_action(
             icon_path,
             text=self.tr(u'Select historical map'),
-            callback=self.run,
+            callback=self.runTrain,
             parent=self.iface.mainWindow())
 
 
@@ -187,11 +205,32 @@ class HistoricalMap:
         del self.toolbar
         
     def select_output_file(self):
-        ext='.tiff'
-        filename = QFileDialog.getSaveFileName(self.dlg, "Select output file (without extension) ","",ext)
-        self.dlg.outRaster.setText(filename+ext)
+        sender = self.sender()
 
-    def run(self):
+        fileName = QFileDialog.getSaveFileName(self.dlg, "Select output file","")
+        
+        if not fileName:
+            return
+            
+        if sender == self.dlg.selectRaster: 
+            self.dlg.outRaster.setText(fileName)
+        elif sender == self.dlg.selectModel: 
+            self.dlg.outModel.setText(fileName)            
+        elif sender == self.dlg.selectMatrix: 
+            self.dlg.outMatrix.setText(fileName)
+        elif sender == self.dlg.selectRasterStep3: 
+            self.dlg.outRasterClass.setText(fileName)
+        elif sender == self.dlg.selectModelStep3:
+            self.dlg.inModel.setText(fileName)
+     
+    def select_load_file(self):
+        sender=self.sender()
+        fileName = QFileDialog.getOpenFileName(self.dlg, "Select your file","")
+        if not fileName:
+            return
+        if sender == self.dlg.selectModelStep3:
+            self.dlg.inModel.setText(fileName)
+    def runFilter(self):
         """Run method that performs all the real work"""
 
         # show the dialog
@@ -205,13 +244,9 @@ class HistoricalMap:
         result = self.dlg.exec_()
         if result:
             print 'result'  
-            raster=self.dlg.inRaster.currentLayer()
-            vector=self.dlg.shpd.currentLayer()
-            
+            inRaster=self.dlg.inRaster.currentLayer()
             #vector=str(self.dlg.trainingCell.currentText())
-    
-            inRaster=raster.dataProvider().dataSourceUri()
-            inVector=vector.dataProvider().dataSourceUri()
+            inRaster=inRaster.dataProvider().dataSourceUri()
             inShapeGrey=self.dlg.inShapeGrey.value()
             inShapeMedian=self.dlg.inShapeMedian.value()
             outRaster=self.dlg.outRaster.text()
@@ -223,3 +258,82 @@ class HistoricalMap:
             # Do something useful here - delete the line containing pass and
             # substitute with your code.
             pass
+    def runTrain(self):
+        """Run method that performs all the real work"""
+
+        # show the dialog
+        
+        self.dlg.show()
+        
+        
+        # Run the dialog event loop
+        
+        # See if OK was pressed
+        result = self.dlg.exec_()
+        if result:
+            # Getting variables from UI            
+            inFiltered=self.dlg.inFiltered.currentLayer()
+            inFiltered=inFiltered.dataProvider().dataSourceUri()
+            inTraining=self.dlg.inTraining.currentLayer()
+            
+            # Remove layerid=0 from SHP Path
+            inTraining=inTraining.dataProvider().dataSourceUri().split('|')[0]
+            
+            
+            inClassifier=self.dlg.inClassifier.currentText()
+            outModel=self.dlg.outModel.text()
+            outMatrix=self.dlg.outMatrix.text()
+            #> Optional inField
+    
+            inField=self.dlg.inField.currentText()
+            inSeed=self.dlg.inSeed.value()
+            inSeed=int(inSeed)
+            inSplit=self.dlg.inSplit.value()
+            #inClassifier='\''+inClassifier+'\''
+            
+            """ DEBUG """
+            query=(str(inFiltered)+','+str(inTraining)+','+str(inField)+','+str(inSplit)+','+str(inSeed)+','+str(outModel)+','+str(outMatrix)+','+str(inClassifier))
+            self.iface.messageBar().pushMessage("Error", query, QgsMessageBar.CRITICAL, 30)
+            """ """
+            
+            fhm.learnModel(inFiltered,inTraining,inField,inSplit,inSeed,outModel,outMatrix,inClassifier)
+            
+           
+            
+            pass
+    def runClassify(self):
+            """Run method that performs all the real work"""
+    
+            # show the dialog
+            
+            self.dlg.show()
+            
+            
+            # Run the dialog event loop
+            
+            # See if OK was pressed
+            result = self.dlg.exec_()
+            if result:
+                print 'result'  
+                inFilteredStep3=self.dlg.inFilteredStep3.currentLayer()
+                inFilteredStep3=inFilteredStep3.dataProvider().dataSourceUri()
+                inMinSize=self.dlg.inMinSize.value()
+                
+                outRasterClass=self.dlg.outRasterClass.text()
+                inModel=self.dlg.inModel.text()
+                inFieldStep3=self.dlg.inFieldStep3.currentText()
+                
+                
+                """ DEBUG """
+                #query=(str(inMinSize)+','+str(outRasterClass)+','+str(inModel))
+                #self.iface.messageBar().pushMessage("Error", query, QgsMessageBar.CRITICAL, 30)
+                """ DEBUG """
+                #classifiedImage=fhm.classifyImage(inFilteredStep3,inTrainingStep3,outRasterClass,None,inMinSize,None,'Class',inNODATA=-10000)
+                fhm.classifyImage(inFilteredStep3,inModel,outRasterClass,inMinSize,None,inFieldStep3,-10000)
+                # Do something useful here - delete the line containing pass and
+                # substitute with your code.
+                self.iface.addRasterLayer(outRasterClass)
+                
+                # Do something useful here - delete the line containing pass and
+                # substitute with your code.
+                pass

@@ -6,9 +6,27 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>745</width>
-    <height>741</height>
+    <width>600</width>
+    <height>607</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>74</horstretch>
+    <verstretch>74</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>600</width>
+    <height>530</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>600</width>
+    <height>1500</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>HistoricalMap - Automatic vectorizing old forests</string>
@@ -16,586 +34,656 @@
   <widget class="QTabWidget" name="tabWidget">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>290</y>
-     <width>701</width>
-     <height>381</height>
+     <x>10</x>
+     <y>250</y>
+     <width>581</width>
+     <height>351</height>
     </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
    </property>
    <property name="accessibleDescription">
     <string/>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>2</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
      <string>Filter map (Step 1)</string>
     </attribute>
-    <widget class="QLabel" name="tiffImageLabel_2">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>120</y>
-       <width>221</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>14</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Size of closing filter :</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="tiffImageLabel_3">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>190</y>
-       <width>191</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>14</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Size of median filter :</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="tiffImageLabel">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>50</y>
-       <width>141</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>14</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Image to filter :</string>
-     </property>
-    </widget>
-    <widget class="QgsMapLayerComboBox" name="inRaster">
-     <property name="geometry">
-      <rect>
-       <x>180</x>
-       <y>40</y>
-       <width>331</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="filters">
-      <set>QgsMapLayerProxyModel::PluginLayer|QgsMapLayerProxyModel::RasterLayer</set>
-     </property>
-    </widget>
-    <widget class="QgsSpinBox" name="inShapeGrey">
-     <property name="geometry">
-      <rect>
-       <x>230</x>
-       <y>100</y>
-       <width>98</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>14</pointsize>
-      </font>
-     </property>
-     <property name="minimum">
-      <number>1</number>
-     </property>
-     <property name="maximum">
-      <number>31</number>
-     </property>
-     <property name="singleStep">
-      <number>2</number>
-     </property>
-     <property name="value">
-      <number>11</number>
-     </property>
-    </widget>
-    <widget class="QgsSpinBox" name="inShapeMedian">
-     <property name="geometry">
-      <rect>
-       <x>230</x>
-       <y>170</y>
-       <width>98</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>14</pointsize>
-      </font>
-     </property>
-     <property name="minimum">
-      <number>1</number>
-     </property>
-     <property name="maximum">
-      <number>31</number>
-     </property>
-     <property name="singleStep">
-      <number>2</number>
-     </property>
-     <property name="value">
-      <number>11</number>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="outRaster">
-     <property name="geometry">
-      <rect>
-       <x>180</x>
-       <y>230</y>
-       <width>331</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="placeholderText">
-      <string>ex : map_filtered.tiff</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="selectFile">
-     <property name="geometry">
-      <rect>
-       <x>540</x>
-       <y>230</y>
-       <width>61</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>...</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="tiffImageLabel_16">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>240</y>
-       <width>141</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>14</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Save result as :</string>
-     </property>
-    </widget>
-    <widget class="QgsMapLayerComboBox" name="shpd">
-     <property name="geometry">
-      <rect>
-       <x>420</x>
-       <y>90</y>
-       <width>211</width>
-       <height>61</height>
-      </rect>
-     </property>
-     <property name="filters">
-      <set>QgsMapLayerProxyModel::PluginLayer|QgsMapLayerProxyModel::PolygonLayer</set>
-     </property>
-    </widget>
-    <widget class="QDialogButtonBox" name="btnRun">
-     <property name="geometry">
-      <rect>
-       <x>500</x>
-       <y>310</y>
-       <width>181</width>
-       <height>32</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>Sans Serif</family>
-      </font>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="2" column="0">
+      <widget class="QLabel" name="tiffImageLabel_3">
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Size of median filter :</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1" colspan="2">
+      <widget class="QgsMapLayerComboBox" name="inRaster">
+       <property name="filters">
+        <set>QgsMapLayerProxyModel::PluginLayer|QgsMapLayerProxyModel::RasterLayer</set>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="tiffImageLabel">
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Image to filter :</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="tiffImageLabel_16">
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Save result as :</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="tiffImageLabel_2">
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Size of closing filter :</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QLineEdit" name="outRaster">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="placeholderText">
+        <string>ex : map_filtered.tiff</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="2">
+      <widget class="QPushButton" name="selectRaster">
+       <property name="text">
+        <string>...</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="2">
+      <widget class="QPushButton" name="btnFilter">
+       <property name="minimumSize">
+        <size>
+         <width>150</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Filter</string>
+       </property>
+       <property name="default">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QgsSpinBox" name="inShapeGrey">
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+       <property name="minimum">
+        <number>1</number>
+       </property>
+       <property name="maximum">
+        <number>31</number>
+       </property>
+       <property name="singleStep">
+        <number>2</number>
+       </property>
+       <property name="value">
+        <number>11</number>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QgsSpinBox" name="inShapeMedian">
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+       <property name="minimum">
+        <number>1</number>
+       </property>
+       <property name="maximum">
+        <number>31</number>
+       </property>
+       <property name="singleStep">
+        <number>2</number>
+       </property>
+       <property name="value">
+        <number>11</number>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
    <widget class="QWidget" name="tab_2">
     <attribute name="title">
      <string>Training (Step 2)</string>
     </attribute>
-    <widget class="QLabel" name="tiffImageLabel_4">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>30</y>
-       <width>141</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>14</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Filtered image :</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="tiffImageLabel_5">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>70</y>
-       <width>111</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>14</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Training cell :</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="tiffImageLabel_6">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>230</y>
-       <width>61</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>11</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Seed</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="tiffImageLabel_7">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>110</y>
-       <width>131</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>14</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Field column : </string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="tiffImageLabel_8">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>260</y>
-       <width>61</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>11</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Split</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="tiffImageLabel_10">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>150</y>
-       <width>201</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>14</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Classifier :</string>
-     </property>
-    </widget>
-    <widget class="QComboBox" name="comboBox">
-     <property name="geometry">
-      <rect>
-       <x>160</x>
-       <y>145</y>
-       <width>101</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>14</pointsize>
-      </font>
-     </property>
-     <item>
-      <property name="text">
-       <string>GMM</string>
-      </property>
+    <layout class="QGridLayout" name="gridLayout_2">
+     <item row="0" column="0">
+      <widget class="QLabel" name="tiffImageLabel_4">
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Filtered image :</string>
+       </property>
+      </widget>
      </item>
-     <item>
-      <property name="text">
-       <string>KNN</string>
-      </property>
+     <item row="0" column="1">
+      <widget class="QgsMapLayerComboBox" name="inFiltered">
+       <property name="filters">
+        <set>QgsMapLayerProxyModel::PluginLayer|QgsMapLayerProxyModel::RasterLayer</set>
+       </property>
+      </widget>
      </item>
-     <item>
-      <property name="text">
-       <string>RF</string>
-      </property>
+     <item row="1" column="0">
+      <widget class="QLabel" name="tiffImageLabel_5">
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Training cell :</string>
+       </property>
+      </widget>
      </item>
-     <item>
-      <property name="text">
-       <string>SVM</string>
-      </property>
+     <item row="1" column="1">
+      <widget class="QgsMapLayerComboBox" name="inTraining">
+       <property name="filters">
+        <set>QgsMapLayerProxyModel::HasGeometry|QgsMapLayerProxyModel::LineLayer|QgsMapLayerProxyModel::NoGeometry|QgsMapLayerProxyModel::PluginLayer|QgsMapLayerProxyModel::PointLayer|QgsMapLayerProxyModel::PolygonLayer|QgsMapLayerProxyModel::VectorLayer</set>
+       </property>
+      </widget>
      </item>
-    </widget>
-    <widget class="QgsMapLayerComboBox" name="trainingCelld">
-     <property name="geometry">
-      <rect>
-       <x>160</x>
-       <y>70</y>
-       <width>211</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="filters">
-      <set>QgsMapLayerProxyModel::PluginLayer|QgsMapLayerProxyModel::PolygonLayer</set>
-     </property>
-    </widget>
-    <widget class="QgsMapLayerComboBox" name="mMapLayerComboBox_3">
-     <property name="geometry">
-      <rect>
-       <x>160</x>
-       <y>26</y>
-       <width>211</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="filters">
-      <set>QgsMapLayerProxyModel::PluginLayer|QgsMapLayerProxyModel::RasterLayer</set>
-     </property>
-    </widget>
-    <widget class="QLabel" name="tiffImageLabel_9">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>190</y>
-       <width>191</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>14</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Output Model name : </string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="lineEdit">
-     <property name="geometry">
-      <rect>
-       <x>210</x>
-       <y>190</y>
-       <width>191</width>
-       <height>27</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QgsFieldComboBox" name="mFieldComboBox">
-     <property name="geometry">
-      <rect>
-       <x>160</x>
-       <y>110</y>
-       <width>160</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="filters">
-      <set>QgsFieldProxyModel::String</set>
-     </property>
-    </widget>
+     <item row="2" column="0">
+      <widget class="QLabel" name="tiffImageLabel_10">
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Classifier :</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QComboBox" name="inClassifier">
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+       <item>
+        <property name="text">
+         <string>GMM</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>KNN</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>RF</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>SVM</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="tiffImageLabel_9">
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Output Model name : </string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1" colspan="2">
+      <widget class="QLineEdit" name="outModel">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="placeholderText">
+        <string>ex : modelGMM</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="3">
+      <widget class="QPushButton" name="selectModel">
+       <property name="text">
+        <string>...</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="tiffImageLabel_17">
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Confusion matrix :</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1" colspan="2">
+      <widget class="QLineEdit" name="outMatrix">
+       <property name="placeholderText">
+        <string>ex : matrixGMM</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="3">
+      <widget class="QPushButton" name="selectMatrix">
+       <property name="text">
+        <string>...</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QGroupBox" name="groupBox">
+       <property name="title">
+        <string>&gt; Optional fields</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_4">
+        <item row="0" column="0">
+         <widget class="QLabel" name="tiffImageLabel_7">
+          <property name="font">
+           <font>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Field column : </string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QComboBox" name="inField">
+          <property name="font">
+           <font>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
+          <item>
+           <property name="text">
+            <string>Class</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="tiffImageLabel_6">
+          <property name="font">
+           <font>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Seed : </string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="tiffImageLabel_8">
+          <property name="font">
+           <font>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Split : </string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QDoubleSpinBox" name="inSplit">
+          <property name="maximum">
+           <double>1.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.010000000000000</double>
+          </property>
+          <property name="value">
+           <double>0.500000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QDoubleSpinBox" name="inSeed">
+          <property name="decimals">
+           <number>0</number>
+          </property>
+          <property name="maximum">
+           <double>1.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.010000000000000</double>
+          </property>
+          <property name="value">
+           <double>0.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="5" column="2" colspan="2">
+      <widget class="QPushButton" name="btnTrain">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>150</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="baseSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Train</string>
+       </property>
+       <property name="default">
+        <bool>true</bool>
+       </property>
+       <property name="flat">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
    <widget class="QWidget" name="tab_3">
     <attribute name="title">
      <string>Classify (Step 3)</string>
     </attribute>
-    <widget class="QLabel" name="tiffImageLabel_11">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>150</y>
-       <width>131</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>14</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Saved Model  : </string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="tiffImageLabel_12">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>30</y>
-       <width>141</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>14</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Filtered image :</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="tiffImageLabel_13">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>70</y>
-       <width>111</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>14</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Training cell :</string>
-     </property>
-    </widget>
-    <widget class="QgsFieldComboBox" name="mFieldComboBox_2">
-     <property name="geometry">
-      <rect>
-       <x>160</x>
-       <y>105</y>
-       <width>211</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="editable">
-      <bool>true</bool>
-     </property>
-     <property name="duplicatesEnabled">
-      <bool>false</bool>
-     </property>
-    </widget>
-    <widget class="QLabel" name="tiffImageLabel_14">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>110</y>
-       <width>131</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>14</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Field column : </string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="tiffImageLabel_15">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>190</y>
-       <width>151</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>14</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Classified image :</string>
-     </property>
-    </widget>
-    <widget class="QgsMapLayerComboBox" name="mMapLayerComboBox_4">
-     <property name="geometry">
-      <rect>
-       <x>160</x>
-       <y>30</y>
-       <width>211</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="filters">
-      <set>QgsMapLayerProxyModel::PluginLayer|QgsMapLayerProxyModel::RasterLayer</set>
-     </property>
-    </widget>
-    <widget class="QgsMapLayerComboBox" name="trainingcell_2">
-     <property name="geometry">
-      <rect>
-       <x>160</x>
-       <y>70</y>
-       <width>211</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="filters">
-      <set>QgsMapLayerProxyModel::PluginLayer|QgsMapLayerProxyModel::PolygonLayer</set>
-     </property>
-    </widget>
+    <layout class="QGridLayout" name="gridLayout_3">
+     <item row="0" column="1">
+      <widget class="QgsMapLayerComboBox" name="inFilteredStep3">
+       <property name="filters">
+        <set>QgsMapLayerProxyModel::PluginLayer|QgsMapLayerProxyModel::RasterLayer</set>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <widget class="QComboBox" name="inFieldStep3">
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
+       <item>
+        <property name="text">
+         <string>Class</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="6" column="3">
+      <widget class="QPushButton" name="selectRasterStep3">
+       <property name="text">
+        <string>...</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="tiffImageLabel_12">
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Filtered image :</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QLineEdit" name="inModel">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="placeholderText">
+        <string>ex : modelGMM</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="0" colspan="2">
+      <widget class="QGroupBox" name="groupBox_2">
+       <property name="title">
+        <string>&gt; Optional fields</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_5">
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="outShpFolder">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="inputMask">
+           <string/>
+          </property>
+          <property name="dragEnabled">
+           <bool>false</bool>
+          </property>
+          <property name="readOnly">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="tiffImageLabel_15">
+          <property name="font">
+           <font>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Save vector :</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="tiffImageLabel_18">
+          <property name="font">
+           <font>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Minimun parcel size :</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QSpinBox" name="inMinSize">
+          <property name="maximum">
+           <number>60</number>
+          </property>
+          <property name="value">
+           <number>6</number>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="6" column="0">
+      <widget class="QLabel" name="tiffImageLabel_11">
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Save raster :</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QgsMapLayerComboBox" name="inTrainingStep3">
+       <property name="filters">
+        <set>QgsMapLayerProxyModel::PluginLayer|QgsMapLayerProxyModel::PolygonLayer</set>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="tiffImageLabel_13">
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Training cell :</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QLabel" name="tiffImageLabel_14">
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Field column : </string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="tiffImageLabel_19">
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Model name : </string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="1">
+      <widget class="QLineEdit" name="outRasterClass">
+       <property name="placeholderText">
+        <string>ex : Map_classified.tiff</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="3">
+      <widget class="QPushButton" name="selectModelStep3">
+       <property name="text">
+        <string>...</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="3">
+      <widget class="QPushButton" name="btnClassify">
+       <property name="minimumSize">
+        <size>
+         <width>150</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Classify</string>
+       </property>
+       <property name="default">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="2">
+      <widget class="QPushButton" name="selectRasterStep3_2">
+       <property name="text">
+        <string>...</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
   </widget>
   <widget class="QLabel" name="label">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="geometry">
     <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>781</width>
-     <height>241</height>
+     <x>-1</x>
+     <y>-1</y>
+     <width>601</width>
+     <height>211</height>
     </rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::NoFrame</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Plain</enum>
+   </property>
+   <property name="lineWidth">
+    <number>0</number>
    </property>
    <property name="text">
     <string/>
@@ -606,14 +694,14 @@
    <property name="scaledContents">
     <bool>true</bool>
    </property>
+   <property name="wordWrap">
+    <bool>false</bool>
+   </property>
   </widget>
+  <zorder>label</zorder>
+  <zorder>tabWidget</zorder>
  </widget>
  <customwidgets>
-  <customwidget>
-   <class>QgsFieldComboBox</class>
-   <extends>QComboBox</extends>
-   <header>qgsfieldcombobox.h</header>
-  </customwidget>
   <customwidget>
    <class>QgsMapLayerComboBox</class>
    <extends>QComboBox</extends>
