@@ -1,5 +1,5 @@
 ![Alt text](/img/historical_logo.jpg?raw=true "Historical Map Plugin for Qgis")
-# Historical-Map
+# Historical Map, Qgis plugin
 
 Qgis Plugin for automatic extraction of forest from Historical Map
 
