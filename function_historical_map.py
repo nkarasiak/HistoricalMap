@@ -457,7 +457,7 @@ if __name__=='__main__':
         
     inFile,inExtension = os.path.splitext(inImage) # Split filename and extension
     outFilter=inFile+'_filtered'+inExtension 
-        
+    
     # Filtering....
     #filtered=historicalFilter(inFile+inExtension,outFilter,inShapeGrey=11,inShapeMedian=11)
     print 'Image saved as : '+outFilter
