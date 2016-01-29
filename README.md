@@ -1,4 +1,5 @@
 # Historical-Map
+![Alt text](/img/historical_logo.jpg?raw=true "Historical Map Plugin for Qgis")
 Qgis Plugin for automatic extraction of forest from Historical Map
 
 Made By Nicolas Karasiak and Antoine Lomellini
