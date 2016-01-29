@@ -243,16 +243,19 @@ class HistoricalMap( QDialog ):
         # See if OK was pressed
         result = self.dlg.exec_()
         if result:
-            print 'result'  
+            
             inRaster=self.dlg.inRaster.currentLayer()
             #vector=str(self.dlg.trainingCell.currentText())
             inRaster=inRaster.dataProvider().dataSourceUri()
             inShapeGrey=self.dlg.inShapeGrey.value()
             inShapeMedian=self.dlg.inShapeMedian.value()
             outRaster=self.dlg.outRaster.text()
+            
             fhm.historicalFilter(inRaster,outRaster,inShapeGrey,inShapeMedian)
+
             # Do something useful here - delete the line containing pass and
             # substitute with your code.
+            self.iface.messageBar().pushMessage("New image", "Filter with "+str(inShapeGrey)+' closing size and '+str(inShapeMedian)+ ' median size', level=QgsMessageBar.SUCCESS, duration=20)
             self.iface.addRasterLayer(outRaster)
             
             # Do something useful here - delete the line containing pass and
@@ -284,23 +287,21 @@ class HistoricalMap( QDialog ):
             outModel=self.dlg.outModel.text()
             outMatrix=self.dlg.outMatrix.text()
             #> Optional inField
-    
-            inField=self.dlg.inField.currentText()
+            inField=self.dlg.inField.currentText()            
             inSeed=self.dlg.inSeed.value()
             inSeed=int(inSeed)
             inSplit=self.dlg.inSplit.value()
-            #inClassifier='\''+inClassifier+'\''
             
-            """ DEBUG """
+            """ DEBUG """ """
             query=(str(inFiltered)+','+str(inTraining)+','+str(inField)+','+str(inSplit)+','+str(inSeed)+','+str(outModel)+','+str(outMatrix)+','+str(inClassifier))
             self.iface.messageBar().pushMessage("Error", query, QgsMessageBar.CRITICAL, 30)
-            """ """
+            """ """  """
             
             fhm.learnModel(inFiltered,inTraining,inField,inSplit,inSeed,outModel,outMatrix,inClassifier)
-            
-           
-            
+            self.iface.messageBar().pushMessage("Learning done with "+str(inClassifier)+": ", "Matrix confusion in" +str(outMatrix), level=QgsMessageBar.SUCCESS, duration=20)
+                      
             pass
+        
     def runClassify(self):
             """Run method that performs all the real work"""
     
@@ -333,7 +334,7 @@ class HistoricalMap( QDialog ):
                 # Do something useful here - delete the line containing pass and
                 # substitute with your code.
                 self.iface.addRasterLayer(outRasterClass)
-                
+                self.iface.messageBar().pushMessage("New image : ",outRasterClass, level=QgsMessageBar.SUCCESS, duration=20)
                 # Do something useful here - delete the line containing pass and
                 # substitute with your code.
                 pass
