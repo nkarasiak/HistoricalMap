@@ -14,7 +14,7 @@ version=0.1
 author=Karasiak & Lomellini
 email=karasiak.nicolas@gmail.com
 
-about=About Historical Map : Made by Nicolas Karasiak & Antoine Lomellini Based on the work of Pierre-Antoine....
+about=About Historical Map : Made by Nicolas Karasiak & Antoine Lomellini Based on the work of Pierre-Alexis....<br><br><b>Library to add before installing the : </b><br><ul><li>SKlearn</li><li>SciPy</li></ul><br>To install these dependencies you can consult our tutorial at the <a href="https://github.com/lennepkade/Historical-Map/">Historical Map plugin page</a>.
 
 tracker=https://github.com/lennepkade/Historical-Map/
 repository=https://github.com/lennepkade/Historical-Map/
@@ -26,13 +26,13 @@ repository=https://github.com/lennepkade/Historical-Map/
 # changelog=
 
 # Tags are comma separated with spaces allowed
-tags=historicalmap,classify,filter,old map, forest
+tags=historicalmap,classify,filter,old map,forest
 
 homepage=https://github.com/lennepkade/Historical-Map/
 category=Raster
 icon=icon.png
 # experimental flag
-experimental=False
+experimental=True
 
 # deprecated flag (applies to the whole plugin, not just a single version)
 deprecated=False
