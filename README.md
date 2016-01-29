@@ -24,3 +24,4 @@ Then search for Historical Mapand install it. A new icon shows up <img src="http
 Basic : Raster image must be a geotiff (tiff,tif)
 #### 2. Train
 #### 3. Classify
+
