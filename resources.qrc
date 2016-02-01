@@ -1,6 +1,13 @@
 <RCC>
   <qresource prefix="/plugins/HistoricalMap">
+    <file>img/help/median1.png</file>
+    <file>img/help/median5.png</file>
+    <file>img/help/gm5_5.png</file>
+    <file>img/help/gm_11_11.png</file>
+    <file>img/help/information.png</file>
     <file>icon.png</file>
-    <file>historical_logo.jpg</file>
+    <file>img/help/grey5.png</file>
+    <file>img/help/grey11.png</file>
+    <file>img/help/original_sample.png</file>
   </qresource>
 </RCC>
