@@ -3,7 +3,9 @@
 
 Qgis Plugin for automatic extraction of forest from Historical Map
 
-Made By Nicolas Karasiak and Antoine Lomellini. Based on the work of Pierre-Alexis Herrault
+Made By Nicolas Karasiak and Antoine Lomellini.
+
+Based on the work of Pierre-Alexis Herrault, with the help of <a href="http://fauvel.mathieu.free.fr/">Mathieu Fauvel</a>.
 
 ## Installation
 ### Before installing on Qgis
