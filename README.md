@@ -23,7 +23,7 @@ Then search for Historical Mapand install it. A new icon shows up <img src="http
 #### I. Filtering
 
 ##### Input image
-The image must be a geotiff (*.tif,*.tiff).
+The image must be a geotiff (*.tif).
 
 ##### The filters
 <b>Closing filter</b> performs a max then a min filter. Here you can see the differences depending on the window size : </p><table border="0" style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;" cellspacing="2" cellpadding="0"><tr><td><p><img src="img/help/original_sample.png"/></p></td><td><p><img src="img/help/grey5.png"/></p></td><td><p><img src="img/help/grey11.png"/></p></td></tr><tr><td><p align="center">Original</p></td><td><p align="center">Size 5</p></td><td><p align="center">Size 11</p></td></tr></table>
