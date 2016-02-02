@@ -31,6 +31,7 @@ import pdb
 import function_historical_map as fhm
 import qgis.utils
 # Initialize Qt resources from file resources.py
+
 import resources
 # Import the code for the dialog
 from historical_map_dialog import HistoricalMapDialog
@@ -93,6 +94,8 @@ class HistoricalMap( QDialog ):
         self.dlg.selectModelStep3.clicked.connect(self.select_load_file)
         self.dlg.outRasterClass.clear()
         self.dlg.selectRasterStep3.clicked.connect(self.select_output_file)
+	self.dlg.outShp.clear()
+	self.dlg.selectOutShp.clicked.connect(self.select_output_file)
         
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -213,15 +216,17 @@ class HistoricalMap( QDialog ):
             return
             
         if sender == self.dlg.selectRaster: 
-            self.dlg.outRaster.setText(fileName)
+            self.dlg.outRaster.setText(fileName+'.tif')
         elif sender == self.dlg.selectModel: 
             self.dlg.outModel.setText(fileName)            
         elif sender == self.dlg.selectMatrix: 
-            self.dlg.outMatrix.setText(fileName)
+            self.dlg.outMatrix.setText(fileName+'.csv')
         elif sender == self.dlg.selectRasterStep3: 
-            self.dlg.outRasterClass.setText(fileName)
+            self.dlg.outRasterClass.setText(fileName+'.tif')
         elif sender == self.dlg.selectModelStep3:
             self.dlg.inModel.setText(fileName)
+	elif sender == self.dlg.selectOutShp:
+	    self.dlg.outShp.setText(fileName+'.shp')
      
     def select_load_file(self):
         sender=self.sender()
