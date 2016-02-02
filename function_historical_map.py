@@ -37,15 +37,15 @@ class historicalFilter:
         -- Nothing except a raster file (outName)
         
     """
-    def __init__(self, inImage,outName,inShapeGrey,inShapeMedian):
+    def __init__(self, inImage,outName,inShapeGrey,inShapeMedian,iterMedian):
         # Try to load the image with dataraster.py (loadImage function)
         try:
-            self.filterBand(inImage,outName,inShapeGrey,inShapeMedian)
+            self.filterBand(inImage,outName,inShapeGrey,inShapeMedian,iterMedian)
         except:
             print "Impossible to filter"
         # Saving file
        
-    def filterBand(self,inImage,outName,inShapeGrey,inShapeMedian):
+    def filterBand(self,inImage,outName,inShapeGrey,inShapeMedian,iterMedian):
         """
         Filter band per band with greyClose and median
         Generate empty table then fill it with greyClose and median filter above it.
@@ -88,10 +88,11 @@ class historicalFilter:
                 temp = ndimage.morphology.grey_closing(temp,size=(inShapeGrey,inShapeGrey))
             except:
                 print 'Cannot filter with Grey_Closing'
-            try:
-                temp = ndimage.filters.median_filter(temp,size=(inShapeMedian,inShapeMedian))
-            except:
-                print 'Cannot filter with Median'
+            for j in range(iterMedian):
+                try:
+                    temp = ndimage.filters.median_filter(temp,size=(inShapeMedian,inShapeMedian))
+                except:
+                    print 'Cannot filter with Median'
                 
             # Save bandand outFile
             try:
@@ -272,7 +273,7 @@ class classifyImage():
     SHP file with deleted polygon below inMinSize
     
     """
-    def __init__(self,inRaster,inModel,outRaster,inMask=None,inMinSize=6,outShpFolder='data/outSHP/',inField='Class',inNODATA=-10000):
+    def __init__(self,inRaster,inModel,outRaster,inMask=None,inMinSize=6,outShpFolder='data/outSHP/',inField='Class',inNODATA=-10000,inClassForest=1):
             # Load model
         model = open(inModel,'rb') # TODO: Update to scale the data 
         if model is None:
@@ -286,7 +287,7 @@ class classifyImage():
         # Process the data
         self.predict_image(inRaster,outRaster,tree,None,inNODATA,SCALE=[M,m])
        
-        """
+        
         # SHP
         # Vectorize with field inField
                 
@@ -318,15 +319,33 @@ class classifyImage():
         for i in lyr:
             # feat = lyr.GetFeature(i) 
             geom = i.GetGeometryRef()
-            area = round(geom.GetArea()/1000,0)
+            area = round(geom.GetArea())
             lyr.SetFeature(i)
             i.SetField( "Area", area )
             lyr.SetFeature(i)
         # 
             if area<inMinSize: #Size in acre (/1000) for the 2154 projection
-                lyr.DeleteFeature(i.GetFID())
+                if i.GetField(inField)==inClassForest:
+                    lyr.SetFeature(i)
+                    i.SetField(inField,inClassForest+1)
+                    lyr.SetFeature(i)
+                elif i.GetField(inField)!=inClassForest:
+                    lyr.SetFeature(i)
+                    i.SetField(inField,inClassForest)
+                    lyr.SetFeature(i)
+                    
+        
+        unionc = ogr.Geometry(ogr.wkbMultiPolygon)
+        for i in lyr:
+            lyr.SetFeature(i)
+            fit= lyr.GetFeature(i)
+            geom= fit.GetGeometryRef()
+            unionc.AddGeometry(geom)
+            lyr.SetFeature(i)
+        ds= unionc.UnionCascaded()
+                #lyr.DeleteFeature(i.GetFID())
         ds = None
-        """
+        
         
     def scale(self,x,M=None,m=None):  # TODO:  DO IN PLACE SCALING
         ''' Function that standardize the datouta
@@ -453,31 +472,31 @@ if __name__=='__main__':
     
     # Image to work on
 
-    inImage='data/map.tif'
+    inImage='img/samples/map.tif'
         
     inFile,inExtension = os.path.splitext(inImage) # Split filename and extension
     outFilter=inFile+'_filtered'+inExtension 
     
-    # Filtering....
-    #filtered=historicalFilter(inFile+inExtension,outFilter,inShapeGrey=11,inShapeMedian=11)
-    print 'Image saved as : '+outFilter
+#    # Filtering....
+#    filtered=historicalFilter(inFile+inExtension,outFilter,inShapeGrey=11,inShapeMedian=11, iterMedian=5)
+#    print 'Image saved as : '+outFilter
     
     # Learn Model...
-    inVector='data/train.shp'
+    inVector='img/samples/train.shp'
     inClassifier='GMM'
-    #outModel='/home/sigma/model'
+    outModel='img/samples/model'
     inSeed=0
     
-    #model=learnModel('/home/sigma/Bureau/historicalmap/data/map_filtered.tif','/home/sigma/Bureau/historicalmap/data/train.shp',inField='Class',inSplit=0.5,inSeed=0,outModel='/home/sigma/Bureau/historicalmap/data/model',outMatrix='/home/sigma/Bureau/historicalmap/data/matrix.txt',inClassifier=inClassifier)   
+    model=learnModel('/home/sigma/Bureau/Historical-Map/img/samples/map_filtered.tif','/home/sigma/Bureau/Historical-Map/img/samples/train.shp',inField='Class',inSplit=0.5,inSeed=0,outModel='/home/sigma/Bureau/Historical-Map/img/samples/model',outMatrix='/home/sigma/Bureau/Historical-Map/img/samples/matrix.txt',inClassifier=inClassifier)   
     print 'Model saved as : '+outModel
     print 'Confusion matrix saved as : '+str(inFile)+'_'+str(inClassifier)+'_'+str(inSeed)+'_confu.csv'
     
     #Classify image...
-    outRaster='data/outGMM.tif'
-    outShpFolder='data/outSHP'
-    classified=classifyImage('/home/sigma/Bureau/historicalmap/data/map_filtered.tif','/home/sigma/Bureau/historicalmap/data/model','/home/sigma/LastMap.tif',8,None,'Class',-10000)
-    #nFilteredStep3,inTrainingStep3,outRasterClass,None,inMinSize,None,'Class',inNODATA=-10000
-    #inRaster,inModel,outRaster,inMask=None,inMinSize=6,outShpFolder='data/outSHP/',inField='Class',inNODATA=-10000
+    outRaster='img/samples/outGMM.tif'
+    outShpFolder='img/samples/'
+    classified=classifyImage('/home/sigma/Bureau/Historical-Map/img/samples/map_filtered.tif','/home/sigma/Bureau/Historical-Map/img/samples/model','/home/sigma/LastMap.tif',None,6000,'/home/sigma/Bureau/Historical-Map/img/samples/SHP/','Class',-10000)
+#    inFilteredStep3,inTrainingStep3,outRasterClass,None,inMinSize,None,'Class',inNODATA=-10000
+#    inRaster,inModel,outRaster,inMask=None,inMinSize=6,outShpFolder='img/samples/outSHP/',inField='Class',inNODATA=-10000
     
     print 'Classified image at : '+outRaster
     print 'Shp folder in : ' +outShpFolder
