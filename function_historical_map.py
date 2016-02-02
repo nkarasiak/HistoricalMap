@@ -23,6 +23,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.cross_validation import StratifiedKFold
 from sklearn.grid_search import GridSearchCV
 
+
 class historicalFilter:  
     """
     Filter class to isolate the forest, delete dark lines and fonts from Historical Map
@@ -37,15 +38,18 @@ class historicalFilter:
         -- Nothing except a raster file (outName)
         
     """
-    def __init__(self, inImage,outName,inShapeGrey,inShapeMedian,nbGrey,nbMedian):
+
+    def __init__(self, inImage,outName,inShapeGrey,inShapeMedian,iterMedian):
         # Try to load the image with dataraster.py (loadImage function)
         try:
-            self.filterBand(inImage,outName,inShapeGrey,inShapeMedian,nbGrey,nbMedian)
+            self.filterBand(inImage,outName,inShapeGrey,inShapeMedian,iterMedian)
         except:
             print "Impossible to filter"
         # Saving file
        
-    def filterBand(self,inImage,outName,inShapeGrey,inShapeMedian,nbGrey,nbMedian):
+
+    def filterBand(self,inImage,outName,inShapeGrey,inShapeMedian,iterMedian):
+
         """
         Filter band per band with greyClose and median
         Generate empty table then fill it with greyClose and median filter above it.
@@ -85,15 +89,16 @@ class historicalFilter:
                 print 'Cannot get rasterband'+i
             # Filter with greyclosing, then with median filter
             try:
-                for j in range(nbGrey):
+                for j in range(i):
                     temp = ndimage.morphology.grey_closing(temp,size=(inShapeGrey,inShapeGrey))
             except:
                 print 'Cannot filter with Grey_Closing'
-            try:
-                for k in range (nbMedian):
+
+            for j in range(iterMedian):
+                try:
                     temp = ndimage.filters.median_filter(temp,size=(inShapeMedian,inShapeMedian))
-            except:
-                print 'Cannot filter with Median'
+                except:
+                    print 'Cannot filter with Median'
                 
             # Save bandand outFile
             try:
@@ -274,7 +279,7 @@ class classifyImage():
     SHP file with deleted polygon below inMinSize
     
     """
-    def __init__(self,inRaster,inModel,outRaster,inMask=None,inMinSize=6,outShpFolder='data/outSHP/',inField='Class',inNODATA=-10000):
+    def __init__(self,inRaster,inModel,outRaster,inMask=None,inMinSize=6,outShpFolder='data/outSHP/',inField='Class',inNODATA=-10000,inClassForest=1):
             # Load model
         model = open(inModel,'rb') # TODO: Update to scale the data 
         if model is None:
@@ -289,46 +294,87 @@ class classifyImage():
         self.predict_image(inRaster,outRaster,tree,None,inNODATA,SCALE=[M,m])
        
         """
-        # SHP
-        # Vectorize with field inField
-                
+        Raster modification
+        Fill holes and median filtering
+        """
+        try:
+            data,im=dataraster.open_data_band(outRaster)
+        except:
+            print 'Cannot open image'
+            
+
+        # get proj,geo and dimension (d) from data
+        proj = data.GetProjection()
+        geo = data.GetGeoTransform()
+        d = data.RasterCount
+        
+        outFile=dataraster.create_empty_tiff(outRaster,im,d,geo,proj)
+        temp = data.GetRasterBand(1).ReadAsArray()
+        temp[temp!=1]=0
+        temp = ndimage.morphology.binary_fill_holes(temp).astype(int)
+        temp = ndimage.median_filter(temp,size=(3,3))
+        temp[temp==0]=2
+        try :
+            out=outFile.GetRasterBand(1)
+            out.WriteArray(temp)
+            out.FlushCache()
+            temp = None
+        except:
+            print 'Cannot save '+outRaster
+        """
+        SHP
+        Vectorizing with field inField
+        """       
+        #print '10s pause'
+        
+        
         sourceRaster = gdal.Open(outRaster)
         band = sourceRaster.GetRasterBand(1)
         bandArray = band.ReadAsArray()
-        outShapefile = outShpFolder
-        driver = ogr.GetDriverByName("ESRI Shapefile")
-        driver.DeleteDataSource(outShpFolder)
-        outDatasource = driver.CreateDataSource(outShpFolder)
-        outLayer = outDatasource.CreateLayer("vectorized", srs=None)
-        newField = ogr.FieldDefn(inField, ogr.OFTInteger)
-        outLayer.CreateField(newField)
-            
-        gdal.Polygonize(band, None,outLayer, 0,[],callback=None)  
-        outDatasource.Destroy()
-        sourceRaster = None
+        shpDriver = ogr.GetDriverByName("ESRI Shapefile")
+        if os.path.exists(outShpFolder):
+            shpDriver.DeleteDataSource(outShpFolder)
+        outDataSource = shpDriver.CreateDataSource(outShpFolder)
+        outLayer = outDataSource.CreateLayer(outShpFolder, srs=None)
+#        newField = ogr.FieldDefn('Class', ogr.OFTInteger)
+#        outLayer.CreateField(newField)
+        gdal.Polygonize( band, None,outLayer, 0, [], callback=None )
         
         
-        # Add area for each feature
-        ds = ogr.Open(outShpFolder, update = 1 )
         
-        lyr = ds.GetLayerByIndex(0)
-        lyr.ResetReading()
+#        # Add area for each feature
+#        ds = ogr.Open(outShpFolder, update = 1)
+#        
+#        lyr = ds.GetLayerByIndex(0)
+#        lyr.ResetReading()
+#        
+#        field_defn = ogr.FieldDefn( "Area", ogr.OFTReal )
+#        lyr.CreateField(field_defn)
+#        
+#    
+#        for i in lyr:
+#            # feat = lyr.GetFeature(i) 
+#            geom = i.GetGeometryRef()
+#            area = round(geom.GetArea())
+#            
+#            lyr.SetFeature(i)
+#            i.SetField( "Area", area )
+#            lyr.SetFeature(i)
+#        # 
+#            if area<inMinSize: #Size in acre (/1000) for the 2154 projection
+#                if i.GetField(inField)==inClassForest:
+#                    lyr.SetFeature(i)
+#                    i.SetField(inField,inClassForest+1)
+#                    lyr.SetFeature(i)
+#                elif i.GetField(inField)!=inClassForest:
+#                    lyr.SetFeature(i)
+#                    i.SetField(inField,inClassForest)
+#                    lyr.SetFeature(i)
+#                
+#                #lyr.DeleteFeature(i.GetFID())        
+#        ds = None
+#        
         
-        field_defn = ogr.FieldDefn( "Area", ogr.OFTReal )
-        lyr.CreateField(field_defn)
-        
-        for i in lyr:
-            # feat = lyr.GetFeature(i) 
-            geom = i.GetGeometryRef()
-            area = round(geom.GetArea()/1000,0)
-            lyr.SetFeature(i)
-            i.SetField( "Area", area )
-            lyr.SetFeature(i)
-        # 
-            if area<inMinSize: #Size in acre (/1000) for the 2154 projection
-                lyr.DeleteFeature(i.GetFID())
-        ds = None
-        """
         
     def scale(self,x,M=None,m=None):  # TODO:  DO IN PLACE SCALING
         ''' Function that standardize the datouta
@@ -458,29 +504,31 @@ if __name__=='__main__':
     inImage='img/samples/map.tif'
         
     inFile,inExtension = os.path.splitext(inImage) # Split filename and extension
-    outFilter=inFile+'_filtered_6'+inExtension 
+    outFilter=inFile+'_filtered'+inExtension 
     
     # Filtering....
-    filtered=historicalFilter(inFile+inExtension,outFilter,inShapeGrey=11,inShapeMedian=11,nbGrey=1,nbMedian=1)
-    print 'Image saved as : '+outFilter
-    
-#    # Learn Model...
-#    inVector='data/train.shp'
+#    filtered=historicalFilter(inImage,outFilter,inShapeGrey=11,inShapeMedian=11, iterMedian=5)
+#    print 'Image saved as : '+outFilter
+#    
+#    #Learn Model...
+#    inVector='img/samples/train.shp'
 #    inClassifier='GMM'
-#    #outModel='/home/sigma/model'
+#    outModel='img/samples/model'
 #    inSeed=0
 #    
-#    #model=learnModel('/home/sigma/Bureau/historicalmap/data/map_filtered.tif','/home/sigma/Bureau/historicalmap/data/train.shp',inField='Class',inSplit=0.5,inSeed=0,outModel='/home/sigma/Bureau/historicalmap/data/model',outMatrix='/home/sigma/Bureau/historicalmap/data/matrix.txt',inClassifier=inClassifier)   
+#    model=learnModel('/home/sigma/Bureau/Historical-Map/img/samples/map_filtered.tif','/home/sigma/Bureau/Historical-Map/img/samples/train.shp',inField='Class',inSplit=0.5,inSeed=0,outModel='/home/sigma/Bureau/Historical-Map/img/samples/model',outMatrix='/home/sigma/Bureau/Historical-Map/img/samples/matrix.txt',inClassifier=inClassifier)   
 #    print 'Model saved as : '+outModel
 #    print 'Confusion matrix saved as : '+str(inFile)+'_'+str(inClassifier)+'_'+str(inSeed)+'_confu.csv'
 #    
-#    #Classify image...
-#    outRaster='data/outGMM.tif'
-#    outShpFolder='data/outSHP'
-#    classified=classifyImage('/home/sigma/Bureau/historicalmap/data/map_filtered.tif','/home/sigma/Bureau/historicalmap/data/model','/home/sigma/LastMap.tif',8,None,'Class',-10000)
-#    #nFilteredStep3,inTrainingStep3,outRasterClass,None,inMinSize,None,'Class',inNODATA=-10000
-#    #inRaster,inModel,outRaster,inMask=None,inMinSize=6,outShpFolder='data/outSHP/',inField='Class',inNODATA=-10000
-#    
-#    print 'Classified image at : '+outRaster
-#    print 'Shp folder in : ' +outShpFolder
-#    print '3 Steps done in',time.clock()-t1,'seconds'
+    #Classify image...
+    outRaster='img/samples/outGMM.tif'
+    outShpFolder='img/samples/'
+    classified=classifyImage('/home/sigma/Bureau/Historical-Map/img/samples/map_filtered.tif','/home/sigma/Bureau/Historical-Map/img/samples/model','/home/sigma/LastMap.tif',None,6000,'/home/sigma/Bureau/Historical-Map/img/samples/SHP/vector.shp','Class',-10000)
+    
+#    inFilteredStep3,inTrainingStep3,outRasterClass,None,inMinSize,None,'Class',inNODATA=-10000
+#    inRaster,inModel,outRaster,inMask=None,inMinSize=6,outShpFolder='img/samples/outSHP/',inField='Class',inNODATA=-10000
+       
+    
+    print 'Classified image at : '+outRaster
+    print 'Shp folder in : ' +outShpFolder
+    print '3 Steps done in',time.clock()-t1,'seconds'
