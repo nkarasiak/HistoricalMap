@@ -37,15 +37,15 @@ class historicalFilter:
         -- Nothing except a raster file (outName)
         
     """
-    def __init__(self, inImage,outName,inShapeGrey,inShapeMedian):
+    def __init__(self, inImage,outName,inShapeGrey,inShapeMedian,nbGrey,nbMedian):
         # Try to load the image with dataraster.py (loadImage function)
         try:
-            self.filterBand(inImage,outName,inShapeGrey,inShapeMedian)
+            self.filterBand(inImage,outName,inShapeGrey,inShapeMedian,nbGrey,nbMedian)
         except:
             print "Impossible to filter"
         # Saving file
        
-    def filterBand(self,inImage,outName,inShapeGrey,inShapeMedian):
+    def filterBand(self,inImage,outName,inShapeGrey,inShapeMedian,nbGrey,nbMedian):
         """
         Filter band per band with greyClose and median
         Generate empty table then fill it with greyClose and median filter above it.
@@ -85,11 +85,13 @@ class historicalFilter:
                 print 'Cannot get rasterband'+i
             # Filter with greyclosing, then with median filter
             try:
-                temp = ndimage.morphology.grey_closing(temp,size=(inShapeGrey,inShapeGrey))
+                for j in range(nbGrey):
+                    temp = ndimage.morphology.grey_closing(temp,size=(inShapeGrey,inShapeGrey))
             except:
                 print 'Cannot filter with Grey_Closing'
             try:
-                temp = ndimage.filters.median_filter(temp,size=(inShapeMedian,inShapeMedian))
+                for k in range (nbMedian):
+                    temp = ndimage.filters.median_filter(temp,size=(inShapeMedian,inShapeMedian))
             except:
                 print 'Cannot filter with Median'
                 
@@ -453,32 +455,32 @@ if __name__=='__main__':
     
     # Image to work on
 
-    inImage='data/map.tif'
+    inImage='img/samples/map.tif'
         
     inFile,inExtension = os.path.splitext(inImage) # Split filename and extension
-    outFilter=inFile+'_filtered'+inExtension 
+    outFilter=inFile+'_filtered_6'+inExtension 
     
     # Filtering....
-    #filtered=historicalFilter(inFile+inExtension,outFilter,inShapeGrey=11,inShapeMedian=11)
+    filtered=historicalFilter(inFile+inExtension,outFilter,inShapeGrey=11,inShapeMedian=11,nbGrey=1,nbMedian=1)
     print 'Image saved as : '+outFilter
     
-    # Learn Model...
-    inVector='data/train.shp'
-    inClassifier='GMM'
-    #outModel='/home/sigma/model'
-    inSeed=0
-    
-    #model=learnModel('/home/sigma/Bureau/historicalmap/data/map_filtered.tif','/home/sigma/Bureau/historicalmap/data/train.shp',inField='Class',inSplit=0.5,inSeed=0,outModel='/home/sigma/Bureau/historicalmap/data/model',outMatrix='/home/sigma/Bureau/historicalmap/data/matrix.txt',inClassifier=inClassifier)   
-    print 'Model saved as : '+outModel
-    print 'Confusion matrix saved as : '+str(inFile)+'_'+str(inClassifier)+'_'+str(inSeed)+'_confu.csv'
-    
-    #Classify image...
-    outRaster='data/outGMM.tif'
-    outShpFolder='data/outSHP'
-    classified=classifyImage('/home/sigma/Bureau/historicalmap/data/map_filtered.tif','/home/sigma/Bureau/historicalmap/data/model','/home/sigma/LastMap.tif',8,None,'Class',-10000)
-    #nFilteredStep3,inTrainingStep3,outRasterClass,None,inMinSize,None,'Class',inNODATA=-10000
-    #inRaster,inModel,outRaster,inMask=None,inMinSize=6,outShpFolder='data/outSHP/',inField='Class',inNODATA=-10000
-    
-    print 'Classified image at : '+outRaster
-    print 'Shp folder in : ' +outShpFolder
-    print '3 Steps done in',time.clock()-t1,'seconds'
+#    # Learn Model...
+#    inVector='data/train.shp'
+#    inClassifier='GMM'
+#    #outModel='/home/sigma/model'
+#    inSeed=0
+#    
+#    #model=learnModel('/home/sigma/Bureau/historicalmap/data/map_filtered.tif','/home/sigma/Bureau/historicalmap/data/train.shp',inField='Class',inSplit=0.5,inSeed=0,outModel='/home/sigma/Bureau/historicalmap/data/model',outMatrix='/home/sigma/Bureau/historicalmap/data/matrix.txt',inClassifier=inClassifier)   
+#    print 'Model saved as : '+outModel
+#    print 'Confusion matrix saved as : '+str(inFile)+'_'+str(inClassifier)+'_'+str(inSeed)+'_confu.csv'
+#    
+#    #Classify image...
+#    outRaster='data/outGMM.tif'
+#    outShpFolder='data/outSHP'
+#    classified=classifyImage('/home/sigma/Bureau/historicalmap/data/map_filtered.tif','/home/sigma/Bureau/historicalmap/data/model','/home/sigma/LastMap.tif',8,None,'Class',-10000)
+#    #nFilteredStep3,inTrainingStep3,outRasterClass,None,inMinSize,None,'Class',inNODATA=-10000
+#    #inRaster,inModel,outRaster,inMask=None,inMinSize=6,outShpFolder='data/outSHP/',inField='Class',inNODATA=-10000
+#    
+#    print 'Classified image at : '+outRaster
+#    print 'Shp folder in : ' +outShpFolder
+#    print '3 Steps done in',time.clock()-t1,'seconds'
