@@ -279,7 +279,7 @@ class classifyImage():
     SHP file with deleted polygon below inMinSize
     
     """
-    def __init__(self,inRaster,inModel,outRaster,inMask=None,inMinSize=6,outShpFolder='data/outSHP/',inField='Class',inNODATA=-10000,inClassForest=1):
+    def __init__(self,inRaster,inModel,outRaster,inMask=None,inMinSize=6,outShpFile='data/outSHP/',inField='Class',inNODATA=-10000,inClassForest=1):
             # Load model
         model = open(inModel,'rb') # TODO: Update to scale the data 
         if model is None:
@@ -312,8 +312,8 @@ class classifyImage():
         temp = data.GetRasterBand(1).ReadAsArray()
         temp[temp!=1]=0
         temp = ndimage.morphology.binary_fill_holes(temp).astype(int)
-        temp = ndimage.median_filter(temp,size=(3,3))
-        temp[temp==0]=2
+        temp = ndimage.median_filter(temp,size=(3,3)).astype(int)
+        temp[temp!=1]=2
         try :
             out=outFile.GetRasterBand(1)
             out.WriteArray(temp)
@@ -321,29 +321,24 @@ class classifyImage():
             temp = None
         except:
             print 'Cannot save '+outRaster
+        
         """
         SHP
         Vectorizing with field inField
         """       
-        #print '10s pause'
-        
-        
         sourceRaster = gdal.Open(outRaster)
         band = sourceRaster.GetRasterBand(1)
-        bandArray = band.ReadAsArray()
-        shpDriver = ogr.GetDriverByName("ESRI Shapefile")
-        if os.path.exists(outShpFolder):
-            shpDriver.DeleteDataSource(outShpFolder)
-        outDataSource = shpDriver.CreateDataSource(outShpFolder)
-        outLayer = outDataSource.CreateLayer(outShpFolder, srs=None)
-#        newField = ogr.FieldDefn('Class', ogr.OFTInteger)
-#        outLayer.CreateField(newField)
-        gdal.Polygonize( band, None,outLayer, 0, [], callback=None )
-        
-        
+        driver = ogr.GetDriverByName("ESRI Shapefile")
+        if os.path.exists(outShpFile+".shp"):
+            driver.DeleteDataSource(outShpFile+".shp")
+        outDatasource = driver.CreateDataSource(outShpFile+ ".shp")
+        outLayer = outDatasource.CreateLayer(outShpFile, srs=None)
+        newField = ogr.FieldDefn('Class', ogr.OFTInteger)
+        outLayer.CreateField(newField)
+        gdal.Polygonize(band, None, outLayer, -1, [], callback=None )
         
 #        # Add area for each feature
-#        ds = ogr.Open(outShpFolder, update = 1)
+#        ds = ogr.Open(outShpFolder+'.shp', update = 1)
 #        
 #        lyr = ds.GetLayerByIndex(0)
 #        lyr.ResetReading()
@@ -374,8 +369,7 @@ class classifyImage():
 #                #lyr.DeleteFeature(i.GetFID())        
 #        ds = None
 #        
-        
-        
+    
     def scale(self,x,M=None,m=None):  # TODO:  DO IN PLACE SCALING
         ''' Function that standardize the datouta
             Input:
@@ -501,13 +495,13 @@ if __name__=='__main__':
     
     # Image to work on
 
-    inImage='img/samples/map.tif'
-        
-    inFile,inExtension = os.path.splitext(inImage) # Split filename and extension
-    outFilter=inFile+'_filtered'+inExtension 
-    
-    # Filtering....
-#    filtered=historicalFilter(inImage,outFilter,inShapeGrey=11,inShapeMedian=11, iterMedian=5)
+#    inImage='img/samples/map.tif'
+#        
+#    inFile,inExtension = os.path.splitext(inImage) # Split filename and extension
+#    outFilter=inFile+'_filtered'+inExtension 
+#    
+#    # Filtering....
+#    filtered=historicalFilter(inImage,outFilter,inShapeGrey=11,inShapeMedian=11, iterMedian=1)
 #    print 'Image saved as : '+outFilter
 #    
 #    #Learn Model...
@@ -516,14 +510,14 @@ if __name__=='__main__':
 #    outModel='img/samples/model'
 #    inSeed=0
 #    
-#    model=learnModel('/home/sigma/Bureau/Historical-Map/img/samples/map_filtered.tif','/home/sigma/Bureau/Historical-Map/img/samples/train.shp',inField='Class',inSplit=0.5,inSeed=0,outModel='/home/sigma/Bureau/Historical-Map/img/samples/model',outMatrix='/home/sigma/Bureau/Historical-Map/img/samples/matrix.txt',inClassifier=inClassifier)   
+#    model=learnModel('img/samples/map_filtered.tif','img/samples/train.shp',inField='Class',inSplit=0.5,inSeed=0,outModel='img/samples/model',outMatrix='img/samples/matrix.csv',inClassifier=inClassifier)   
 #    print 'Model saved as : '+outModel
 #    print 'Confusion matrix saved as : '+str(inFile)+'_'+str(inClassifier)+'_'+str(inSeed)+'_confu.csv'
-#    
+    
     #Classify image...
     outRaster='img/samples/outGMM.tif'
     outShpFolder='img/samples/'
-    classified=classifyImage('/home/sigma/Bureau/Historical-Map/img/samples/map_filtered.tif','/home/sigma/Bureau/Historical-Map/img/samples/model','/home/sigma/LastMap.tif',None,6000,'/home/sigma/Bureau/Historical-Map/img/samples/SHP/vector.shp','Class',-10000)
+    classified=classifyImage('img/samples/map_filtered.tif','img/samples/model','img/samples/LastMap.tif',None,6000,'img/samples/SHP/vectorized','Class',-10000)
     
 #    inFilteredStep3,inTrainingStep3,outRasterClass,None,inMinSize,None,'Class',inNODATA=-10000
 #    inRaster,inModel,outRaster,inMask=None,inMinSize=6,outShpFolder='img/samples/outSHP/',inField='Class',inNODATA=-10000
