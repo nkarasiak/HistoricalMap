@@ -92,10 +92,8 @@ class HistoricalMap( QDialog ):
         self.dlg.btnClassify.clicked.connect(self.runClassify)
         self.dlg.inModel.clear()
         self.dlg.selectModelStep3.clicked.connect(self.select_load_file)
-        self.dlg.outRasterClass.clear()
-        self.dlg.selectRasterStep3.clicked.connect(self.select_output_file)
-	self.dlg.outShp.clear()
-	self.dlg.selectOutShp.clicked.connect(self.select_output_file)
+        self.dlg.outShp.clear()
+        self.dlg.selectOutShp.clicked.connect(self.select_output_file)
         
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -221,12 +219,10 @@ class HistoricalMap( QDialog ):
             self.dlg.outModel.setText(fileName)            
         elif sender == self.dlg.selectMatrix: 
             self.dlg.outMatrix.setText(fileName+'.csv')
-        elif sender == self.dlg.selectRasterStep3: 
-            self.dlg.outRasterClass.setText(fileName+'.tif')
+        elif sender == self.dlg.selectOutShp:
+            self.dlg.outShp.setText(fileName+'.shp')
         elif sender == self.dlg.selectModelStep3:
             self.dlg.inModel.setText(fileName)
-	elif sender == self.dlg.selectOutShp:
-	    self.dlg.outShp.setText(fileName+'.shp')
      
     def select_load_file(self):
         sender=self.sender()
@@ -255,9 +251,9 @@ class HistoricalMap( QDialog ):
             inShapeGrey=self.dlg.inShapeGrey.value()
             inShapeMedian=self.dlg.inShapeMedian.value()
             outRaster=self.dlg.outRaster.text()
+            iterMedian=self.dlg.inShapeMedianIter.value()
             
-            fhm.historicalFilter(inRaster,outRaster,inShapeGrey,inShapeMedian)
-
+            fhm.historicalFilter(inRaster,outRaster,inShapeGrey,inShapeMedian,iterMedian)
             # Do something useful here - delete the line containing pass and
             # substitute with your code.
             self.iface.messageBar().pushMessage("New image", "Filter with "+str(inShapeGrey)+' closing size and '+str(inShapeMedian)+ ' median size', level=QgsMessageBar.SUCCESS, duration=20)
@@ -321,25 +317,32 @@ class HistoricalMap( QDialog ):
             result = self.dlg.exec_()
             if result:
                 print 'result'  
+                # Get filtered image                
                 inFilteredStep3=self.dlg.inFilteredStep3.currentLayer()
-                inFilteredStep3=inFilteredStep3.dataProvider().dataSourceUri()
-                inMinSize=self.dlg.inMinSize.value()
+                inFilteredStep3=str(inFilteredStep3.dataProvider().dataSourceUri())
                 
-                outRasterClass=self.dlg.outRasterClass.text()
-                inModel=self.dlg.inModel.text()
-                inFieldStep3=self.dlg.inFieldStep3.currentText()
-                    
+                # Get model done at Step 2
+                inModel=str(self.dlg.inModel.text())
+                
+                # Get min size for polygons
+                # Multipied by 10 000 to have figure in hectare
+                # Input of 0,6 (0,6 hectare) will be converted to 6000 m2
+                inMinSize=int(self.dlg.inMinSize.value()*10000)
+                
+                outShp=str(self.dlg.outShp.text())
+                inClassForest=int(self.dlg.inClassForest.currentText())
                 
                 """ DEBUG """
-                #query=(str(inMinSize)+','+str(outRasterClass)+','+str(inModel))
+                #query=(str(inFilteredStep3)+','+str(inModel)+','+outShp+',None,'+str(inMinSize)+',-10000,'+str(inClassForest))
                 #self.iface.messageBar().pushMessage("Error", query, QgsMessageBar.CRITICAL, 30)
                 """ DEBUG """
-                #classifiedImage=fhm.classifyImage(inFilteredStep3,inTrainingStep3,outRasterClass,None,inMinSize,None,'Class',inNODATA=-10000)
-                fhm.classifyImage(inFilteredStep3,inModel,outRasterClass,inMinSize,None,inFieldStep3,-10000)
+                
+                fhm.classifyImage(inFilteredStep3,inModel,outShp,None,int(inMinSize),-10000,int(inClassForest))
                 # Do something useful here - delete the line containing pass and
                 # substitute with your code.
-                self.iface.addRasterLayer(outRasterClass)
-                self.iface.messageBar().pushMessage("New image : ",outRasterClass, level=QgsMessageBar.SUCCESS, duration=20)
+                
+                self.iface.addVectorLayer(outShp,'Vectorized forests','ogr')                
+                self.iface.messageBar().pushMessage("New vector : ",outShp, level=QgsMessageBar.SUCCESS, duration=10)
                 # Do something useful here - delete the line containing pass and
                 # substitute with your code.
                 pass
