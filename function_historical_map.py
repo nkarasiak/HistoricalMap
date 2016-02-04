@@ -316,7 +316,7 @@ class classifyImage():
         temp = data.GetRasterBand(1).ReadAsArray().astype(int)
         temp[temp!=1]=0
         temp = ndimage.morphology.binary_fill_holes(temp).astype(int)
-        temp = ndimage.median_filter(temp,size=(3,3)).astype(int)
+        #temp = ndimage.median_filter(temp,size=(3,3)).astype(int)
         
         temp[temp!=1]=2
         

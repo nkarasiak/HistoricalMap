@@ -390,7 +390,13 @@
      <property name="text">
       <string>Filter</string>
      </property>
+     <property name="autoDefault">
+      <bool>true</bool>
+     </property>
      <property name="default">
+      <bool>false</bool>
+     </property>
+     <property name="flat">
       <bool>false</bool>
      </property>
     </widget>
@@ -708,7 +714,7 @@
       <item row="0" column="1">
        <widget class="QComboBox" name="inField">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="font">
          <font>
@@ -853,6 +859,9 @@ For example 0,5 means that we use 50% of your parcel for making the model.</stri
      </property>
      <property name="text">
       <string>Train</string>
+     </property>
+     <property name="autoDefault">
+      <bool>true</bool>
      </property>
      <property name="default">
       <bool>false</bool>
@@ -1345,6 +1354,9 @@ SVM : Support Vector Machine</string>
      <property name="text">
       <string>Classify</string>
      </property>
+     <property name="autoDefault">
+      <bool>true</bool>
+     </property>
      <property name="default">
       <bool>false</bool>
      </property>
@@ -1400,9 +1412,5 @@ SVM : Support Vector Machine</string>
    <header>qgsspinbox.h</header>
   </customwidget>
  </customwidgets>
-<!-- <resources>
-  <include location="resources.qrc"/>
- </resources>
--->
  <connections/>
 </ui>

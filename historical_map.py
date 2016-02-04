@@ -22,6 +22,7 @@
 """
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 
+from PyQt4 import QtGui
 from PyQt4.QtGui import QAction, QIcon, QFileDialog, QDialog
 from qgis.gui import QgsMessageBar
 from qgis.core import *
@@ -54,6 +55,7 @@ class HistoricalMap( QDialog ):
         """
         """# Save reference to the QGIS interface
         self.iface = iface
+        legendInterface = self.iface.legendInterface()
         
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
@@ -70,7 +72,6 @@ class HistoricalMap( QDialog ):
 
             if qVersion() > '4.3.3':
                 QCoreApplication.installTranslator(self.translator)
-
         # Create the dialog (after translation) and keep reference
         self.dlg = HistoricalMapDialog()
         # Declare instance attributes
@@ -79,7 +80,7 @@ class HistoricalMap( QDialog ):
         # TODO: We are going to let the user set this up in a future iteration
         self.toolbar = self.iface.addToolBar(u'HistoricalMap')
         self.toolbar.setObjectName(u'HistoricalMap')
-
+        
         ## Init to choose file (to load or to save)
         self.dlg.outRaster.clear()
         self.dlg.selectRaster.clicked.connect(self.select_output_file)
@@ -87,6 +88,7 @@ class HistoricalMap( QDialog ):
         self.dlg.selectModel.clicked.connect(self.select_output_file)
         self.dlg.outMatrix.clear()
         self.dlg.selectMatrix.clicked.connect(self.select_output_file)
+        
         self.dlg.btnFilter.clicked.connect(self.runFilter)
         self.dlg.btnTrain.clicked.connect(self.runTrain)
         self.dlg.btnClassify.clicked.connect(self.runClassify)
@@ -94,6 +96,30 @@ class HistoricalMap( QDialog ):
         self.dlg.selectModelStep3.clicked.connect(self.select_load_file)
         self.dlg.outShp.clear()
         self.dlg.selectOutShp.clicked.connect(self.select_output_file)
+        
+        ## init fields   
+        self.dlg.inTraining.currentIndexChanged[int].connect(self.onChangedLayer)
+        
+        ## By default field list is empty, so we fill with current layer
+        ## if no currentLayer, no filling, or it will crash Qgis
+        if self.dlg.inField.currentText() == '' and self.dlg.inTraining.currentLayer():
+            activeLayer = self.dlg.inTraining.currentLayer()
+            provider = activeLayer.dataProvider()
+            fields = provider.fields()
+            listFieldNames = [field.name() for field in fields]
+            self.dlg.inField.addItems(listFieldNames)
+      
+            
+    def onChangedLayer(self,index):
+        # We clear combobox
+        self.dlg.inField.clear()
+        # Then we fill it with new selected Layer
+        activeLayer = self.dlg.inTraining.currentLayer()
+        provider = activeLayer.dataProvider()
+        fields = provider.fields()
+        listFieldNames = [field.name() for field in fields]
+        self.dlg.inField.addItems(listFieldNames)
+        
         
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -191,7 +217,7 @@ class HistoricalMap( QDialog ):
         self.add_action(
             icon_path,
             text=self.tr(u'Select historical map'),
-            callback=self.runTrain,
+            callback=self.showDlg,
             parent=self.iface.mainWindow())
 
 
@@ -231,20 +257,27 @@ class HistoricalMap( QDialog ):
             return
         if sender == self.dlg.selectModelStep3:
             self.dlg.inModel.setText(fileName)
+    def showDlg(self):
+        self.dlg.show()
     def runFilter(self):
         """Run method that performs all the real work"""
-
-        # show the dialog
-        
-        self.dlg.show()
         
         
         # Run the dialog event loop
         
         # See if OK was pressed
-        result = self.dlg.exec_()
-        if result:
-            
+
+        
+        ## Validation
+        
+        # if everything is ok : proceed
+        message=''
+        if self.dlg.outRaster.text()=='':
+            message = "Sorry, you have to specify as output raster"
+        if message != '':
+            QtGui.QMessageBox.warning(self, 'Information missing or invalid', message, QtGui.QMessageBox.Ok)
+            pass
+        else:            
             inRaster=self.dlg.inRaster.currentLayer()
             #vector=str(self.dlg.trainingCell.currentText())
             inRaster=inRaster.dataProvider().dataSourceUri()
@@ -265,16 +298,17 @@ class HistoricalMap( QDialog ):
     def runTrain(self):
         """Run method that performs all the real work"""
 
-        # show the dialog
         
-        self.dlg.show()
-        
-        
-        # Run the dialog event loop
-        
-        # See if OK was pressed
-        result = self.dlg.exec_()
-        if result:
+        # Validation
+        message=''
+        if self.dlg.outModel.text()=='':
+            message = "Sorry, you have to specify as model name"
+        if self.dlg.outMatrix.text()=='':
+            message = "Sorry, you have to specify as matrix name"
+        if message != '':
+            QtGui.QMessageBox.warning(self, 'Information missing or invalid', message, QtGui.QMessageBox.Ok)
+            
+        else:
             # Getting variables from UI            
             inFiltered=self.dlg.inFiltered.currentLayer()
             inFiltered=inFiltered.dataProvider().dataSourceUri()
@@ -299,23 +333,24 @@ class HistoricalMap( QDialog ):
             """ """  """
             
             fhm.learnModel(inFiltered,inTraining,inField,inSplit,inSeed,outModel,outMatrix,inClassifier)
-            self.iface.messageBar().pushMessage("Learning done with "+str(inClassifier)+": ", "Matrix confusion in" +str(outMatrix), level=QgsMessageBar.SUCCESS, duration=20)
-                      
+            if self.dlg.outMatrix.text()!='':
+                QtGui.QMessageBox.information(self, "Information", "Training is done!<br>Confusion matrix saved at "+str(outMatrix)+"")         
+            else:
+                QtGui.QMessageBox.information(self, "Information", "Model is done!<br>Model saved at "+str(outModel)+"")
             pass
         
     def runClassify(self):
             """Run method that performs all the real work"""
     
-            # show the dialog
-            
-            self.dlg.show()
-            
-            
-            # Run the dialog event loop
-            
-            # See if OK was pressed
-            result = self.dlg.exec_()
-            if result:
+            message=''
+            if self.dlg.inModel.text()=='':
+                message = "Sorry, you have to specify a model"
+            if self.dlg.outShp.text()=='':
+                message = "Sorry, you have to specify a vector field to save the results"
+            if message != '':
+                QtGui.QMessageBox.warning(self, 'Information missing or invalid', message, QtGui.QMessageBox.Ok)
+                
+            else:
                 print 'result'  
                 # Get filtered image                
                 inFilteredStep3=self.dlg.inFilteredStep3.currentLayer()
