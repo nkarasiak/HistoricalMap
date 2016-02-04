@@ -90,8 +90,7 @@ class historicalFilter:
                 print 'Cannot get rasterband'+i
             # Filter with greyclosing, then with median filter
             try:
-                for j in range(i):
-                    temp = ndimage.morphology.grey_closing(temp,size=(inShapeGrey,inShapeGrey))
+                temp = ndimage.morphology.grey_closing(temp,size=(inShapeGrey,inShapeGrey))
             except:
                 print 'Cannot filter with Grey_Closing'
 
