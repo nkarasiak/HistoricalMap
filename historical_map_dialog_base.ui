@@ -29,7 +29,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>HistoricalMap - Automatic vectorizing old forests</string>
+   <string>Historical Map - Automatic vectorizing old landcover</string>
   </property>
   <widget class="QTabWidget" name="tabWidget">
    <property name="geometry">
@@ -50,7 +50,7 @@
     <string/>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
@@ -1191,7 +1191,7 @@ SVM : Support Vector Machine</string>
        </font>
       </property>
       <property name="text">
-       <string>Min forest size :</string>
+       <string>Min parcel size :</string>
       </property>
      </widget>
      <widget class="QLabel" name="tiffImageLabel_14">
@@ -1209,7 +1209,7 @@ SVM : Support Vector Machine</string>
        </font>
       </property>
       <property name="text">
-       <string>Forest number :</string>
+       <string>Class number :</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_12">
@@ -1404,6 +1404,5 @@ SVM : Support Vector Machine</string>
    <header>qgsspinbox.h</header>
   </customwidget>
  </customwidgets>
-
  <connections/>
 </ui>
