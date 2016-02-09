@@ -13,10 +13,10 @@ description=Automatic vectorization of old forests from historical maps
 version=0.2
 author=Nicolas Karasiak (aka Nicolaï Van Lennepkade), Antoine Lomellini
 
-about=About Historical Map : Made by Nicolas Karasiak & Antoine Lomellini<br>Based on the work of Pierre-Alexis with the help of Mathieu Fauvel.<br><br><b>Library to add before installing the : </b><br><ul><li>SKlearn</li><li>SciPy</li></ul><br>To install these dependencies you can consult our tutorial at the <a href="https://github.com/lennepkade/Historical-Map/">Historical Map plugin page</a>.
+about=About Historical Map : Made by Nicolas Karasiak & Antoine Lomellini<br>Based on the work of Pierre-Alexis with the help of Mathieu Fauvel.<br><br><b>Library to add before installing the : </b><br><ul><li>SKlearn</li></ul><br>To install this dependency you can consult our tutorial at the <a href="https://github.com/lennepkade/Historical-Map/">Historical Map plugin page</a>.
 
-tracker=https://github.com/lennepkade/Historical-Map/
-repository=https://github.com/lennepkade/Historical-Map/
+tracker=https://github.com/lennepkade/HistoricalMap/
+repository=https://github.com/lennepkade/HistoricalMap/
 # End of mandatory metadata
 
 # Recommended items:
@@ -27,7 +27,7 @@ repository=https://github.com/lennepkade/Historical-Map/
 # Tags are comma separated with spaces allowed
 tags=historicalmap,classify,filter,old map,forest
 
-homepage=https://github.com/lennepkade/Historical-Map/
+homepage=https://github.com/lennepkade/HistoricalMap/
 category=Raster
 icon=icon.png
 # experimental flag

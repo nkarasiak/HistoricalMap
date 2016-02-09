@@ -20,14 +20,14 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication,QObject
 
 from PyQt4 import QtGui
-from PyQt4.QtGui import QAction, QIcon, QFileDialog, QDialog
+from PyQt4.QtGui import QAction, QIcon, QFileDialog, QDialog, QProgressBar, QApplication
+from PyQt4.QtCore import *
 from qgis.gui import QgsMessageBar
 from qgis.core import *
 import pdb
-
 
 import function_historical_map as fhm
 import qgis.utils
@@ -72,6 +72,10 @@ class HistoricalMap( QDialog ):
 
             if qVersion() > '4.3.3':
                 QCoreApplication.installTranslator(self.translator)
+                
+        # KEep UI
+        QApplication.processEvents()
+        
         # Create the dialog (after translation) and keep reference
         self.dlg = HistoricalMapDialog()
         # Declare instance attributes
@@ -81,6 +85,7 @@ class HistoricalMap( QDialog ):
         self.toolbar = self.iface.addToolBar(u'HistoricalMap')
         self.toolbar.setObjectName(u'HistoricalMap')
         
+        
         ## Init to choose file (to load or to save)
         self.dlg.outRaster.clear()
         self.dlg.selectRaster.clicked.connect(self.select_output_file)
@@ -88,7 +93,7 @@ class HistoricalMap( QDialog ):
         self.dlg.selectModel.clicked.connect(self.select_output_file)
         self.dlg.outMatrix.clear()
         self.dlg.selectMatrix.clicked.connect(self.select_output_file)
-        
+            
         self.dlg.btnFilter.clicked.connect(self.runFilter)
         self.dlg.btnTrain.clicked.connect(self.runTrain)
         self.dlg.btnClassify.clicked.connect(self.runClassify)
@@ -102,23 +107,26 @@ class HistoricalMap( QDialog ):
         
         ## By default field list is empty, so we fill with current layer
         ## if no currentLayer, no filling, or it will crash Qgis
-        if self.dlg.inField.currentText() == '' and self.dlg.inTraining.currentLayer():
+        self.dlg.inField.clear()
+        if self.dlg.inField.currentText() == '' and self.dlg.inTraining.currentLayer() and self.dlg.inTraining.currentLayer()!='NoneType':
             activeLayer = self.dlg.inTraining.currentLayer()
             provider = activeLayer.dataProvider()
             fields = provider.fields()
             listFieldNames = [field.name() for field in fields]
             self.dlg.inField.addItems(listFieldNames)
-      
+        
             
     def onChangedLayer(self,index):
         # We clear combobox
         self.dlg.inField.clear()
         # Then we fill it with new selected Layer
-        activeLayer = self.dlg.inTraining.currentLayer()
-        provider = activeLayer.dataProvider()
-        fields = provider.fields()
-        listFieldNames = [field.name() for field in fields]
-        self.dlg.inField.addItems(listFieldNames)
+        if self.dlg.inField.currentText() == '' and self.dlg.inTraining.currentLayer() and self.dlg.inTraining.currentLayer()!='NoneType':
+            activeLayer = self.dlg.inTraining.currentLayer()
+            provider = activeLayer.dataProvider()
+            fields = provider.fields()
+            listFieldNames = [field.name() for field in fields]
+            self.dlg.inField.addItems(listFieldNames)
+        
         
         
     # noinspection PyMethodMayBeStatic
@@ -238,15 +246,24 @@ class HistoricalMap( QDialog ):
         
         if not fileName:
             return
-            
+        fileName,fileExtension=os.path.splitext(fileName)
         if sender == self.dlg.selectRaster: 
-            self.dlg.outRaster.setText(fileName+'.tif')
+            if fileExtension!='.tif':
+                self.dlg.outRaster.setText(fileName+'.tif')
+            else:
+                self.dlg.outRaster.setText(fileName+fileExtension)
         elif sender == self.dlg.selectModel: 
-            self.dlg.outModel.setText(fileName)            
+            self.dlg.outModel.setText(fileName+fileExtension)            
         elif sender == self.dlg.selectMatrix: 
-            self.dlg.outMatrix.setText(fileName+'.csv')
+            if fileExtension!='.csv':
+                self.dlg.outMatrix.setText(fileName+'.csv')
+            else:
+                self.dlg.outMatrix.setText(fileName+fileExtension)
         elif sender == self.dlg.selectOutShp:
-            self.dlg.outShp.setText(fileName+'.shp')
+            if fileExtension!='.shp':
+                self.dlg.outShp.setText(fileName+'.shp')
+            else:
+                self.dlg.outShp.setText(fileName+fileExtension)
         elif sender == self.dlg.selectModelStep3:
             self.dlg.inModel.setText(fileName)
      
@@ -259,24 +276,15 @@ class HistoricalMap( QDialog ):
             self.dlg.inModel.setText(fileName)
     def showDlg(self):
         self.dlg.show()
+        
     def runFilter(self):
         """Run method that performs all the real work"""
-        
-        
-        # Run the dialog event loop
-        
-        # See if OK was pressed
-
-        
-        ## Validation
-        
-        # if everything is ok : proceed
         message=''
         if self.dlg.outRaster.text()=='':
             message = "Sorry, you have to specify as output raster"
         if message != '':
             QtGui.QMessageBox.warning(self, 'Information missing or invalid', message, QtGui.QMessageBox.Ok)
-            pass
+            pass            
         else:            
             inRaster=self.dlg.inRaster.currentLayer()
             #vector=str(self.dlg.trainingCell.currentText())
@@ -286,9 +294,10 @@ class HistoricalMap( QDialog ):
             outRaster=self.dlg.outRaster.text()
             iterMedian=self.dlg.inShapeMedianIter.value()
             
+            # Do the job
             fhm.historicalFilter(inRaster,outRaster,inShapeGrey,inShapeMedian,iterMedian)
-            # Do something useful here - delete the line containing pass and
-            # substitute with your code.
+            
+            #filterClass(inRaster,outRaster,inShapeGrey,inShapeMedian,iterMedian)
             self.iface.messageBar().pushMessage("New image", "Filter with "+str(inShapeGrey)+' closing size and '+str(inShapeMedian)+ ' median size', level=QgsMessageBar.SUCCESS, duration=20)
             self.iface.addRasterLayer(outRaster)
             
@@ -307,7 +316,6 @@ class HistoricalMap( QDialog ):
             message = "Sorry, you have to specify as matrix name"
         if message != '':
             QtGui.QMessageBox.warning(self, 'Information missing or invalid', message, QtGui.QMessageBox.Ok)
-            
         else:
             # Getting variables from UI            
             inFiltered=self.dlg.inFiltered.currentLayer()
@@ -338,7 +346,7 @@ class HistoricalMap( QDialog ):
             else:
                 QtGui.QMessageBox.information(self, "Information", "Model is done!<br>Model saved at "+str(outModel)+"")
             pass
-        
+    
     def runClassify(self):
             """Run method that performs all the real work"""
     
@@ -381,3 +389,7 @@ class HistoricalMap( QDialog ):
                 # Do something useful here - delete the line containing pass and
                 # substitute with your code.
                 pass
+
+
+    
+        

@@ -24,8 +24,7 @@ from sklearn.cross_validation import StratifiedKFold
 from sklearn.grid_search import GridSearchCV
 
 
-
-class historicalFilter:  
+class historicalFilter():  
     """
     Filter class to isolate the forest, delete dark lines and fonts from Historical Map
     
@@ -39,16 +38,16 @@ class historicalFilter:
         -- Nothing except a raster file (outName)
         
     """
-
+    
     def __init__(self, inImage,outName,inShapeGrey,inShapeMedian,iterMedian):
-        # Try to load the image with dataraster.py (loadImage function)
+        # Try to load the image with dataraster.py (loadImage function)        
         try:
             self.filterBand(inImage,outName,inShapeGrey,inShapeMedian,iterMedian)
         except:
             print "Impossible to filter"
+        
         # Saving file
        
-
     def filterBand(self,inImage,outName,inShapeGrey,inShapeMedian,iterMedian):
 
         """
@@ -65,6 +64,7 @@ class historicalFilter:
             -- Nothing except a raster file (outName)
         """
         # open data with Gdal
+        ret = None
         try:
             data,im=dataraster.open_data_band(inImage)
         except:

@@ -50,7 +50,7 @@
     <string/>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
@@ -658,6 +658,35 @@
       <string>&gt; Optional fields</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_4">
+      <item row="2" column="2">
+       <widget class="QLabel" name="label_11">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>30</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Number (percent) of parcel that will be use for training.
+For example 0,5 means that we use 50% of your parcel for making the model.</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="pixmap">
+         <pixmap resource="resources.qrc">:/plugins/HistoricalMap/img/help/information.png</pixmap>
+        </property>
+        <property name="scaledContents">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="0">
        <widget class="QLabel" name="tiffImageLabel_7">
         <property name="font">
@@ -709,23 +738,6 @@
         <property name="value">
          <double>0.000000000000000</double>
         </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QComboBox" name="inField">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>11</pointsize>
-         </font>
-        </property>
-        <item>
-         <property name="text">
-          <string>Class</string>
-         </property>
-        </item>
        </widget>
       </item>
       <item row="1" column="0">
@@ -796,33 +808,13 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="2">
-       <widget class="QLabel" name="label_11">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>30</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Number (percent) of parcel that will be use for training.
-For example 0,5 means that we use 50% of your parcel for making the model.</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="pixmap">
-         <pixmap resource="resources.qrc">:/plugins/HistoricalMap/img/help/information.png</pixmap>
-        </property>
-        <property name="scaledContents">
-         <bool>true</bool>
-        </property>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="inField">
+        <item>
+         <property name="text">
+          <string>Class</string>
+         </property>
+        </item>
        </widget>
       </item>
      </layout>
@@ -1412,5 +1404,6 @@ SVM : Support Vector Machine</string>
    <header>qgsspinbox.h</header>
   </customwidget>
  </customwidgets>
+
  <connections/>
 </ui>

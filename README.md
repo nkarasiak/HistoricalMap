@@ -14,9 +14,6 @@ Before installing the plugin on Qgis you have to install two dependencies :
   For Sklearn
 > pip install sklean
 
-  For Scipy
-> pip install scipy
-
 ### On Qgis
 Go to QGIS plugin menu. Manage and Install plugins. Go to setting, check show also experimental plugins.
 Then search for Historical Mapand install it. A new icon shows up <img src="https://raw.githubusercontent.com/lennepkade/Historical-Map/master/img/icon.png" data-canonical-src="https://raw.githubusercontent.com/lennepkade/Historical-Map/master/img/icon.png" width="30" height="30" />
