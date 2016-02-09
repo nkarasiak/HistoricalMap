@@ -20,11 +20,10 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication,QObject
 
 from PyQt4 import QtGui
 from PyQt4.QtGui import QAction, QIcon, QFileDialog, QDialog, QProgressBar, QApplication
-from PyQt4.QtCore import *
+from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication,QObject
 from qgis.gui import QgsMessageBar
 from qgis.core import *
 import pdb
@@ -246,6 +245,9 @@ class HistoricalMap( QDialog ):
         
         if not fileName:
             return
+            
+        # If user give right file extension, we don't add it
+            
         fileName,fileExtension=os.path.splitext(fileName)
         if sender == self.dlg.selectRaster: 
             if fileExtension!='.tif':
