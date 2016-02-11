@@ -21,21 +21,19 @@
  ***************************************************************************/
 """
 
-from PyQt4 import QtGui
+from PyQt4 import QtGui, QtCore
 from PyQt4.QtGui import QAction, QIcon, QFileDialog, QDialog, QProgressBar, QApplication
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication,QObject
+from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from qgis.gui import QgsMessageBar
-from qgis.core import *
-import pdb
-
+import os.path
 import function_historical_map as fhm
-import qgis.utils
+import dataraster
+from scipy import ndimage
 # Initialize Qt resources from file resources.py
-
-import resources
+#import resources
 # Import the code for the dialog
 from historical_map_dialog import HistoricalMapDialog
-import os.path
+
 
 
 class HistoricalMap( QDialog ):
@@ -71,10 +69,7 @@ class HistoricalMap( QDialog ):
 
             if qVersion() > '4.3.3':
                 QCoreApplication.installTranslator(self.translator)
-                
-        # KEep UI
-        QApplication.processEvents()
-        
+                        
         # Create the dialog (after translation) and keep reference
         self.dlg = HistoricalMapDialog()
         # Declare instance attributes
@@ -282,24 +277,91 @@ class HistoricalMap( QDialog ):
     def runFilter(self):
         """Run method that performs all the real work"""
         message=''
+        inRaster=self.dlg.inRaster.currentLayer()
+        inRaster=inRaster.dataProvider().dataSourceUri()
+        rasterName,rasterExt=os.path.splitext(inRaster)
+        
         if self.dlg.outRaster.text()=='':
             message = "Sorry, you have to specify as output raster"
+
+        if not rasterExt == '.tif' or rasterExt == '.tiff':
+            message = "You have to specify a tif in image to filter. You tried to had a "+rasterExt
+
         if message != '':
             QtGui.QMessageBox.warning(self, 'Information missing or invalid', message, QtGui.QMessageBox.Ok)
             pass            
-        else:            
-            inRaster=self.dlg.inRaster.currentLayer()
-            #vector=str(self.dlg.trainingCell.currentText())
-            inRaster=inRaster.dataProvider().dataSourceUri()
+        else:  
+            # Get args
+            # inRaster=self.dlg.inRaster.currentLayer()
+            # inRaster=inRaster.dataProvider().dataSourceUri()
             inShapeGrey=self.dlg.inShapeGrey.value()
             inShapeMedian=self.dlg.inShapeMedian.value()
             outRaster=self.dlg.outRaster.text()
             iterMedian=self.dlg.inShapeMedianIter.value()
             
             # Do the job
-            fhm.historicalFilter(inRaster,outRaster,inShapeGrey,inShapeMedian,iterMedian)
             
-            #filterClass(inRaster,outRaster,inShapeGrey,inShapeMedian,iterMedian)
+            try:
+                data,im=dataraster.open_data_band(inRaster)
+            except:
+                print 'Cannot open image'
+    
+            # get proj,geo and dimension (d) from data
+            proj = data.GetProjection()
+            geo = data.GetGeoTransform()
+            d = data.RasterCount
+            
+            # Progress Bar
+            maxStep=d*2+(2*iterMedian)-1
+            try:
+                pB=progressBar(self.iface,' Filtering...',maxStep)
+            except:
+                print 'Failed loading progress Bar'
+    
+            # create empty geotiff with d dimension, geotransform & projection
+            try:
+                outFile=dataraster.create_empty_tiff(outRaster,im,d,geo,proj)
+                
+            except:
+                print 'Cannot write empty image '+outRaster
+            
+            # fill outFile with filtered band
+            for i in range(d):
+                # Read data from the right band
+                try:
+                    
+                    temp = data.GetRasterBand(i+1).ReadAsArray()
+                except:
+                    print 'Cannot get rasterband'+i
+                # Filter with greyclosing, then with median filter
+                try:
+                    pB.newValue()
+                    temp = ndimage.morphology.grey_closing(temp,size=(inShapeGrey,inShapeGrey))
+                    
+
+                except:
+                    print 'Cannot filter with Grey_Closing'
+    
+                for j in range(iterMedian):
+                    try:
+                        pB.newValue()
+                        temp = ndimage.filters.median_filter(temp,size=(inShapeMedian,inShapeMedian))
+
+                    except:
+                        print 'Cannot filter with Median'
+                    
+                # Save bandand outFile
+                try:
+                    out=outFile.GetRasterBand(i+1)
+                    out.WriteArray(temp)
+                    out.FlushCache()
+                    temp = None
+                except:
+                    print 'Cannot save band '+i+' on image '+outRaster
+            
+            # Remove progressBar and back to default cursor
+            pB.reset()
+            
             self.iface.messageBar().pushMessage("New image", "Filter with "+str(inShapeGrey)+' closing size and '+str(inShapeMedian)+ ' median size', level=QgsMessageBar.SUCCESS, duration=20)
             self.iface.addRasterLayer(outRaster)
             
@@ -337,21 +399,22 @@ class HistoricalMap( QDialog ):
             inSeed=int(inSeed)
             inSplit=self.dlg.inSplit.value()
             
-            """ DEBUG """ """
-            query=(str(inFiltered)+','+str(inTraining)+','+str(inField)+','+str(inSplit)+','+str(inSeed)+','+str(outModel)+','+str(outMatrix)+','+str(inClassifier))
-            self.iface.messageBar().pushMessage("Error", query, QgsMessageBar.CRITICAL, 30)
-            """ """  """
-            
+            pB=progressBar(self.iface,' Training...',0)
+
             fhm.learnModel(inFiltered,inTraining,inField,inSplit,inSeed,outModel,outMatrix,inClassifier)
+            
+            pB.reset()
             if self.dlg.outMatrix.text()!='':
                 QtGui.QMessageBox.information(self, "Information", "Training is done!<br>Confusion matrix saved at "+str(outMatrix)+"")         
             else:
                 QtGui.QMessageBox.information(self, "Information", "Model is done!<br>Model saved at "+str(outModel)+"")
             pass
-    
+        
+
+            
     def runClassify(self):
             """Run method that performs all the real work"""
-    
+
             message=''
             if self.dlg.inModel.text()=='':
                 message = "Sorry, you have to specify a model"
@@ -361,7 +424,7 @@ class HistoricalMap( QDialog ):
                 QtGui.QMessageBox.warning(self, 'Information missing or invalid', message, QtGui.QMessageBox.Ok)
                 
             else:
-                print 'result'  
+                                
                 # Get filtered image                
                 inFilteredStep3=self.dlg.inFilteredStep3.currentLayer()
                 inFilteredStep3=str(inFilteredStep3.dataProvider().dataSourceUri())
@@ -377,21 +440,48 @@ class HistoricalMap( QDialog ):
                 outShp=str(self.dlg.outShp.text())
                 inClassForest=int(self.dlg.inClassForest.currentText())
                 
-                """ DEBUG """
-                #query=(str(inFilteredStep3)+','+str(inModel)+','+outShp+',None,'+str(inMinSize)+',-10000,'+str(inClassForest))
-                #self.iface.messageBar().pushMessage("Error", query, QgsMessageBar.CRITICAL, 30)
-                """ DEBUG """
-                
+
+
+                pB=progressBar(self.iface,'Classifying...',0)
+
                 fhm.classifyImage(inFilteredStep3,inModel,outShp,None,int(inMinSize),-10000,int(inClassForest))
-                # Do something useful here - delete the line containing pass and
-                # substitute with your code.
                 
+                pB.reset()                            
+                # Add vector & success msg
                 self.iface.addVectorLayer(outShp,'Vectorized forests','ogr')                
                 self.iface.messageBar().pushMessage("New vector : ",outShp, level=QgsMessageBar.SUCCESS, duration=10)
-                # Do something useful here - delete the line containing pass and
-                # substitute with your code.
+                
                 pass
 
 
-    
+
+class progressBar():
+    def __init__(self,iface,inMsg=' Loading...',inMaxStep=0):
+            # initialize progressBar            
+            """
+            """# Save reference to the QGIS interface
+            QApplication.processEvents() # Help to keep UI alive
+            
+            widget = iface.messageBar().createMessage('Please wait  ',inMsg)            
+            prgBar = QProgressBar()
+            self.prgBar=prgBar
+            self.iface=iface
+            widget.layout().addWidget(self.prgBar)
+            iface.messageBar().pushWidget(widget, iface.messageBar().WARNING)
+            QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+            
+            # if Max 0 and value 0, no progressBar, only cursor loading
+            # default is set to 0
+            prgBar.setValue(0)
+            # set Maximum for progressBar
+            prgBar.setMaximum(inMaxStep)
+            
+    def newValue(self):
+        plusOne=self.prgBar.value()+1
+        self.prgBar.setValue(plusOne)
+    def reset(self):
+            # Remove progressBar and back to default cursor
+            self.iface.messageBar().clearWidgets()
+            self.iface.mapCanvas().refresh()
+            QApplication.restoreOverrideCursor()
         

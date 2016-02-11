@@ -64,7 +64,6 @@ class historicalFilter():
             -- Nothing except a raster file (outName)
         """
         # open data with Gdal
-        ret = None
         try:
             data,im=dataraster.open_data_band(inImage)
         except:
@@ -114,18 +113,18 @@ class learnModel():
     Learn model with a shp file and a raster image
     
     Input :
-        inRaster : Filtered image name ('sample_filtered.tif',str)
-        inVector : Name of the training shpapefile ('training.shp',str)
-        inField : Column name where are stored class number (str)
-        inSplit : (int)
-        inSeed : (int)
-        outModel : Name of the model to save, will be compulsory for the 3rd step (classifying)
-        outMatrix : Default the name of the file inRaster(minus the extension)_inClassifier_inSeed_confu.csv (str)
-        inClassifier : GMM,KNN,SVM, or RF. (str)
+        inRaster : Filtered image name ('sample_filtered.tif',str).
+        inVector : Name of the training shpfile ('training.shp',str).
+        inField : Column name where are stored class number (str).
+        inSplit : (int).
+        inSeed : (int).
+        outModel : Name of the model to save, will be compulsory for the 3rd step (classifying).
+        outMatrix : Default the name of the file inRaster(minus the extension)_inClassifier_inSeed_confu.csv (str).
+        inClassifier : GMM,KNN,SVM, or RF. (str).
         
     Output :
-        Model file
-        Confusion Matrix
+        Model file.
+        Confusion Matrix.
         
     """
     def __init__(self,inRaster,inVector,inField='Class',inSplit=0.5,inSeed=0,outModel=None,outMatrix=None,inClassifier='GMM'):
@@ -191,7 +190,7 @@ class learnModel():
             # htau,err = model.cross_validation(x,y,tau)
             # model.tau = htau
         elif inClassifier == 'RF':
-            param_grid_rf = dict(n_estimators=5**sp.arange(1,5),max_features=sp.arange(1,int(sp.sqrt(d))+10,2))
+            param_grid_rf = dict(n_estimators=5**sp.arange(1,5),max_features=sp.arange(1,4))
             y.shape=(y.size,)    
             cv = StratifiedKFold(y, n_folds=5)
             grid = GridSearchCV(RandomForestClassifier(), param_grid=param_grid_rf, cv=cv,n_jobs=-1)
