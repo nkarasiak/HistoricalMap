@@ -1,5 +1,4 @@
-"""
-# -*- coding: utf-8 -*-
+"""!@brief Interface between qgisForm and function_historical_map.py
 ./***************************************************************************
  HistoricalMap
                                  A QGIS plugin
@@ -20,7 +19,7 @@
  *                                                                         *
  ***************************************************************************/
 """
-
+# -*- coding: utf-8 -*-
 from PyQt4 import QtGui
 from PyQt4.QtGui import QAction, QIcon, QFileDialog, QDialog
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
@@ -32,10 +31,10 @@ import function_historical_map as fhm
 from historical_map_dialog import HistoricalMapDialog
 
 class HistoricalMap( QDialog ):
-    """QGIS Plugin Implementation."""
+    """!@brief QGIS Plugin Implementation."""
 
     def __init__(self, iface):
-        """Constructor.
+        """!@brief Constructor.
 
         param iface: An interface instance that will be passed to this class
             which provides the hook by which you can manipulate the QGIS
@@ -108,6 +107,7 @@ class HistoricalMap( QDialog ):
         
             
     def onChangedLayer(self,index):
+        """!@brief Is active layer is changed, changed column combobox"""
         # We clear combobox
         self.dlg.inField.clear()
         # Then we fill it with new selected Layer
@@ -122,7 +122,7 @@ class HistoricalMap( QDialog ):
         
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
-        """Get the translation for a string using Qt translation API.
+        """!@brief Get the translation for a string using Qt translation API.
 
         We implement this ourselves since we do not inherit QObject.
 
@@ -210,7 +210,7 @@ class HistoricalMap( QDialog ):
         return action
 
     def initGui(self):
-        """Create the menu entries and toolbar icons inside the QGIS GUI."""
+        """!@brief Create the menu entries and toolbar icons inside the QGIS GUI."""
 
         icon_path = ':/plugins/HistoricalMap/icon.png'
         self.add_action(
@@ -221,7 +221,7 @@ class HistoricalMap( QDialog ):
 
 
     def unload(self):
-        """Removes the plugin menu item and icon from QGIS GUI."""
+        """!@brief Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
             self.iface.removePluginRasterMenu(
                 self.tr(u'&Historical Map'),
@@ -231,7 +231,7 @@ class HistoricalMap( QDialog ):
         del self.toolbar
         
     def select_output_file(self):
-        """Select file to save, and gives the right extension if the user don't put it"""
+        """!@brief Select file to save, and gives the right extension if the user don't put it"""
         sender = self.sender()
 
         fileName = QFileDialog.getSaveFileName(self.dlg, "Select output file","")
@@ -263,7 +263,7 @@ class HistoricalMap( QDialog ):
             self.dlg.inModel.setText(fileName)
      
     def select_load_file(self):
-        """Select file to load in the field"""
+        """!@brief Select file to load in the field"""
         sender=self.sender()
         fileName = QFileDialog.getOpenFileName(self.dlg, "Select your file","")
         if not fileName:
@@ -274,8 +274,7 @@ class HistoricalMap( QDialog ):
         self.dlg.show()
         
     def runFilter(self):
-        """
-        Method that performs the filtering from the map with function_historical_map.py
+        """!@brief Performs the filtering of the map by calling function_historical_map.py
         
         First step is validating the form, then if all is ok, proceed to the filtering.
         """
@@ -315,10 +314,10 @@ class HistoricalMap( QDialog ):
 
 
     def runTrain(self):
-        """
-        Method that performs the training
-        
+        """!@brief Performs the training by calling function_historical_map.py
+                
         First step is validating the form, then if all is ok, proceed to the training.
+        Tell the user who don't have sklearn they can't use classifier except GMM.
         
             Input :
                 Fields from the form
@@ -360,10 +359,10 @@ class HistoricalMap( QDialog ):
             inSplit=self.dlg.inSplit.value()
             
 
-            
+            # Do the job
             fhm.learnModel(inFiltered,inTraining,inField,inSplit,inSeed,outModel,outMatrix,inClassifier)
             
-
+            # show where it is saved
             if self.dlg.outMatrix.text()!='':
                 QtGui.QMessageBox.information(self, "Information", "Training is done!<br>Confusion matrix saved at "+str(outMatrix)+".")         
             else:
@@ -371,7 +370,7 @@ class HistoricalMap( QDialog ):
 
             
     def runClassify(self):
-            """
+            """!@brief Performs the classification by calling function_historical_map.py
             Method that performs the classification
             
             First step is validating the form, then if all is ok, proceed to the classification.
@@ -401,7 +400,8 @@ class HistoricalMap( QDialog ):
                 outShp=str(self.dlg.outShp.text())
                 inClassForest=int(self.dlg.inClassForest.value())
                 
-
+                # do the job
+                
                 fhm.classifyImage(inFilteredStep3,inModel,outShp,None,int(inMinSize),-10000,int(inClassForest))
                 
                            

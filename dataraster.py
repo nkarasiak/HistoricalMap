@@ -1,19 +1,20 @@
+"""!@brief Manage data (opening/saving raster, get ROI...)"""
 # -*- coding: utf-8 -*-
 
 import scipy as sp
 from osgeo import gdal
 
 def open_data_band(filename):
-    '''
+    """!@brief The function open and load the image given its name. 
     The function open and load the image given its name. 
     The type of the data is checked from the file and the scipy array is initialized accordingly.
-    Input:
-        filename: the name of the file
-    Output:
-        im: the data cube
-        GeoTransform: the geotransform information 
-        Projection: the projection information
-    '''
+        Input:
+            filename: the name of the file
+        Output:
+            data : the opened data with gdal.Open() method
+            im : empty table with right dimension (array)
+    
+    """
     data = gdal.Open(filename,gdal.GA_ReadOnly)
     if data is None:
         print 'Impossible to open '+filename
@@ -61,8 +62,8 @@ Old function that open all the bands
 
 
 def create_empty_tiff(outname,im,d,GeoTransform,Projection):
-    '''
-    The function write an empty image on the hard drive.
+    '''!@brief Write an empty image on the hard drive.
+    
     Input: 
         outname: the name of the file to be written
         im: the image cube
@@ -118,15 +119,16 @@ def create_empty_tiff(outname,im,d,GeoTransform,Projection):
 #    dst_ds = None
     
 def get_samples_from_roi(raster_name,roi_name):
-    '''
-    The function get the set of pixels given the thematic map. Both map should be of same size. Data is read per block.
-    Input:
-        raster_name: the name of the raster file, could be any file that GDAL can open
-        roi_name: the name of the thematic image: each pixel whose values is greater than 0 is returned
-    Output:
-        X: the sample matrix. A nXd matrix, where n is the number of referenced pixels and d is the number of variables. Each 
-            line of the matrix is a pixel.
-        Y: the label of the pixel
+    '''!@brief Get the set of pixels given the thematic map.
+    Get the set of pixels given the thematic map. Both map should be of same size. Data is read per block.
+        Input:
+            raster_name: the name of the raster file, could be any file that GDAL can open
+            roi_name: the name of the thematic image: each pixel whose values is greater than 0 is returned
+        Output:
+            X: the sample matrix. A nXd matrix, where n is the number of referenced pixels and d is the number of variables. Each 
+                line of the matrix is a pixel.
+            Y: the label of the pixel
+    Written by Mathieu Fauvel.
     ''' 
     
     ## Open Raster
@@ -199,9 +201,19 @@ def get_samples_from_roi(raster_name,roi_name):
     return X,Y
 
 def predict_image(raster_name,classif_name,classifier,mask_name=None):
-    '''
-        The function classify the whole raster image, using per block image analysis. The classifier is given in classifier and options in kwargs
-    '''
+    """!@brief Classify the whole raster image, using per block image analysis
+        The classifier is given in classifier and options in kwargs.
+        
+        Input:
+            raster_name (str)
+            classif_name (str)
+            classifier (str)
+            mask_name(str)
+            
+        Return:
+            Nothing but raster written on disk
+        Written by Mathieu Fauvel.
+    """
     # Parameters
     block_sizes = 512
 
@@ -306,17 +318,19 @@ def predict_image(raster_name,classif_name,classifier,mask_name=None):
     dst_ds = None
 
 def smooth_image(raster_name,mask_name,output_name,l,t):
-    '''
-    The function will apply a smoothing filter on all the pixels of the input image.
+    """!@brief Apply a smoothing filter on all the pixels of the input image
+   
     Input:
-    raster_name: the name of the originale SITS
-    mask_name: the name of the mask. In that file, every pixel with value greater than 0 is masked.
-    output_name: the name of the smoothed image
+        raster_name: the name of the originale SITS
+        mask_name: the name of the mask. In that file, every pixel with value greater than 0 is masked.
+        output_name: the name of the smoothed image
     
     TO DO: 
     - check the input file format (uint16 or float)
     - parallelization
-    '''
+    
+    Written by Mathieu Fauvel
+    """
     # Get 
     import smoother as sm
     # Open Raster and get additionnal information

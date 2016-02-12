@@ -1,5 +1,4 @@
-"""
-# -*- coding: utf-8 -*-
+"""!@brief Interface between qgisForm and function_historical_map.py
 ./***************************************************************************
  HistoricalMap
                                  A QGIS plugin
@@ -20,6 +19,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+# -*- coding: utf-8 -*-
 import dataraster
 import pickle
 import os
@@ -34,7 +34,8 @@ from PyQt4 import QtCore
 from qgis.utils import iface
 
 class historicalFilter():  
-    """
+    """!@brief Filter a raster with median and closing filter.
+    
     Filter class to isolate the forest, delete dark lines and fonts from Historical Map
     
     Input :
@@ -105,8 +106,7 @@ class historicalFilter():
         pB.reset()
                 
 class learnModel():
-    """
-    Learn model with a shp file and a raster image
+    """!@brief Learn model with a shp file and a raster image.
     
     Input :
         inRaster : Filtered image name ('sample_filtered.tif',str).
@@ -262,8 +262,8 @@ class learnModel():
         learningProgress.reset()
         learningProgress=None
     def scale(self,x,M=None,m=None):
-        """
-        Function that standardize the data
+        """@brief! Function that standardize the data.
+        
             Input:
                 x: the data
                 M: the Max vector
@@ -292,9 +292,10 @@ class learnModel():
         return xs,M,m
         
 class classifyImage():
-    """""""""
-    Classify image with learn clasifier and learned model
-    Create a raster file, fill hole from your give class (inClassForest), convert to a vector, remove parcel size in under a certain size (inMinSize) and save it.
+    """@brief! Classify image with learn clasifier and learned model
+    
+    Create a raster file, fill hole from your give class (inClassForest), convert to a vector,
+    remove parcel size which are under a certain size (defined in inMinSize) and save it to shp.
 
         Input :
             inRaster : Filtered image name ('sample_filtered.tif',str)
@@ -309,7 +310,7 @@ class classifyImage():
         Output :
             SHP file with deleted polygon below inMinSize
     
-    """""""""
+    """
     def __init__(self,inRaster,inModel,outShpFile,inMask=None,inMinSize=5000,inNODATA=-10000,inClassForest=1):
         
         classifyProgress=progressBar('Classifying image...',5) # Add progressBar
@@ -430,8 +431,8 @@ class classifyImage():
         os.remove(rasterTemp)
     
     def scale(self,x,M=None,m=None):  # TODO:  DO IN PLACE SCALING
-        """
-        Function that standardize the datouta
+        """!@brief Function that standardize the data
+        
             Input:
                 x: the data
                 M: the Max vector
@@ -462,8 +463,8 @@ class classifyImage():
         return xs
         
     def predict_image(self,inRaster,outRaster,model,inMask=None,NODATA=-10000,SCALE=None):
-        """
-        The function classify the whole raster image, using per block image analysis.
+        """!@brief The function classify the whole raster image, using per block image analysis.
+        
         The classifier is given in classifier and options in kwargs
         
             Input :
@@ -564,7 +565,7 @@ class classifyImage():
         
         
 class progressBar():
-    """
+    """!@brief Manage progressBar and loading cursor.
     Allow to add a progressBar in Qgis and to change cursor to loading
     input:
         -inMsg : Message to show to the user (str)
@@ -594,14 +595,14 @@ class progressBar():
             prgBar.setMaximum(inMaxStep)
             
     def addStep(self):
-        """
+        """!@brief Add a step to the progressBar
         addStep() simply add +1 to current value of the progressBar
         """
         plusOne=self.prgBar.value()+1
         self.prgBar.setValue(plusOne)
     def reset(self):
-        """
-        reset() set back to the current cursor and delete progressBar
+        """!@brief Simply remove progressBar and reset cursor
+        
         """
         # Remove progressBar and back to default cursor
         self.iface.messageBar().clearWidgets()

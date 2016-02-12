@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+"""!@brief Script by Mathieu Fauvel which performs Gaussian Mixture Model
+"""# -*- coding: utf-8 -*-
 import scipy as sp
 from scipy import linalg
 import multiprocessing as mp

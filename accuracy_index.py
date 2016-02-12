@@ -1,7 +1,4 @@
-'''
-Created on 4 nov. 2014
-
-@author: mfauvel
+'''!@brief Accuracy index by Mathieu Fauvel
 '''
 import scipy as sp
 
