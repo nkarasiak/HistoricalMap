@@ -279,19 +279,20 @@ class HistoricalMap( QDialog ):
         First step is validating the form, then if all is ok, proceed to the filtering.
         """
         message=''
-        inRaster=self.dlg.inRaster.currentLayer()
-        inRaster=inRaster.dataProvider().dataSourceUri()
-        rasterName,rasterExt=os.path.splitext(inRaster)
-        
         if self.dlg.outRaster.text()=='':
             message = "Sorry, you have to specify as output raster"
-
-        if not rasterExt == '.tif' or rasterExt == '.tiff':
-            message = "You have to specify a tif in image to filter. You tried to had a "+rasterExt
-
-        if message != '':
+        try:
+            inRaster=self.dlg.inRaster.currentLayer()
+            inRaster=inRaster.dataProvider().dataSourceUri()
+            rasterName,rasterExt=os.path.splitext(inRaster)
+            if not rasterExt == '.tif' or rasterExt == '.tiff' or message!='':
+                message = "You have to specify a tif in image to filter. You tried to had a "+rasterExt
+             
+        except:
+            message="Impossible to load raster"
+        if message!='':
             QtGui.QMessageBox.warning(self, 'Information missing or invalid', message, QtGui.QMessageBox.Ok)
-                       
+            
         else:  
             """
             PROCESS IF ALL OK
@@ -380,6 +381,8 @@ class HistoricalMap( QDialog ):
                 message = "Sorry, you have to specify a model"
             if self.dlg.outShp.text()=='':
                 message = "Sorry, you have to specify a vector field to save the results"
+            if not os.path.splitext(self.dlg.outShp.text())[1]=='.shp':
+                message = "Sorry, you have to specify a *.shp type in output"
             if message != '':
                 QtGui.QMessageBox.warning(self, 'Information missing or invalid', message, QtGui.QMessageBox.Ok)
                 

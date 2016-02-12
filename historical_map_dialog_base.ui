@@ -50,7 +50,7 @@
     <string/>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>2</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
@@ -767,7 +767,7 @@ For example 0,5 means that we use 50% of your parcel for making the model.</stri
          </size>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By default you must have a column nammed 'Class' where you put the id of your segmentation (1 for Forest, 2 for Water... You must leave 0 for the script).&lt;/p&gt;&lt;p&gt;We're currently working on this feature.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By default you must have a column nammed 'Class' where you put the id of your segmentation (1 for Forest, 2 for Water... You must leave 0 for the script). You can choose here your column.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
          <string/>
@@ -1118,7 +1118,7 @@ SVM : Support Vector Machine</string>
        </size>
       </property>
       <property name="toolTip">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By default you must have a column nammed 'Class' where you put the id of your segmentation (1 for Forest, 2 for Water... You must leave 0 for the script).&lt;/p&gt;&lt;p&gt;We consider 1 as the forest to make the classification&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By default you must have a column named 'Class' where you put the id of your segmentation (1 for Forest, 2 for Water... You must leave 0 for the script).&lt;/p&gt;&lt;p&gt;We consider 1 as the forest to make the classification.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="text">
        <string/>
