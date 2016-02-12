@@ -17,12 +17,9 @@ import gmm_ridge as gmmr
 import scipy as sp
 from scipy import ndimage
 from osgeo import gdal, ogr
-from sklearn import neighbors
-from sklearn.svm import SVC
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.cross_validation import StratifiedKFold
-from sklearn.grid_search import GridSearchCV
-
+from PyQt4.QtGui import QProgressBar, QApplication
+from PyQt4 import QtCore
+from qgis.utils import iface
 
 class historicalFilter():  
     """
@@ -39,30 +36,7 @@ class historicalFilter():
         
     """
     
-    def __init__(self, inImage,outName,inShapeGrey,inShapeMedian,iterMedian):
-        # Try to load the image with dataraster.py (loadImage function)        
-        try:
-            self.filterBand(inImage,outName,inShapeGrey,inShapeMedian,iterMedian)
-        except:
-            print "Impossible to filter"
-        
-        # Saving file
-       
-    def filterBand(self,inImage,outName,inShapeGrey,inShapeMedian,iterMedian):
-
-        """
-        Filter band per band with greyClose and median
-        Generate empty table then fill it with greyClose and median filter above it.
-        
-        Input :
-            inImage : image name to filter ('text.tif',str)
-            outName : outname name of the filtered file (str)
-            inShapeGrey : Size for the grey closing convolution matrix (odd number, int)
-            inShapeMedian : Size for the median convolution matrix (odd  number, int)
-        
-        Output :
-            -- Nothing except a raster file (outName)
-        """
+    def __init__(self,inImage,outName,inShapeGrey,inShapeMedian,iterMedian):
         # open data with Gdal
         try:
             data,im=dataraster.open_data_band(inImage)
@@ -73,7 +47,14 @@ class historicalFilter():
         proj = data.GetProjection()
         geo = data.GetGeoTransform()
         d = data.RasterCount
-
+        
+        # Progress Bar
+        maxStep=d*2+(2*iterMedian)
+        try:
+            pB=progressBar(' Filtering...',maxStep)
+        except:
+            print 'Failed loading progress Bar'
+            
         # create empty geotiff with d dimension, geotransform & projection
         try:
             outFile=dataraster.create_empty_tiff(outName,im,d,geo,proj)
@@ -84,6 +65,7 @@ class historicalFilter():
         for i in range(d):
             # Read data from the right band
             try:
+                pB.addStep()
                 temp = data.GetRasterBand(i+1).ReadAsArray()
             except:
                 print 'Cannot get rasterband'+i
@@ -95,6 +77,7 @@ class historicalFilter():
 
             for j in range(iterMedian):
                 try:
+                    pB.addStep()
                     temp = ndimage.filters.median_filter(temp,size=(inShapeMedian,inShapeMedian))
                 except:
                     print 'Cannot filter with Median'
@@ -107,6 +90,7 @@ class historicalFilter():
                 temp = None
             except:
                 print 'Cannot save band '+i+' on image '+outName
+        pB.reset()
                 
 class learnModel():
     """
@@ -128,8 +112,13 @@ class learnModel():
         
     """
     def __init__(self,inRaster,inVector,inField='Class',inSplit=0.5,inSeed=0,outModel=None,outMatrix=None,inClassifier='GMM'):
-           
+          
+          
+        learningProgress=progressBar('Learning model...',6)
+ 
         # Convert vector to raster
+
+        
         temp_folder = tempfile.mkdtemp()
         filename = os.path.join(temp_folder, 'temp.tif')
         
@@ -138,7 +127,7 @@ class learnModel():
         
         lyr = shp.GetLayer()
         
-                
+        
         # Create temporary data set
         driver = gdal.GetDriverByName('GTiff')
         dst_ds = driver.Create(filename,data.RasterXSize,data.RasterYSize, 1,gdal.GDT_Byte)
@@ -160,9 +149,14 @@ class learnModel():
         
         # Scale the data
         X,M,m = self.scale(X)
-    
+        
+        
+        learningProgress.addStep() # Add Step to ProgressBar
+
         # Learning process take split of groundthruth pixels for training and the remaining for testing
         if SPLIT < 1:
+            # progressBar, set Max to C
+            
             # Random selection of the sample
             x = sp.array([]).reshape(0,d)
             y = sp.array([]).reshape(0,1)
@@ -179,41 +173,60 @@ class learnModel():
                 xt = sp.concatenate((X[t[rp[ns:]],:],xt))
                 y = sp.concatenate((Y[t[rp[0:ns]]],y))
                 yt = sp.concatenate((Y[t[rp[ns:]]],yt))
+                #Add Pb
+                
         else:
             x,y=X,Y
-    
+        
+        learningProgress.addStep() # Add Step to ProgressBar
         # Train Classifier
-        if inClassifier == 'GMM':
-            # tau=10.0**sp.arange(-8,8,0.5)
-            model = gmmr.GMMR()
-            model.learn(x,y)
-            # htau,err = model.cross_validation(x,y,tau)
-            # model.tau = htau
-        elif inClassifier == 'RF':
-            param_grid_rf = dict(n_estimators=5**sp.arange(1,5),max_features=sp.arange(1,4))
-            y.shape=(y.size,)    
-            cv = StratifiedKFold(y, n_folds=5)
-            grid = GridSearchCV(RandomForestClassifier(), param_grid=param_grid_rf, cv=cv,n_jobs=-1)
-            grid.fit(x, y)
-            model = grid.best_estimator_
-            model.fit(x,y)        
-        elif inClassifier == 'SVM':
-            param_grid_svm = dict(gamma=2.0**sp.arange(-4,4), C=10.0**sp.arange(-2,5))
-            y.shape=(y.size,)    
-            cv = StratifiedKFold(y, n_folds=5)
-            grid = GridSearchCV(SVC(), param_grid=param_grid_svm, cv=cv,n_jobs=-1)
-            grid.fit(x, y)
-            model = grid.best_estimator_
-            model.fit(x,y)
-        elif inClassifier == 'KNN':
-            param_grid_knn = dict(n_neighbors = sp.arange(1,50,5))
-            y.shape=(y.size,)    
-            cv = StratifiedKFold(y, n_folds=5)
-            grid = GridSearchCV(neighbors.KNeighborsClassifier(), param_grid=param_grid_knn, cv=cv,n_jobs=-1)
-            grid.fit(x, y)
-            model = grid.best_estimator_
-            model.fit(x,y)
-    
+        try:
+            if inClassifier == 'GMM':
+                # tau=10.0**sp.arange(-8,8,0.5)
+                model = gmmr.GMMR()
+                model.learn(x,y)
+                # htau,err = model.cross_validation(x,y,tau)
+                # model.tau = htau
+        except:
+            print 'Cannot train with GMM'
+        else:
+            try:                    
+                from sklearn import neighbors
+                from sklearn.svm import SVC
+                from sklearn.ensemble import RandomForestClassifier
+                from sklearn.cross_validation import StratifiedKFold
+                from sklearn.grid_search import GridSearchCV
+            except:
+                print 'You must have sklearn dependencies on your computer. Please consult the documentation'
+            try:    
+                if inClassifier == 'RF':
+                    param_grid_rf = dict(n_estimators=5**sp.arange(1,5),max_features=sp.arange(1,4))
+                    y.shape=(y.size,)    
+                    cv = StratifiedKFold(y, n_folds=5)
+                    grid = GridSearchCV(RandomForestClassifier(), param_grid=param_grid_rf, cv=cv,n_jobs=-1)
+                    grid.fit(x, y)
+                    model = grid.best_estimator_
+                    model.fit(x,y)        
+                elif inClassifier == 'SVM':
+                    param_grid_svm = dict(gamma=2.0**sp.arange(-4,4), C=10.0**sp.arange(-2,5))
+                    y.shape=(y.size,)    
+                    cv = StratifiedKFold(y, n_folds=5)
+                    grid = GridSearchCV(SVC(), param_grid=param_grid_svm, cv=cv,n_jobs=-1)
+                    grid.fit(x, y)
+                    model = grid.best_estimator_
+                    model.fit(x,y)
+                elif inClassifier == 'KNN':
+                    param_grid_knn = dict(n_neighbors = sp.arange(1,50,5))
+                    y.shape=(y.size,)    
+                    cv = StratifiedKFold(y, n_folds=5)
+                    grid = GridSearchCV(neighbors.KNeighborsClassifier(), param_grid=param_grid_knn, cv=cv,n_jobs=-1)
+                    grid.fit(x, y)
+                    model = grid.best_estimator_
+                    model.fit(x,y)
+            except:
+                print 'Cannot train with Classifier'
+        
+        learningProgress.prgBar.setValue(5) # Add Step to ProgressBar
         # Assess the quality of the model
         if SPLIT < 1 :
             # if  inClassifier == 'GMM':
@@ -230,6 +243,12 @@ class learnModel():
             output = open(outModel, 'wb')
             pickle.dump([model,M,m], output)
             output.close()
+        
+        learningProgress.addStep() # Add Step to ProgressBar   
+        
+        # Close progressBar
+        learningProgress.reset()
+        learningProgress=None
     def scale(self,x,M=None,m=None):
         ''' Function that standardize the data
             Input:
@@ -279,7 +298,10 @@ class classifyImage():
     
     """""""""
     def __init__(self,inRaster,inModel,outShpFile,inMask=None,inMinSize=5000,inNODATA=-10000,inClassForest=1):
-            # Load model
+        
+        classifyProgress=progressBar('Classifying image...',5) # Add progressBar
+        classifyProgress.addStep()
+        # Load model
         model = open(inModel,'rb') # TODO: Update to scale the data 
         if model is None:
             print "Model not load"
@@ -300,6 +322,7 @@ class classifyImage():
         Raster modification
         Fill holes and low median filtering
         """""""""
+        
         try:
             data,im=dataraster.open_data_band(rasterTemp)
         except:
@@ -310,7 +333,8 @@ class classifyImage():
         geo = data.GetGeoTransform()
         d = data.RasterCount
 
-                
+        classifyProgress.addStep() # Add Step to ProgressBar      
+             
         outFile=dataraster.create_empty_tiff(rasterTemp,im,d,geo,proj)
         temp = data.GetRasterBand(1).ReadAsArray().astype(int)
         temp[temp!=1]=0
@@ -329,7 +353,7 @@ class classifyImage():
         except:
             print 'Cannot save '+rasterTemp
         
-        
+        classifyProgress.addStep() # Add Step to ProgressBar      
         """""""""
         SHP Vectorizing
         """""""""
@@ -363,6 +387,7 @@ class classifyImage():
         outDatasource.Destroy()
         sourceRaster = None
         
+        classifyProgress.addStep() # Add Step to ProgressBar      
         # Add area for each feature
         ioShpFile = ogr.Open(outShpFile, update = 1)
         
@@ -373,6 +398,7 @@ class classifyImage():
         lyr.CreateField(field_defn)
         
     
+        classifyProgress.addStep() # Add Step to ProgressBar      
         for i in lyr:
             # feat = lyr.GetFeature(i) 
             geom = i.GetGeometryRef()
@@ -386,6 +412,8 @@ class classifyImage():
                 lyr.DeleteFeature(i.GetFID())        
         ioShpFile = None
         
+        classifyProgress.reset() # Add Step to ProgressBar      
+        classifyProgress=None
         os.remove(rasterTemp)
     
     def scale(self,x,M=None,m=None):  # TODO:  DO IN PLACE SCALING
@@ -506,7 +534,39 @@ class classifyImage():
         # Clean/Close variables    
         raster = None
         dst_ds = None
-    
+        
+        
+        
+class progressBar():
+    def __init__(self,inMsg=' Loading...',inMaxStep=1):
+            # initialize progressBar            
+            """
+            """# Save reference to the QGIS interface
+            QApplication.processEvents() # Help to keep UI alive
+            
+            widget = iface.messageBar().createMessage('Please wait  ',inMsg)            
+            prgBar = QProgressBar()
+            self.prgBar=prgBar
+            self.iface=iface
+            widget.layout().addWidget(self.prgBar)
+            iface.messageBar().pushWidget(widget, iface.messageBar().WARNING)
+            QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+            
+            # if Max 0 and value 0, no progressBar, only cursor loading
+            # default is set to 0
+            prgBar.setValue(1)
+            # set Maximum for progressBar
+            prgBar.setMaximum(inMaxStep)
+            
+    def addStep(self):
+        plusOne=self.prgBar.value()+1
+        self.prgBar.setValue(plusOne)
+    def reset(self):
+            # Remove progressBar and back to default cursor
+            self.iface.messageBar().clearWidgets()
+            self.iface.mapCanvas().refresh()
+            QApplication.restoreOverrideCursor()
+            
 if __name__=='__main__':
     
     t1=time.clock()
