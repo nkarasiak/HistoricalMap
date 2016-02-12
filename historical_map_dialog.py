@@ -22,6 +22,7 @@
 """
 import sys
 import os
+import resources
 from PyQt4 import QtGui, uic
 from PyQt4.QtGui import QMainWindow, QMessageBox, QListWidgetItem, QFileDialog
 from PyQt4.QtCore import QObject, SIGNAL, Qt, QSettings
