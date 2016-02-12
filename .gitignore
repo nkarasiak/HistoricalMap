@@ -2,4 +2,5 @@
 *.pyc
 *.py~
 *_filtered*
+*resources.py
 
