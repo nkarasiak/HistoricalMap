@@ -1,9 +1,9 @@
-# -*- coding: utf-8 -*-
 """
-/***************************************************************************
+# -*- coding: utf-8 -*-
+./***************************************************************************
  HistoricalMap
                                  A QGIS plugin
- Mapping old forests from historical  maps
+ Mapping old landcover (specially forest) from historical  maps
                               -------------------
         begin                : 2016-01-26
         git sha              : $Format:%H$
@@ -21,19 +21,17 @@
  ***************************************************************************/
 """
 
-from PyQt4 import QtGui, QtCore
-from PyQt4.QtGui import QAction, QIcon, QFileDialog, QDialog, QProgressBar, QApplication
+from PyQt4 import QtGui
+from PyQt4.QtGui import QAction, QIcon, QFileDialog, QDialog
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
-from qgis.gui import QgsMessageBar
 import os.path
 import function_historical_map as fhm
-import dataraster
-from scipy import ndimage
 # Initialize Qt resources from file resources.py
 #import resources
 # Import the code for the dialog
 from historical_map_dialog import HistoricalMapDialog
-
+from qgis.core import *
+from qgis.gui import *
 
 
 class HistoricalMap( QDialog ):
@@ -42,10 +40,12 @@ class HistoricalMap( QDialog ):
     def __init__(self, iface):
         """Constructor.
 
-        :param iface: An interface instance that will be passed to this class
+        param iface: An interface instance that will be passed to this class
             which provides the hook by which you can manipulate the QGIS
             application at run time.
-        :type iface: QgsInterface
+        type iface: QgsInterface
+        
+        declare all fields to fill, such as output raster, columns to find from a shp...
         """
         QDialog.__init__(self)
         sender = self.sender()
@@ -234,6 +234,7 @@ class HistoricalMap( QDialog ):
         del self.toolbar
         
     def select_output_file(self):
+        """Select file to save, and gives the right extension if the user don't put it"""
         sender = self.sender()
 
         fileName = QFileDialog.getSaveFileName(self.dlg, "Select output file","")
@@ -265,6 +266,7 @@ class HistoricalMap( QDialog ):
             self.dlg.inModel.setText(fileName)
      
     def select_load_file(self):
+        """Select file to load in the field"""
         sender=self.sender()
         fileName = QFileDialog.getOpenFileName(self.dlg, "Select your file","")
         if not fileName:
@@ -275,9 +277,10 @@ class HistoricalMap( QDialog ):
         self.dlg.show()
         
     def runFilter(self):
-        """Run method that performs all the real work"""
         """
-        VALIDATION
+        Method that performs the filtering from the map with function_historical_map.py
+        
+        First step is validating the form, then if all is ok, proceed to the filtering.
         """
         message=''
         inRaster=self.dlg.inRaster.currentLayer()
@@ -292,7 +295,7 @@ class HistoricalMap( QDialog ):
 
         if message != '':
             QtGui.QMessageBox.warning(self, 'Information missing or invalid', message, QtGui.QMessageBox.Ok)
-            pass            
+                       
         else:  
             """
             PROCESS IF ALL OK
@@ -309,17 +312,22 @@ class HistoricalMap( QDialog ):
             
             fhm.historicalFilter(inRaster,outRaster,inShapeGrey,inShapeMedian,iterMedian)
 
-            
-            self.iface.messageBar().pushMessage("New image", "Filter with "+str(inShapeGrey)+' closing size and '+str(inShapeMedian)+ ' median size', level=QgsMessageBar.SUCCESS, duration=20)
+            # Show what's done
+            self.iface.messageBar().pushMessage("New image", "Filter with "+str(inShapeGrey)+' closing size and '+str(inShapeMedian)+ ' median size', 3, 10)
             self.iface.addRasterLayer(outRaster)
-            
-            # Do something useful here - delete the line containing pass and
-            # substitute with your code.
-            pass
-    def runTrain(self):
-        """Run method that performs all the real work"""
 
+
+    def runTrain(self):
+        """
+        Method that performs the training
         
+        First step is validating the form, then if all is ok, proceed to the training.
+        
+            Input :
+                Fields from the form
+            Output :
+                Open a popup to show where the matrix or the model is saved
+        """
         # Validation
         message=''
         if self.dlg.outModel.text()=='':
@@ -360,16 +368,17 @@ class HistoricalMap( QDialog ):
             
 
             if self.dlg.outMatrix.text()!='':
-                QtGui.QMessageBox.information(self, "Information", "Training is done!<br>Confusion matrix saved at "+str(outMatrix)+"")         
+                QtGui.QMessageBox.information(self, "Information", "Training is done!<br>Confusion matrix saved at "+str(outMatrix)+".")         
             else:
-                QtGui.QMessageBox.information(self, "Information", "Model is done!<br>Model saved at "+str(outModel)+"")
-            pass
-        
+                QtGui.QMessageBox.information(self, "Information", "Model is done!<br>Model saved at "+str(outModel)+", and matrix at"+str(outMatrix)+".")
 
             
     def runClassify(self):
-            """Run method that performs all the real work"""
-
+            """
+            Method that performs the classification
+            
+            First step is validating the form, then if all is ok, proceed to the classification.
+            """
             message=''
             if self.dlg.inModel.text()=='':
                 message = "Sorry, you have to specify a model"
@@ -393,7 +402,7 @@ class HistoricalMap( QDialog ):
                 inMinSize=int(self.dlg.inMinSize.value()*10000)
                 
                 outShp=str(self.dlg.outShp.text())
-                inClassForest=int(self.dlg.inClassForest.currentText())
+                inClassForest=int(self.dlg.inClassForest.value())
                 
 
                 fhm.classifyImage(inFilteredStep3,inModel,outShp,None,int(inMinSize),-10000,int(inClassForest))
@@ -401,6 +410,4 @@ class HistoricalMap( QDialog ):
                            
                 # Add vector & success msg
                 self.iface.addVectorLayer(outShp,'Vectorized forests','ogr')                
-                self.iface.messageBar().pushMessage("New vector : ",outShp, level=QgsMessageBar.SUCCESS, duration=10)
-                
-                pass
+                self.iface.messageBar().pushMessage("New vector : ",outShp, 3, duration=10)

@@ -1,13 +1,25 @@
+"""
 # -*- coding: utf-8 -*-
-"""
-HistoricalMap Plugin for Qgis
-Made by Nicolas Karasiak and Antoine Lomellini
-Teacher : Mathieu Fauvel, David Sheeren
-Where ? ENSAT @ Toulouse
-Github : https://github.com/lennepkade/Historical-Map/
-"""
+./***************************************************************************
+ HistoricalMap
+                                 A QGIS plugin
+ Mapping old landcover (specially forest) from historical  maps
+                              -------------------
+        begin                : 2016-01-26
+        git sha              : $Format:%H$
+        copyright            : (C) 2016 by Karasiak & Lomellini
+        email                : karasiak.nicolas@gmail.com
+ ***************************************************************************/
 
-import time
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+"""
 import dataraster
 import pickle
 import os
@@ -32,7 +44,7 @@ class historicalFilter():
         inShapeMedian : Size for the median convolution matrix (odd  number, int)
         
     Output :
-        -- Nothing except a raster file (outName)
+        Nothing except a raster file (outName)
         
     """
     
@@ -224,7 +236,7 @@ class learnModel():
                     model = grid.best_estimator_
                     model.fit(x,y)
             except:
-                print 'Cannot train with Classifier'
+                print 'Cannot train with Classifier '+inClassifier
         
         learningProgress.prgBar.setValue(5) # Add Step to ProgressBar
         # Assess the quality of the model
@@ -250,7 +262,8 @@ class learnModel():
         learningProgress.reset()
         learningProgress=None
     def scale(self,x,M=None,m=None):
-        ''' Function that standardize the data
+        """
+        Function that standardize the data
             Input:
                 x: the data
                 M: the Max vector
@@ -259,7 +272,7 @@ class learnModel():
                 x: the standardize data
                 M: the Max vector
                 m: the Min vector
-        '''
+        """
         [n,d]=x.shape
         if not sp.issubdtype(x.dtype,float):
             x=x.astype('float')
@@ -281,20 +294,20 @@ class learnModel():
 class classifyImage():
     """""""""
     Classify image with learn clasifier and learned model
+    Create a raster file, fill hole from your give class (inClassForest), convert to a vector, remove parcel size in under a certain size (inMinSize) and save it.
 
         Input :
-    inRaster : Filtered image name ('sample_filtered.tif',str)
-    inModel : Output name of the filtered file ('training.shp',str)
-    outShpFile : Output name of vector files ('sample.shp',str)
-    inMinSize : min size in acre for the forest, ex 6 means all polygons below 6000 m2 (int)
-    TODO inMask : Mask size where no classification is done                                     |||| NOT YET IMPLEMENTED
-    inField : Column name where are stored class number (str)
-    inNODATA : if NODATA (int)
-    inClassforest : Classification number of the forest class (int)
+            inRaster : Filtered image name ('sample_filtered.tif',str)
+            inModel : Output name of the filtered file ('training.shp',str)
+            outShpFile : Output name of vector files ('sample.shp',str)
+            inMinSize : min size in acre for the forest, ex 6 means all polygons below 6000 m2 (int)
+            TODO inMask : Mask size where no classification is done                                     |||| NOT YET IMPLEMENTED
+            inField : Column name where are stored class number (str)
+            inNODATA : if NODATA (int)
+            inClassForest : Classification number of the forest class (int)
         
         Output :
-    Raster image and the simple classification
-    SHP file with deleted polygon below inMinSize
+            SHP file with deleted polygon below inMinSize
     
     """""""""
     def __init__(self,inRaster,inModel,outShpFile,inMask=None,inMinSize=5000,inNODATA=-10000,inClassForest=1):
@@ -417,7 +430,8 @@ class classifyImage():
         os.remove(rasterTemp)
     
     def scale(self,x,M=None,m=None):  # TODO:  DO IN PLACE SCALING
-        ''' Function that standardize the datouta
+        """
+        Function that standardize the datouta
             Input:
                 x: the data
                 M: the Max vector
@@ -426,7 +440,7 @@ class classifyImage():
                 x: the standardize data
                 M: the Max vector
                 m: the Min vector
-        '''
+        """
         [n,d]=x.shape
         if not sp.issubdtype(x.dtype,float):
             x=x.astype('float')
@@ -448,9 +462,21 @@ class classifyImage():
         return xs
         
     def predict_image(self,inRaster,outRaster,model,inMask=None,NODATA=-10000,SCALE=None):
-        '''
-            The function classify the whole raster image, using per block image analysis. The classifier is given in classifier and options in kwargs
-        '''
+        """
+        The function classify the whole raster image, using per block image analysis.
+        The classifier is given in classifier and options in kwargs
+        
+            Input :
+                inRaster : Filtered image name ('sample_filtered.tif',str)
+                outRaster :Raster image name ('outputraster.tif',str)
+                model : model file got from precedent step ('model', str)
+                inMask : mask to 
+                NODATA : Default set to -10000 (int)
+                SCALE : Default set to None
+                
+            Output :
+                nothing but save a raster image
+        """
         # Open Raster and get additionnal information
         raster = gdal.Open(inRaster,gdal.GA_ReadOnly)
         if raster is None:
@@ -538,6 +564,15 @@ class classifyImage():
         
         
 class progressBar():
+    """
+    Allow to add a progressBar in Qgis and to change cursor to loading
+    input:
+        -inMsg : Message to show to the user (str)
+        -inMax : The steps of the script (int)
+    
+    output:
+        nothing but changing cursor and print progressBar inside Qgis
+    """
     def __init__(self,inMsg=' Loading...',inMaxStep=1):
             # initialize progressBar            
             """
@@ -559,24 +594,30 @@ class progressBar():
             prgBar.setMaximum(inMaxStep)
             
     def addStep(self):
+        """
+        addStep() simply add +1 to current value of the progressBar
+        """
         plusOne=self.prgBar.value()+1
         self.prgBar.setValue(plusOne)
     def reset(self):
-            # Remove progressBar and back to default cursor
-            self.iface.messageBar().clearWidgets()
-            self.iface.mapCanvas().refresh()
-            QApplication.restoreOverrideCursor()
+        """
+        reset() set back to the current cursor and delete progressBar
+        """
+        # Remove progressBar and back to default cursor
+        self.iface.messageBar().clearWidgets()
+        self.iface.mapCanvas().refresh()
+        QApplication.restoreOverrideCursor()
             
-if __name__=='__main__':
+#if __name__=='__main__':
     
-    t1=time.clock()
+
     
     # Image to work on
 #
-    inImage='img/samples/map.tif'
+#    inImage='img/samples/map.tif'
 #        
-    inFile,inExtension = os.path.splitext(inImage) # Split filename and extension
-    outFilter=inFile+'_filtered'+inExtension 
+#    inFile,inExtension = os.path.splitext(inImage) # Split filename and extension
+#    outFilter=inFile+'_filtered'+inExtension 
 #    
 #    # Filtering....
 #    filtered=historicalFilter(inImage,outFilter,inShapeGrey=11,inShapeMedian=11, iterMedian=1)
@@ -594,13 +635,9 @@ if __name__=='__main__':
     
     #Classify image...
     
-    outShpFile='img/samples/SHP/vectorized.shp'
-    classifyImage('/home/sigma/test/map_fltr.tif','/home/sigma/test/modelGMM','/home/sigma/test/vec.shp',None,5000,-10000,1)
+#    outShpFile='img/samples/SHP/vectorized.shp'
+#    classifyImage('/home/sigma/test/map_fltr.tif','/home/sigma/test/modelGMM','/home/sigma/test/vec.shp',None,5000,-10000,1)
     #classified=classifyImage(outFilter,outModel,outShpFile,None,6000,-10000,1)
     
 #    inFilteredStep3,inTrainingStep3,outRasterClass,None,inMinSize,None,'Class',inNODATA=-10000
 #    inRaster,inModel,outRaster,inMask=None,inMinSize=6,outShpFolder='img/samples/outSHP/',inField='Class',inNODATA=-10000
-       
-    
-    
-    print 'Shp in : ' +outShpFile
