@@ -326,7 +326,7 @@ class HistoricalMap( QDialog ):
             message = "Sorry, you have to specify as model name"
         if self.dlg.outMatrix.text()=='':
             message = "Sorry, you have to specify as matrix name"
-        if not self.dlg.inClassifier.currentText()=='KNN':
+        if not self.dlg.inClassifier.currentText()=='GMM':
             try:
                 import sklearn
             except:
