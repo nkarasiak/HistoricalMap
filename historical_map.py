@@ -326,8 +326,15 @@ class HistoricalMap( QDialog ):
             message = "Sorry, you have to specify as model name"
         if self.dlg.outMatrix.text()=='':
             message = "Sorry, you have to specify as matrix name"
+        if not self.dlg.inClassifier.currentText()=='KNN':
+            try:
+                import sklearn
+            except:
+                message = "It seemns you don't have sklearn library installed on your computer. You can only use GMM classifier. Please consult the documentation for more information"
+             
         if message != '':
             QtGui.QMessageBox.warning(self, 'Information missing or invalid', message, QtGui.QMessageBox.Ok)
+   
         else:
             # Getting variables from UI            
             inFiltered=self.dlg.inFiltered.currentLayer()
