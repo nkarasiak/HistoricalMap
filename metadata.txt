@@ -10,8 +10,9 @@
 name=Historical Map
 qgisMinimumVersion=2.0
 description=Automatic vectorization of old forests from historical maps
-version=0.2
+version=0.3
 author=Nicolas Karasiak (aka Nicolaï Van Lennepkade), Antoine Lomellini
+email=karasiak.nicolas@gmail.com
 
 about=About Historical Map : Made by Nicolas Karasiak & Antoine Lomellini<br>Based on the work of Pierre-Alexis with the help of Mathieu Fauvel.<br><br><b>Library to add before installing the : </b><br><ul><li>SKlearn</li></ul><br>To install this dependency you can consult our tutorial at the <a href="https://github.com/lennepkade/Historical-Map/">Historical Map plugin page</a>.
 
