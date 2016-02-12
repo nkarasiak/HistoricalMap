@@ -30,9 +30,6 @@ import function_historical_map as fhm
 #import resources
 # Import the code for the dialog
 from historical_map_dialog import HistoricalMapDialog
-from qgis.core import *
-from qgis.gui import *
-
 
 class HistoricalMap( QDialog ):
     """QGIS Plugin Implementation."""
