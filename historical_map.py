@@ -285,7 +285,7 @@ class HistoricalMap( QDialog ):
             inRaster=self.dlg.inRaster.currentLayer()
             inRaster=inRaster.dataProvider().dataSourceUri()
             rasterName,rasterExt=os.path.splitext(inRaster)
-            if not rasterExt == '.tif' or rasterExt == '.tiff' or message!='':
+            if not rasterExt == '.tif' or rasterExt == '.tiff' or message=='':
                 message = "You have to specify a tif in image to filter. You tried to had a "+rasterExt
              
         except:
