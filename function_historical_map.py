@@ -65,7 +65,7 @@ class historicalFilter():
         # Progress Bar
         maxStep=d*2+(2*iterMedian)
         try:
-            pB=progressBar(' Filtering...',maxStep)
+            filterProgress=progressBar(' Filtering...',maxStep)
         except:
             print 'Failed loading progress Bar'
             
@@ -79,23 +79,26 @@ class historicalFilter():
         for i in range(d):
             # Read data from the right band
             try:
-                pB.addStep()
+                filterProgress.addStep()
                 temp = data.GetRasterBand(i+1).ReadAsArray()
-                QgsMessageLog.logMessage("Reading band from "+str(i)+" from image "+inImage)
+                
             except:
                 print 'Cannot get rasterband'+i
+                QgsMessageLog.logMessage("Problem reading band "+str(i)+" from image "+inImage)
             # Filter with greyclosing, then with median filter
             try:
                 temp = ndimage.morphology.grey_closing(temp,size=(inShapeGrey,inShapeGrey))
             except:
                 print 'Cannot filter with Grey_Closing'
+                QgsMessageLog.logMessage("Problem with Grey Closing")
 
             for j in range(iterMedian):
                 try:
-                    pB.addStep()
+                    filterProgress.addStep()
                     temp = ndimage.filters.median_filter(temp,size=(inShapeMedian,inShapeMedian))
                 except:
                     print 'Cannot filter with Median'
+                    QgsMessageLog.logMessage("Problem with median filter")
                 
             # Save bandand outFile
             try:
@@ -104,8 +107,9 @@ class historicalFilter():
                 out.FlushCache()
                 temp = None
             except:
-                print 'Cannot save band '+i+' on image '+outName
-        pB.reset()
+                QgsMessageLog.logMessage("Cannot save band"+str(i)+" on image" + outName)
+                
+        filterProgress.reset()
                 
 class learnModel():
     """!@brief Learn model with a shp file and a raster image.
