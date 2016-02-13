@@ -32,6 +32,7 @@ from osgeo import gdal, ogr
 from PyQt4.QtGui import QProgressBar, QApplication
 from PyQt4 import QtCore
 from qgis.utils import iface
+from qgis.core import QgsMessageLog
 
 class historicalFilter():  
     """!@brief Filter a raster with median and closing filter.
@@ -80,6 +81,7 @@ class historicalFilter():
             try:
                 pB.addStep()
                 temp = data.GetRasterBand(i+1).ReadAsArray()
+                QgsMessageLog.logMessage("Reading band from "+str(i)+" from image "+inImage)
             except:
                 print 'Cannot get rasterband'+i
             # Filter with greyclosing, then with median filter
@@ -130,28 +132,34 @@ class learnModel():
  
         # Convert vector to raster
 
-        
-        temp_folder = tempfile.mkdtemp()
-        filename = os.path.join(temp_folder, 'temp.tif')
-        
-        data = gdal.Open(inRaster,gdal.GA_ReadOnly)
-        shp = ogr.Open(inVector)
-        
-        lyr = shp.GetLayer()
-        
+        try:
+            temp_folder = tempfile.mkdtemp()
+            filename = os.path.join(temp_folder, 'temp.tif')
+            
+            data = gdal.Open(inRaster,gdal.GA_ReadOnly)
+            shp = ogr.Open(inVector)
+            
+            lyr = shp.GetLayer()
+        except:
+            QgsMessageLog.logMessage("Problem with making tempfile or opening raster or vector")
         
         # Create temporary data set
-        driver = gdal.GetDriverByName('GTiff')
-        dst_ds = driver.Create(filename,data.RasterXSize,data.RasterYSize, 1,gdal.GDT_Byte)
-        dst_ds.SetGeoTransform(data.GetGeoTransform())
-        dst_ds.SetProjection(data.GetProjection())
-        OPTIONS = 'ATTRIBUTE='+inField
-        gdal.RasterizeLayer(dst_ds, [1], lyr, None,options=[OPTIONS])
-        data,dst_ds,shp,lyr=None,None,None,None
-    
+        try:
+            driver = gdal.GetDriverByName('GTiff')
+            dst_ds = driver.Create(filename,data.RasterXSize,data.RasterYSize, 1,gdal.GDT_Byte)
+            dst_ds.SetGeoTransform(data.GetGeoTransform())
+            dst_ds.SetProjection(data.GetProjection())
+            OPTIONS = 'ATTRIBUTE='+inField
+            gdal.RasterizeLayer(dst_ds, [1], lyr, None,options=[OPTIONS])
+            data,dst_ds,shp,lyr=None,None,None,None
+        except:
+            QgsMessageLog.logMessage("Cannot create temporary data set")
         
         # Load Training set
-        X,Y =  dataraster.get_samples_from_roi(inRaster,filename)
+        try:
+            X,Y =  dataraster.get_samples_from_roi(inRaster,filename)
+        except:
+            QgsMessageLog.logMessage("Problem while getting samples from ROI with"+inRaster)
         
         [n,d] = X.shape
         C = int(Y.max())
@@ -166,26 +174,29 @@ class learnModel():
         learningProgress.addStep() # Add Step to ProgressBar
 
         # Learning process take split of groundthruth pixels for training and the remaining for testing
-        if SPLIT < 1:
-            # progressBar, set Max to C
-            
-            # Random selection of the sample
-            x = sp.array([]).reshape(0,d)
-            y = sp.array([]).reshape(0,1)
-            xt = sp.array([]).reshape(0,d)
-            yt = sp.array([]).reshape(0,1)
-            
-            sp.random.seed(inSeed) # Set the random generator state
-            for i in range(C):            
-                t = sp.where((i+1)==Y)[0]
-                nc = t.size
-                ns = int(nc*SPLIT)
-                rp =  sp.random.permutation(nc)
-                x = sp.concatenate((X[t[rp[0:ns]],:],x))
-                xt = sp.concatenate((X[t[rp[ns:]],:],xt))
-                y = sp.concatenate((Y[t[rp[0:ns]]],y))
-                yt = sp.concatenate((Y[t[rp[ns:]]],yt))
-                #Add Pb
+        try:
+            if SPLIT < 1:
+                # progressBar, set Max to C
+                
+                # Random selection of the sample
+                x = sp.array([]).reshape(0,d)
+                y = sp.array([]).reshape(0,1)
+                xt = sp.array([]).reshape(0,d)
+                yt = sp.array([]).reshape(0,1)
+                
+                sp.random.seed(inSeed) # Set the random generator state
+                for i in range(C):            
+                    t = sp.where((i+1)==Y)[0]
+                    nc = t.size
+                    ns = int(nc*SPLIT)
+                    rp =  sp.random.permutation(nc)
+                    x = sp.concatenate((X[t[rp[0:ns]],:],x))
+                    xt = sp.concatenate((X[t[rp[ns:]],:],xt))
+                    y = sp.concatenate((Y[t[rp[0:ns]]],y))
+                    yt = sp.concatenate((Y[t[rp[ns:]]],yt))
+                    #Add Pb
+        except:
+            QgsMessageLog.logMessage("Problem while learning if SPLIT <1")
                 
         else:
             x,y=X,Y
@@ -200,7 +211,7 @@ class learnModel():
                 # htau,err = model.cross_validation(x,y,tau)
                 # model.tau = htau
         except:
-            print 'Cannot train with GMM'
+            QgsMessageLog.logMessage("Cannot train with GMMM")
         else:
             try:                    
                 from sklearn import neighbors
@@ -209,7 +220,7 @@ class learnModel():
                 from sklearn.cross_validation import StratifiedKFold
                 from sklearn.grid_search import GridSearchCV
             except:
-                print 'You must have sklearn dependencies on your computer. Please consult the documentation'
+                QgsMessageLog.logMessage("You must have sklearn dependencies on your computer. Please consult the documentation")
             try:    
                 if inClassifier == 'RF':
                     param_grid_rf = dict(n_estimators=5**sp.arange(1,5),max_features=sp.arange(1,4))
@@ -237,6 +248,9 @@ class learnModel():
                     model.fit(x,y)
             except:
                 print 'Cannot train with Classifier '+inClassifier
+                QgsMessageLog.logMessage("Cannot train with Classifier"+inClassifier)
+
+                
         
         learningProgress.prgBar.setValue(5) # Add Step to ProgressBar
         # Assess the quality of the model
@@ -326,12 +340,17 @@ class classifyImage():
             model.close()
             
         # Creating temp file for saving raster classification
-            
-        temp_folder = tempfile.mkdtemp()
-        rasterTemp = os.path.join(temp_folder, 'temp.tif')
-        # Process the data
-        self.predict_image(inRaster,rasterTemp,tree,None,inNODATA,SCALE=[M,m])
-       
+        try:
+            temp_folder = tempfile.mkdtemp()
+            rasterTemp = os.path.join(temp_folder, 'temp.tif')
+        except:
+            QgsMessageLog.logMessage("Cannot create temp file "+rasterTemp)
+            # Process the data
+        try:
+            self.predict_image(inRaster,rasterTemp,tree,None,inNODATA,SCALE=[M,m])
+        except:
+            QgsMessageLog.logMessage("Problem while predicting "+inRaster+" in temp"+rasterTemp)
+
         """""""""
         Raster modification
         Fill holes and low median filtering
@@ -340,22 +359,34 @@ class classifyImage():
         try:
             data,im=dataraster.open_data_band(rasterTemp)
         except:
-            print 'Cannot open image'
+            QgsMessageLog.logMessage("Cannot open data "+rasterTemp)
+
             
         # get proj,geo and dimension (d) from data
         proj = data.GetProjection()
         geo = data.GetGeoTransform()
         d = data.RasterCount
 
-        classifyProgress.addStep() # Add Step to ProgressBar      
-             
-        outFile=dataraster.create_empty_tiff(rasterTemp,im,d,geo,proj)
-        temp = data.GetRasterBand(1).ReadAsArray().astype(int)
-        temp[temp!=1]=0
-        temp = ndimage.morphology.binary_fill_holes(temp).astype(int)
-        #temp = ndimage.median_filter(temp,size=(3,3)).astype(int)
         
-        temp[temp!=1]=2
+        classifyProgress.addStep() # Add Step to ProgressBar      
+        try:     
+            outFile=dataraster.create_empty_tiff(rasterTemp,im,d,geo,proj)
+        except:
+            QgsMessageLog.logMessage("Cannot create empty tif in "+rasterTemp)
+        
+        try:
+            temp = data.GetRasterBand(1).ReadAsArray().astype(int)
+            # All data which is not forest is set to 0, so we fill all for the forest only, because it's a binary fill holes.            
+            # Set selected class as 1   
+            temp[temp==inClassForest]=1
+            temp[temp!=inClassForest]=0            
+            temp = ndimage.morphology.binary_fill_holes(temp).astype(int)
+            #temp = ndimage.median_filter(temp,size=(3,3)).astype(int)
+        except:
+            QgsMessageLog.logMessage("Cannot fill binary holes")
+
+        # All non forest, or non selected class is set to 2
+        #temp[temp==0]=2
         
         try :
             out=outFile.GetRasterBand(1)
@@ -385,46 +416,54 @@ class classifyImage():
         """
         
         # Vectorizing with gdal.Polygonize
-        
-        sourceRaster = gdal.Open(rasterTemp)
-        band = sourceRaster.GetRasterBand(1)
-        driver = ogr.GetDriverByName("ESRI Shapefile")
-        # If shapefile already exist, delete it
-        if os.path.exists(outShpFile):
-            driver.DeleteDataSource(outShpFile)
-        outDatasource = driver.CreateDataSource(outShpFile)
-        outLayer = outDatasource.CreateLayer(outShpFile, srs=None)
-        # Add class column (1,2...) to shapefile
-        newField = ogr.FieldDefn('Class', ogr.OFTInteger)
-        outLayer.CreateField(newField)
-        gdal.Polygonize(band, None,outLayer, 0,[],callback=None)  
-        outDatasource.Destroy()
-        sourceRaster = None
-        
-        classifyProgress.addStep() # Add Step to ProgressBar      
-        # Add area for each feature
-        ioShpFile = ogr.Open(outShpFile, update = 1)
-        
-        lyr = ioShpFile.GetLayerByIndex(0)
-        lyr.ResetReading()
-        
-        field_defn = ogr.FieldDefn( "Area", ogr.OFTReal )
-        lyr.CreateField(field_defn)
-        
-    
-        classifyProgress.addStep() # Add Step to ProgressBar      
-        for i in lyr:
-            # feat = lyr.GetFeature(i) 
-            geom = i.GetGeometryRef()
-            area = round(geom.GetArea())
+        try:
+            sourceRaster = gdal.Open(rasterTemp)
+            band = sourceRaster.GetRasterBand(1)
+            driver = ogr.GetDriverByName("ESRI Shapefile")
+            # If shapefile already exist, delete it
+            if os.path.exists(outShpFile):
+                driver.DeleteDataSource(outShpFile)
+            outDatasource = driver.CreateDataSource(outShpFile)
+            outLayer = outDatasource.CreateLayer(outShpFile, srs=None)
+            # Add class column (1,2...) to shapefile
+            newField = ogr.FieldDefn('Class', ogr.OFTInteger)
+            outLayer.CreateField(newField)
+            gdal.Polygonize(band, None,outLayer, 0,[],callback=None)  
+            outDatasource.Destroy()
+            sourceRaster = None
+        except:
+            QgsMessageLog.logMessage("Problem while vectorizing data with gdal.Polygonize for "+outShpFile)
+
             
-            lyr.SetFeature(i)
-            i.SetField( "Area", area )
-            lyr.SetFeature(i)
-        # if area is less than inMinSize or if it isn't forest, remove polygon 
-            if area<inMinSize or i.GetField('Class')!=inClassForest:
-                lyr.DeleteFeature(i.GetFID())        
-        ioShpFile = None
+        classifyProgress.addStep() # Add Step to ProgressBar      
+        
+        try:        
+            # Add area for each feature
+            ioShpFile = ogr.Open(outShpFile, update = 1)
+            
+            lyr = ioShpFile.GetLayerByIndex(0)
+            lyr.ResetReading()
+            
+            field_defn = ogr.FieldDefn( "Area", ogr.OFTReal )
+            lyr.CreateField(field_defn)
+            
+        
+            classifyProgress.addStep() # Add Step to ProgressBar      
+            for i in lyr:
+                # feat = lyr.GetFeature(i) 
+                geom = i.GetGeometryRef()
+                area = round(geom.GetArea())
+                
+                lyr.SetFeature(i)
+                i.SetField( "Area", area )
+                lyr.SetFeature(i)
+            # if area is less than inMinSize or if it isn't forest, remove polygon 
+                if area<inMinSize or i.GetField('Class')!=inClassForest:
+                    lyr.DeleteFeature(i.GetFID())        
+            ioShpFile = None
+        except:
+            QgsMessageLog.logMessage("Cannot add area and remove it if size under"+inMinSize)
+
         
         classifyProgress.reset() # Add Step to ProgressBar      
         classifyProgress=None
