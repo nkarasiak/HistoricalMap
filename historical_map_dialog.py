@@ -24,16 +24,19 @@ import sys
 import os
 import resources
 from PyQt4 import QtGui, uic
-from PyQt4.QtGui import QMainWindow, QMessageBox, QListWidgetItem, QFileDialog
+from PyQt4.QtGui import QMainWindow, QMessageBox, QListWidgetItem, QFileDialog, QDockWidget
 from PyQt4.QtCore import QObject, SIGNAL, Qt, QSettings
 from qgis.core import QgsMapLayerRegistry, QgsFeatureRequest, QgsApplication
 
+# OLD Call for UI form
+#FORM_CLASS, _ = uic.loadUiType(os.path.join(
+#    os.path.dirname(__file__), 'historical_map_dialog_base.ui'))
 
-FORM_CLASS, _ = uic.loadUiType(os.path.join(
-    os.path.dirname(__file__), 'historical_map_dialog_base.ui'))
+from historical_map_dialog_base import Ui_HistoricalMap
 
-
-class HistoricalMapDialog(QtGui.QDialog, FORM_CLASS):
+# OLD Call for UI ext
+# class HistoricalMapDialog(QtGui.QDialog, FORM_CLASS):
+class HistoricalMapDialog(QDockWidget, Ui_HistoricalMap):
     def __init__(self, parent=None):
         """Constructor."""
         super(HistoricalMapDialog, self).__init__(parent)
