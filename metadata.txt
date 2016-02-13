@@ -10,7 +10,7 @@
 name=Historical Map
 qgisMinimumVersion=2.0
 description=Automatic vectorization of old forests from historical maps
-version=0.32
+version=0.5
 author=Nicolas Karasiak (aka Nicolaï Van Lennepkade), Antoine Lomellini
 email=karasiak.nicolas@gmail.com
 
