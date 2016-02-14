@@ -14,7 +14,7 @@ version=0.5
 author=Nicolas Karasiak (aka Nicolaï Van Lennepkade), Antoine Lomellini
 email=karasiak.nicolas@gmail.com
 
-about=About Historical Map : Made by Nicolas Karasiak & Antoine Lomellini<br>Based on the work of Pierre-Alexis with the help of Mathieu Fauvel.<br><br><b>Library to add before installing the : </b><br><ul><li>SKlearn</li></ul><br>To install this dependency you can consult our tutorial at the <a href="https://github.com/lennepkade/Historical-Map/">Historical Map plugin page</a>.
+about=Made by Nicolas Karasiak & Antoine Lomellini<br>Based on the work of Pierre-Alexis with the help of Mathieu Fauvel.<br><br>This plugin allow the user to filter an image (tif) with closing filter and median filter (you can set the parameters), then you can train with a shapefile of your perimeter, and to finish you get a shapefile with your selected class (ie: a shapefile of the forest from historical map, of your wine parcels...)<br><br><b>We suggest you to install sklearn before installing the plugin (or you will be forced to use GMM classifier and not KNN,RF or SVM).<br>For more information you can consult our tutorial at the <a href="https://github.com/lennepkade/Historical-Map/">Historical Map plugin page</a>.
 
 tracker=https://github.com/lennepkade/HistoricalMap/issues
 repository=https://github.com/lennepkade/HistoricalMap/
@@ -30,7 +30,7 @@ tags=historicalmap,classify,filter,old map,forest
 
 homepage=https://github.com/lennepkade/HistoricalMap/
 category=Raster
-icon=icon.png
+icon=img/icon.png
 # experimental flag
 experimental=True
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
+"""!@brief Call of UI form
 /***************************************************************************
  HistoricalMapDialog
                                  A QGIS plugin
@@ -20,13 +20,9 @@
  *                                                                         *
  ***************************************************************************/
 """
-import sys
-import os
+# import os
 import resources
-from PyQt4 import QtGui, uic
 from PyQt4.QtGui import QMainWindow, QMessageBox, QListWidgetItem, QFileDialog, QDockWidget
-from PyQt4.QtCore import QObject, SIGNAL, Qt, QSettings
-from qgis.core import QgsMapLayerRegistry, QgsFeatureRequest, QgsApplication
 
 # OLD Call for UI form
 #FORM_CLASS, _ = uic.loadUiType(os.path.join(

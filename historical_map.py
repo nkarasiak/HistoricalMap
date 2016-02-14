@@ -405,8 +405,11 @@ class HistoricalMap( QDialog ):
                 inClassForest=int(self.dlg.inClassForest.value())
                 
                 # do the job
-                
-                fhm.classifyImage(inFilteredStep3,inModel,outShp,None,int(inMinSize),-10000,int(inClassForest))
+                try:
+                    fhm.classifyImage(inFilteredStep3,inModel,outShp,None,int(inMinSize),-10000,int(inClassForest))
+		except:
+		    print 'cannot classifying...'
+		    QgsMessageLog.logMessage("Problem while classifying "+inFilteredStep3+" with model "+inModel)
                 
                            
                 # Add vector & success msg

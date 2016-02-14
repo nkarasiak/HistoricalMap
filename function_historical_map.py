@@ -20,7 +20,7 @@
  ***************************************************************************/
 """
 # -*- coding: utf-8 -*-
-import dataraster
+import function_dataraster as dataraster
 import pickle
 import os
 import accuracy_index as ai
