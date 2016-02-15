@@ -334,14 +334,16 @@ class classifyImage():
         classifyProgress=progressBar('Classifying image...',5) # Add progressBar
         classifyProgress.addStep()
         # Load model
-        model = open(inModel,'rb') # TODO: Update to scale the data 
-        if model is None:
-            print "Model not load"
-            exit()
-        else:
-            tree,M,m = pickle.load(model)
-            
-            model.close()
+        try:
+            model = open(inModel,'rb') # TODO: Update to scale the data 
+            if model is None:
+                print "Model not load"
+                QgsMessageLog.logMessage("Model : "+inModel+" is none")
+            else:
+                tree,M,m = pickle.load(model)
+                model.close()
+        except:
+            QgsMessageLog.logMessage("Error while loading the model : "+inModel)
             
         # Creating temp file for saving raster classification
         try:
