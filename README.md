@@ -8,6 +8,6 @@ Made By Nicolas Karasiak (aka <a href="http://www.lennepka.de" target="_blank">N
 Based on the work of Pierre-Alexis Herrault, with the help of <a href="http://fauvel.mathieu.free.fr/" target="_blank">Mathieu Fauvel</a>.
 
 # Need help ?
-If you want a tutorial or some help using this plugin, <b><a href="https://github.com/lennepkade/HistoricalMap/wiki">please consult our wiki</a><b>.
+If you want a tutorial or some help using this plugin, <b><a href="https://github.com/lennepkade/HistoricalMap/wiki">please consult our wiki</a></b>.
 # Data samples
 If you just need some data samples, you can <b><a href="https://github.com/lennepkade/HistoricalMap/archive/documentation.zip">download them from our documentation branch</a></b>.
