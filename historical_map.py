@@ -30,6 +30,9 @@ import function_historical_map as fhm
 # Import the code for the dialog
 from historical_map_dialog import HistoricalMapDialog
 
+from qgis.core import QgsMessageLog
+
+
 class HistoricalMap( QDialog ):
     """!@brief QGIS Plugin Implementation."""
 
@@ -411,10 +414,9 @@ class HistoricalMap( QDialog ):
                 # do the job
                 try:
                     fhm.classifyImage(inFilteredStep3,inModel,outShp,None,int(inMinSize),-10000,int(inClassForest))
-		except:
-		    print 'cannot classifying...'
-		    QgsMessageLog.logMessage("Problem while classifying "+inFilteredStep3+" with model "+inModel)
-                
+                except:
+                    QgsMessageLog.logMessage("Problem while classifying "+inFilteredStep3+" with model "+inModel)         
+                    QtGui.QMessageBox.warning(self, 'Problem while classifying', 'Something went wrong, please so log', QtGui.QMessageBox.Ok)
                            
                 # Add vector & success msg
                 self.iface.addVectorLayer(outShp,'Vectorized forests','ogr')                
