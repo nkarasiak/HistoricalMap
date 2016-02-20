@@ -420,4 +420,4 @@ class HistoricalMap( QDialog ):
 
                 except:
                     QgsMessageLog.logMessage("Problem while classifying "+inFilteredStep3+" with model "+inModel)         
-                    QtGui.QMessageBox.warning(self, 'Problem while classifying', 'Something went wrong, please so log', QtGui.QMessageBox.Ok)
+                    QtGui.QMessageBox.warning(self, 'Problem while classifying', 'Something went wrong, please show log. If your system is Windows, we\'re working on it', QtGui.QMessageBox.Ok)
