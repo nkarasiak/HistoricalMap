@@ -378,9 +378,10 @@ class classifyImage():
             try:
                 temp = data.GetRasterBand(1).ReadAsArray().astype(int)
                 # All data which is not forest is set to 0, so we fill all for the forest only, because it's a binary fill holes.            
-                # Set selected class as 1   
+                # Set selected class as 1                   
+                temp[temp!=inClassForest]=0
                 temp[temp==inClassForest]=1
-                temp[temp!=inClassForest]=0            
+                
                 temp = ndimage.morphology.binary_fill_holes(temp).astype(int)
                 #temp = ndimage.median_filter(temp,size=(3,3)).astype(int)
             except:

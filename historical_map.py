@@ -414,10 +414,10 @@ class HistoricalMap( QDialog ):
                 # do the job
                 try:
                     fhm.classifyImage(inFilteredStep3,inModel,outShp,None,int(inMinSize),-10000,int(inClassForest))
+                    # Add vector & success msg
+                    self.iface.addVectorLayer(outShp,'Vectorized forests','ogr')                
+                    self.iface.messageBar().pushMessage("New vector : ",outShp, 3, duration=10)
+
                 except:
                     QgsMessageLog.logMessage("Problem while classifying "+inFilteredStep3+" with model "+inModel)         
                     QtGui.QMessageBox.warning(self, 'Problem while classifying', 'Something went wrong, please so log', QtGui.QMessageBox.Ok)
-                           
-                # Add vector & success msg
-                self.iface.addVectorLayer(outShp,'Vectorized forests','ogr')                
-                self.iface.messageBar().pushMessage("New vector : ",outShp, 3, duration=10)
