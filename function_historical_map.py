@@ -28,7 +28,7 @@ import tempfile
 import gmm_ridge as gmmr
 import scipy as sp
 from scipy import ndimage
-from osgeo import gdal, ogr
+from osgeo import gdal, ogr, osr
 from PyQt4.QtGui import QProgressBar, QApplication
 from PyQt4 import QtCore
 from qgis.utils import iface
@@ -63,7 +63,7 @@ class historicalFilter():
         d = data.RasterCount
         
         # Progress Bar
-        maxStep=d*2+(2*iterMedian)
+        maxStep=d+d*iterMedian
         try:
             filterProgress=progressBar(' Filtering...',maxStep)
         except:
@@ -280,7 +280,7 @@ class learnModel():
         learningProgress.reset()
         learningProgress=None
     def scale(self,x,M=None,m=None):
-        """@brief! Function that standardize the data.
+        """!@brief Function that standardize the data.
         
             Input:
                 x: the data
@@ -310,7 +310,7 @@ class learnModel():
         return xs,M,m
         
 class classifyImage():
-    """@brief! Classify image with learn clasifier and learned model
+    """!@brief Classify image with learn clasifier and learned model
     
     Create a raster file, fill hole from your give class (inClassForest), convert to a vector,
     remove parcel size which are under a certain size (defined in inMinSize) and save it to shp.
@@ -430,11 +430,16 @@ class classifyImage():
             if os.path.exists(outShpFile):
                 driver.DeleteDataSource(outShpFile)
             outDatasource = driver.CreateDataSource(outShpFile)
-            outLayer = outDatasource.CreateLayer(outShpFile, srs=None)
+            # get proj from raster            
+            srs = osr.SpatialReference()
+            srs.ImportFromWkt( sourceRaster.GetProjectionRef() )
+            # create layer with proj
+            outLayer = outDatasource.CreateLayer(outShpFile,srs)
             # Add class column (1,2...) to shapefile
             newField = ogr.FieldDefn('Class', ogr.OFTInteger)
             outLayer.CreateField(newField)
             gdal.Polygonize(band, None,outLayer, 0,[],callback=None)  
+            gdal.Polygonize()
             outDatasource.Destroy()
             sourceRaster = None
         except:

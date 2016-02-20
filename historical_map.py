@@ -92,7 +92,9 @@ class HistoricalMap( QDialog ):
         self.dlg.outShp.clear()
         self.dlg.selectOutShp.clicked.connect(self.select_output_file)
         
+
         ## init fields   
+
         self.dlg.inTraining.currentIndexChanged[int].connect(self.onChangedLayer)
         
         ## By default field list is empty, so we fill with current layer
@@ -233,8 +235,8 @@ class HistoricalMap( QDialog ):
     def select_output_file(self):
         """!@brief Select file to save, and gives the right extension if the user don't put it"""
         sender = self.sender()
-
-        fileName = QFileDialog.getSaveFileName(self.dlg, "Select output file","")
+        
+        fileName = QFileDialog.getSaveFileName(self.dlg, "Select output file")
         
         if not fileName:
             return
@@ -342,6 +344,7 @@ class HistoricalMap( QDialog ):
             QtGui.QMessageBox.warning(self, 'Information missing or invalid', message, QtGui.QMessageBox.Ok)
    
         else:
+            
             # Getting variables from UI            
             inFiltered=self.dlg.inFiltered.currentLayer()
             inFiltered=inFiltered.dataProvider().dataSourceUri()
@@ -360,7 +363,8 @@ class HistoricalMap( QDialog ):
             inSeed=int(inSeed)
             inSplit=self.dlg.inSplit.value()
             
-
+            # add model to step 3
+            self.dlg.inModel.setText(outModel)
             # Do the job
             fhm.learnModel(inFiltered,inTraining,inField,inSplit,inSeed,outModel,outMatrix,inClassifier)
             
