@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['rastermod',['rasterMod',['../class_historical_map_1_1function__historical__map_1_1classify_image.html#ad8fc4dd7fd2c556a7e55bfed0c899767',1,'HistoricalMap::function_historical_map::classifyImage']]],
   ['readme_2emd',['README.md',['../_r_e_a_d_m_e_8md.html',1,'']]],
   ['reset',['reset',['../class_historical_map_1_1function__historical__map_1_1progress_bar.html#a2e73603957f5922ac3cf0fa6f124aca7',1,'HistoricalMap::function_historical_map::progressBar']]],
   ['resources_2epy',['resources.py',['../resources_8py.html',1,'']]],

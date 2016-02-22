@@ -7,6 +7,7 @@ var searchData=
   ['infiltered',['inFiltered',['../class_historical_map_1_1historical__map__dialog__base_1_1_ui___historical_map.html#ac2b29c7ecb683aae22823f6eac081617',1,'HistoricalMap::historical_map_dialog_base::Ui_HistoricalMap']]],
   ['infilteredstep3',['inFilteredStep3',['../class_historical_map_1_1historical__map__dialog__base_1_1_ui___historical_map.html#a1a34365d8a447abec215bf2d3b1c70ff',1,'HistoricalMap::historical_map_dialog_base::Ui_HistoricalMap']]],
   ['initgui',['initGui',['../class_historical_map_1_1historical__map_1_1_historical_map.html#a1d4759d35f49083d712f9d5b4a3c49c2',1,'HistoricalMap::historical_map::HistoricalMap']]],
+  ['initpredict',['initPredict',['../class_historical_map_1_1function__historical__map_1_1classify_image.html#ad1dc17226d381d678b30c2453b6bc790',1,'HistoricalMap::function_historical_map::classifyImage']]],
   ['inminsize',['inMinSize',['../class_historical_map_1_1historical__map__dialog__base_1_1_ui___historical_map.html#a48231d819b49dc509cabedba474cb0c7',1,'HistoricalMap::historical_map_dialog_base::Ui_HistoricalMap']]],
   ['inmodel',['inModel',['../class_historical_map_1_1historical__map__dialog__base_1_1_ui___historical_map.html#ab11eac46c4354cb674a0b3bf5d729aa2',1,'HistoricalMap::historical_map_dialog_base::Ui_HistoricalMap']]],
   ['inraster',['inRaster',['../class_historical_map_1_1historical__map__dialog__base_1_1_ui___historical_map.html#a8fd4b2f3538722103059c9657d652bf6',1,'HistoricalMap::historical_map_dialog_base::Ui_HistoricalMap']]],
