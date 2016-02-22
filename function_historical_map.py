@@ -329,8 +329,11 @@ class classifyImage():
             SHP file with deleted polygon below inMinSize
     
     """
-    def initPrediction(self,inRaster,inModel,outShpFile,inMask=None,inMinSize=5000,inNODATA=-10000,inClassForest=1):
+            
         
+    def initPredict(self,inRaster,inModel):
+        
+
         # Load model
         try:
             model = open(inModel,'rb') # TODO: Update to scale the data 
@@ -351,37 +354,37 @@ class classifyImage():
             QgsMessageLog.logMessage("Cannot create temp file "+rasterTemp)
             # Process the data
         try:
-            rasterTemp=self.predict_image(inRaster,rasterTemp,tree,None,inNODATA,SCALE=[M,m])
+            predictedImage=self.predict_image(inRaster,rasterTemp,tree,None,-10000,SCALE=[M,m])
         except:
             QgsMessageLog.logMessage("Problem while predicting "+inRaster+" in temp"+rasterTemp)
         
-        return rasterTemp
-
+        return predictedImage
+    
+    
     def rasterMod(self,rasterTemp,inClassForest):
-        
-        """""""""
-        Raster modification
-        Fill holes and low median filtering
-        """""""""
-        data,im=dataraster.open_data_band(rasterTemp)
-        # get proj,geo and dimension (d) from data
-        proj = data.GetProjection()
-        geo = data.GetGeoTransform()
-
-
+        try:
+            data,im=dataraster.open_data_band(rasterTemp)
+            # get proj,geo and dimension (d) from data
+            proj = data.GetProjection()
+            geo = data.GetGeoTransform()
+            d = data.RasterCount
+            
+            rasterTemp=rasterTemp+'f'
+        except:
+            QgsMessageLog.logMessage("Cant opening band")
         try:     
             outFile=dataraster.create_empty_tiff(rasterTemp,im,1,geo,proj)
         except:
             QgsMessageLog.logMessage("Cannot create empty tif in "+rasterTemp)
     
         try:
-            temp = data.GetRasterBand(1).ReadAsArray().astype(int)
+            temp = data.GetRasterBand(1).ReadAsArray()
             # All data which is not forest is set to 0, so we fill all for the forest only, because it's a binary fill holes.            
             # Set selected class as 1                   
             temp[temp!=inClassForest]=0
             temp[temp==inClassForest]=1
             
-            temp = ndimage.morphology.binary_fill_holes(temp).astype(int)
+            temp = ndimage.morphology.binary_fill_holes(temp)
             #temp = ndimage.median_filter(temp,size=(3,3)).astype(int)
         except:
             QgsMessageLog.logMessage("Cannot fill binary holes")
@@ -397,41 +400,35 @@ class classifyImage():
             # Cleaning outFile or vectorizing doesn't work
             outFile= None
         except:
-            print 'Cannot save '+rasterTemp
+                print 'Cannot save '+rasterTemp
         return rasterTemp
-        
-          
-    def vectorMod(self,rasterTemp,outShpFile,inMinSize):
-        """""""""
-        SHP Vectorizing
-        """""""""
-      
+
+    def vectorMod(self,rasterTemp,inMinSize,outShpFile):
         # Vectorizing with gdal.Polygonize
         try:
             sourceRaster = gdal.Open(rasterTemp)
             band = sourceRaster.GetRasterBand(1)
             driver = ogr.GetDriverByName("ESRI Shapefile")
-        except:
+            # If shapefile already exist, delete it
+            if os.path.exists(outShpFile):
+                driver.DeleteDataSource(outShpFile)
+                
+            outDatasource = driver.CreateDataSource(outShpFile)            
+            # get proj from raster            
+            srs = osr.SpatialReference()
+            srs.ImportFromWkt( sourceRaster.GetProjectionRef() )
+            # create layer with proj
+            outLayer = outDatasource.CreateLayer(outShpFile,srs)
+            # Add class column (1,2...) to shapefile
+      
+            newField = ogr.FieldDefn('Class', ogr.OFTInteger)
+            outLayer.CreateField(newField)
+            gdal.Polygonize(band, None,outLayer, 0,[],callback=None)  
+            outDatasource.Destroy()
+            sourceRaster=None
             
-            QgsMessageLog.logMessage("Cannot open or read "+outShpFile)
-        
-        # If shapefile already exist, delete it
-        if os.path.exists(outShpFile):
-            driver.DeleteDataSource(outShpFile)
-        outDatasource = driver.CreateDataSource(outShpFile)
-        # get proj from raster            
-        srs = osr.SpatialReference()
-        srs.ImportFromWkt( sourceRaster.GetProjectionRef() )
-        # create layer with proj
-        outLayer = outDatasource.CreateLayer(outShpFile,srs)
-        # Add class column (1,2...) to shapefile
-        newField = ogr.FieldDefn('Class', ogr.OFTInteger)
-        outLayer.CreateField(newField)
-        gdal.Polygonize(band, None,outLayer, 0,[],callback=None)  
-        outDatasource.Destroy()
-        sourceRaster = None
- 
-    
+        except:
+            QgsMessageLog.logMessage("Cannot vectorize "+rasterTemp)
         
         try:        
             # Add area for each feature
@@ -455,16 +452,11 @@ class classifyImage():
             # if area is less than inMinSize or if it isn't forest, remove polygon 
                 if area<inMinSize or i.GetField('Class')!=1:
                     lyr.DeleteFeature(i.GetFID())        
-            ioShpFile = None
+            ioShpFile.Destroy()
         except:
             QgsMessageLog.logMessage("Cannot add area and remove it if size under"+inMinSize)
-    
-    
-        os.remove(rasterTemp)
-        
         return outShpFile
-    
-    
+                
     def scale(self,x,M=None,m=None):  # TODO:  DO IN PLACE SCALING
         """!@brief Function that standardize the data
         
@@ -597,7 +589,6 @@ class classifyImage():
         raster = None
         dst_ds = None
         return outRaster
-        
         
         
 class progressBar():

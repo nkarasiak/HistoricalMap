@@ -30,6 +30,7 @@ import function_historical_map as fhm
 # Import the code for the dialog
 from historical_map_dialog import HistoricalMapDialog
 
+
 from qgis.core import QgsMessageLog
 
 
@@ -112,7 +113,7 @@ class HistoricalMap( QDialog ):
         
             
     def onChangedLayer(self,index):
-        """!@brief Is active layer is changed, changed column combobox"""
+        """!@brief If active layer is changed, change column combobox"""
         # We clear combobox
         self.dlg.inField.clear()
         # Then we fill it with new selected Layer
@@ -341,7 +342,7 @@ class HistoricalMap( QDialog ):
             try:
                 import sklearn
             except:
-                message = "It seems you don't have Scikit-Learn on your computer. You can only use GMM classifier. Please consult the documentation for more information"
+                message = "It seems you don't have Scitkit-Learn on your computer. You can only use GMM classifier. Please consult the documentation for more information"
              
         if message != '':
             QtGui.QMessageBox.warning(self, 'Information missing or invalid', message, QtGui.QMessageBox.Ok)
@@ -413,24 +414,43 @@ class HistoricalMap( QDialog ):
                 
                 # do the job
                 try:
-                    classifyProgress=fhm.progressBar('Classifying image...',3) # Add progressBar
-
                     classify=fhm.classifyImage()
-                    temp=classify.initPrediction(inFilteredStep3,inModel,outShp,None,int(inMinSize),-10000,int(inClassForest))
-                    classifyProgress.addStep()
-                    # Add vector & success msg
-                    temp=classify.rasterMod(temp,inClassForest)
-                    classifyProgress.addStep()
-                    temp=classify.vectorMod(temp,outShp,inMinSize)
+                    classifyProgress=fhm.progressBar('Classifying image...',3) # Add progressBar
+                    
+                    # Predicting image
+                    try:
+                        temp=classify.initPredict(inFilteredStep3,inModel)
+                    except:
+                        QgsMessageLog.logMessage("Problem while predicting image")
+                    
                     classifyProgress.addStep()
 
-                    self.iface.addVectorLayer(temp,'Vectorized forests','ogr')                
+                    # Rastering and filtering image
+                    try:
+                        temp=classify.rasterMod(temp,int(inClassForest))
+                    except:
+                        QgsMessageLog.logMessage("Problem while rastering filtering")
+                        
+                    classifyProgress.addStep()
+                    
+                    # Vectorizing and filtering image
+                    try:
+                        temp=classify.vectorMod(temp,inMinSize,outShp)
+                    except:
+                        QgsMessageLog.logMessage("Problem while vectorizing filtering")
+
+                    classifyProgress.addStep()
+                    
+                    # Add layer
+                    self.iface.addVectorLayer(temp,'Vectorized class','ogr')
                     self.iface.messageBar().pushMessage("New vector : ",outShp, 3, duration=10)
-                    classifyProgress.reset()
+                    classifyProgress.reset()  
 
                 except:
                     QgsMessageLog.logMessage("Problem while classifying "+inFilteredStep3+" with model "+inModel)         
                     QtGui.QMessageBox.warning(self, 'Problem while classifying', 'Something went wrong, please show log. If your system is Windows, we\'re working on it', QtGui.QMessageBox.Ok)
-                    classifyProgress.reset()
+                    classifyProgress.reset()  
+               
+         
+                
 
-                    
