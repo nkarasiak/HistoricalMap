@@ -413,10 +413,21 @@ class HistoricalMap( QDialog ):
                 
                 # do the job
                 try:
-                    fhm.classifyImage(inFilteredStep3,inModel,outShp,None,int(inMinSize),-10000,int(inClassForest))
+                    classifyProgress=fhm.progressBar('Classifying image...',3) # Add progressBar
+
+                    classify=fhm.classifyImage()
+                    temp=classify.initPrediction(inFilteredStep3,inModel,outShp,None,int(inMinSize),-10000,int(inClassForest))
+                    classifyProgress.addStep()
                     # Add vector & success msg
-                    self.iface.addVectorLayer(outShp,'Vectorized forests','ogr')                
+                    temp=classify.rasterMod(temp,inClassForest)
+                    classifyProgress.addStep()
+                    temp=classify.vectorMod(temp,outShp,inMinSize)
+                    classifyProgress.addStep()
+
+                    
+                    self.iface.addVectorLayer(temp,'Vectorized forests','ogr')                
                     self.iface.messageBar().pushMessage("New vector : ",outShp, 3, duration=10)
+                    classifyProgress.reset()
 
                 except:
                     QgsMessageLog.logMessage("Problem while classifying "+inFilteredStep3+" with model "+inModel)         
