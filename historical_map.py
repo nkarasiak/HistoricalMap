@@ -442,7 +442,8 @@ class HistoricalMap( QDialog ):
                     classifyProgress.addStep()
                     
                     # Add layer
-                    self.iface.addVectorLayer(temp,'Vectorized class','ogr')
+                    layerName=os.path.basename(os.path.splitext(temp)[0])
+                    self.iface.addVectorLayer(temp,layerName,'ogr')
                     self.iface.messageBar().pushMessage("New vector : ",outShp, 3, duration=10)
                     classifyProgress.reset()  
 
