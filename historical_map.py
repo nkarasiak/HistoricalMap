@@ -341,7 +341,7 @@ class HistoricalMap( QDialog ):
             try:
                 import sklearn
             except:
-                message = "It seemns you don't have sklearn library installed on your computer. You can only use GMM classifier. Please consult the documentation for more information"
+                message = "It seems you don't have Scikit-Learn on your computer. You can only use GMM classifier. Please consult the documentation for more information"
              
         if message != '':
             QtGui.QMessageBox.warning(self, 'Information missing or invalid', message, QtGui.QMessageBox.Ok)
@@ -432,3 +432,6 @@ class HistoricalMap( QDialog ):
                 except:
                     QgsMessageLog.logMessage("Problem while classifying "+inFilteredStep3+" with model "+inModel)         
                     QtGui.QMessageBox.warning(self, 'Problem while classifying', 'Something went wrong, please show log. If your system is Windows, we\'re working on it', QtGui.QMessageBox.Ok)
+                    classifyProgress.reset()
+
+                    

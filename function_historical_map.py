@@ -358,6 +358,7 @@ class classifyImage():
         return rasterTemp
 
     def rasterMod(self,rasterTemp,inClassForest):
+        
         """""""""
         Raster modification
         Fill holes and low median filtering
@@ -366,11 +367,10 @@ class classifyImage():
         # get proj,geo and dimension (d) from data
         proj = data.GetProjection()
         geo = data.GetGeoTransform()
-        d = data.RasterCount
 
 
         try:     
-            outFile=dataraster.create_empty_tiff(rasterTemp,im,d,geo,proj)
+            outFile=dataraster.create_empty_tiff(rasterTemp,im,1,geo,proj)
         except:
             QgsMessageLog.logMessage("Cannot create empty tif in "+rasterTemp)
     
