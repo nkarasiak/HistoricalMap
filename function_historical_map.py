@@ -460,8 +460,8 @@ class classifyImage():
             QgsMessageLog.logMessage("Cannot add area and remove it if size under"+inMinSize)
     
     
-        if os.path.exists(rasterTemp):
-            os.remove(rasterTemp)
+        os.remove(rasterTemp)
+        
         return outShpFile
     
     

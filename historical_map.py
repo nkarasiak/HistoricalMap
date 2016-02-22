@@ -424,7 +424,6 @@ class HistoricalMap( QDialog ):
                     temp=classify.vectorMod(temp,outShp,inMinSize)
                     classifyProgress.addStep()
 
-                    
                     self.iface.addVectorLayer(temp,'Vectorized forests','ogr')                
                     self.iface.messageBar().pushMessage("New vector : ",outShp, 3, duration=10)
                     classifyProgress.reset()
