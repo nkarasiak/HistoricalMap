@@ -1,8 +1,8 @@
 ![Logo](https://raw.githubusercontent.com/lennepkade/HistoricalMap/master/img/historical_logo.jpg "Historical Map Plugin for Qgis")
 # Historical Map, Qgis plugin 
-<center><img height="30px" src="https://s3.amazonaws.com/media-p.slid.es/uploads/346783/images/2269064/img_1193752722237.GIF"/>
-<img height="30px" src="https://s3.amazonaws.com/media-p.slid.es/uploads/346783/images/2269056/logo_ensat.gif"/>
-<img height="30px" src="https://s3.amazonaws.com/media-p.slid.es/uploads/346783/images/1520713/Logo_de_l_universit__Toulouse_-_Jean_Jaur_s_1_.png"/></center>
+<img style="float: center;" height="30px" src="https://s3.amazonaws.com/media-p.slid.es/uploads/346783/images/2269064/img_1193752722237.GIF"/>
+<img style="float: center;" height="30px" src="https://s3.amazonaws.com/media-p.slid.es/uploads/346783/images/2269056/logo_ensat.gif"/>
+<img style="float: center;" height="30px" src="https://s3.amazonaws.com/media-p.slid.es/uploads/346783/images/1520713/Logo_de_l_universit__Toulouse_-_Jean_Jaur_s_1_.png"/>
 
 Qgis Plugin for automatic extraction of forest from Historical Map
 
