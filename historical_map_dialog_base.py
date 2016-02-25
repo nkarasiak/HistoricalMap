@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'historical_map_dialog_base.ui'
 #
-# Created: Thu Feb 25 14:33:10 2016
+# Created: Thu Feb 25 19:15:04 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -440,17 +440,23 @@ class Ui_HistoricalMap(object):
         self.label_15.setPixmap(QtGui.QPixmap(_fromUtf8(":/plugins/HistoricalMap/img/ensat.gif")))
         self.label_15.setObjectName(_fromUtf8("label_15"))
         self.label_16 = QtGui.QLabel(HistoricalMap)
-        self.label_16.setGeometry(QtCore.QRect(300, 588, 111, 41))
+        self.label_16.setGeometry(QtCore.QRect(190, 588, 111, 41))
         self.label_16.setText(_fromUtf8(""))
         self.label_16.setPixmap(QtGui.QPixmap(_fromUtf8(":/plugins/HistoricalMap/img/sigma.gif")))
         self.label_16.setScaledContents(True)
         self.label_16.setObjectName(_fromUtf8("label_16"))
         self.label_17 = QtGui.QLabel(HistoricalMap)
-        self.label_17.setGeometry(QtCore.QRect(130, 590, 161, 31))
+        self.label_17.setGeometry(QtCore.QRect(20, 590, 160, 31))
         self.label_17.setText(_fromUtf8(""))
         self.label_17.setPixmap(QtGui.QPixmap(_fromUtf8(":/plugins/HistoricalMap/img/ut2j.png")))
         self.label_17.setScaledContents(True)
         self.label_17.setObjectName(_fromUtf8("label_17"))
+        self.label_18 = QtGui.QLabel(HistoricalMap)
+        self.label_18.setGeometry(QtCore.QRect(310, 595, 101, 31))
+        self.label_18.setText(_fromUtf8(""))
+        self.label_18.setPixmap(QtGui.QPixmap(_fromUtf8(":/plugins/HistoricalMap/img/dynafor.gif")))
+        self.label_18.setScaledContents(True)
+        self.label_18.setObjectName(_fromUtf8("label_18"))
 
         self.retranslateUi(HistoricalMap)
         self.tabWidget.setCurrentIndex(0)

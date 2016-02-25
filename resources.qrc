@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="/plugins/HistoricalMap">
+    <file>img/dynafor.gif</file>
     <file>img/ut2j.png</file>
     <file>img/ensat.gif</file>
     <file>img/historical_logo.jpg</file>

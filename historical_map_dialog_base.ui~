@@ -1480,5 +1480,8 @@ SVM : Support Vector Machine</string>
   <tabstop>btnClassify</tabstop>
   <tabstop>tabWidget</tabstop>
  </tabstops>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
