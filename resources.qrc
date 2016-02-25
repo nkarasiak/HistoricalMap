@@ -1,5 +1,9 @@
 <RCC>
   <qresource prefix="/plugins/HistoricalMap">
+    <file>img/ut2j.png</file>
+    <file>img/ensat.gif</file>
+    <file>img/historical_logo.jpg</file>
+    <file>img/sigma.gif</file>
     <file>img/historical_logo.jpg</file>
     <file>img/help/median1.png</file>
     <file>img/help/median5.png</file>

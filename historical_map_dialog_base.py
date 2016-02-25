@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'historical_map_dialog_base.ui'
 #
-# Created: Fri Feb 12 20:50:46 2016
+# Created: Thu Feb 25 14:33:10 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -25,16 +25,15 @@ except AttributeError:
 
 class Ui_HistoricalMap(object):
     def setupUi(self, HistoricalMap):
-        
         HistoricalMap.setObjectName(_fromUtf8("HistoricalMap"))
-        HistoricalMap.resize(590, 588)
+        HistoricalMap.resize(590, 630)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(74)
         sizePolicy.setVerticalStretch(74)
         sizePolicy.setHeightForWidth(HistoricalMap.sizePolicy().hasHeightForWidth())
         HistoricalMap.setSizePolicy(sizePolicy)
         HistoricalMap.setMinimumSize(QtCore.QSize(590, 588))
-        HistoricalMap.setMaximumSize(QtCore.QSize(590, 588))
+        HistoricalMap.setMaximumSize(QtCore.QSize(590, 630))
         self.tabWidget = QtGui.QTabWidget(HistoricalMap)
         self.tabWidget.setGeometry(QtCore.QRect(10, 200, 569, 381))
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
@@ -76,6 +75,7 @@ class Ui_HistoricalMap(object):
         font = QtGui.QFont()
         font.setPointSize(14)
         self.tiffImageLabel_2.setFont(font)
+        self.tiffImageLabel_2.setToolTip(_fromUtf8(""))
         self.tiffImageLabel_2.setObjectName(_fromUtf8("tiffImageLabel_2"))
         self.outRaster = QtGui.QLineEdit(self.tab)
         self.outRaster.setGeometry(QtCore.QRect(190, 240, 201, 30))
@@ -87,7 +87,7 @@ class Ui_HistoricalMap(object):
         self.selectRaster.setAutoDefault(False)
         self.selectRaster.setObjectName(_fromUtf8("selectRaster"))
         self.inShapeGrey = gui.QgsSpinBox(self.tab)
-        self.inShapeGrey.setGeometry(QtCore.QRect(190, 100, 98, 30))
+        self.inShapeGrey.setGeometry(QtCore.QRect(190, 100, 104, 33))
         font = QtGui.QFont()
         font.setPointSize(14)
         self.inShapeGrey.setFont(font)
@@ -131,7 +131,7 @@ class Ui_HistoricalMap(object):
         self.tiffImageLabel_13.setFont(font)
         self.tiffImageLabel_13.setObjectName(_fromUtf8("tiffImageLabel_13"))
         self.inShapeMedian = gui.QgsSpinBox(self.tab)
-        self.inShapeMedian.setGeometry(QtCore.QRect(190, 170, 98, 25))
+        self.inShapeMedian.setGeometry(QtCore.QRect(190, 170, 104, 33))
         self.inShapeMedian.setMaximumSize(QtCore.QSize(16777215, 25))
         font = QtGui.QFont()
         font.setPointSize(14)
@@ -434,6 +434,23 @@ class Ui_HistoricalMap(object):
         self.label.setScaledContents(True)
         self.label.setWordWrap(False)
         self.label.setObjectName(_fromUtf8("label"))
+        self.label_15 = QtGui.QLabel(HistoricalMap)
+        self.label_15.setGeometry(QtCore.QRect(420, 595, 161, 31))
+        self.label_15.setText(_fromUtf8(""))
+        self.label_15.setPixmap(QtGui.QPixmap(_fromUtf8(":/plugins/HistoricalMap/img/ensat.gif")))
+        self.label_15.setObjectName(_fromUtf8("label_15"))
+        self.label_16 = QtGui.QLabel(HistoricalMap)
+        self.label_16.setGeometry(QtCore.QRect(300, 588, 111, 41))
+        self.label_16.setText(_fromUtf8(""))
+        self.label_16.setPixmap(QtGui.QPixmap(_fromUtf8(":/plugins/HistoricalMap/img/sigma.gif")))
+        self.label_16.setScaledContents(True)
+        self.label_16.setObjectName(_fromUtf8("label_16"))
+        self.label_17 = QtGui.QLabel(HistoricalMap)
+        self.label_17.setGeometry(QtCore.QRect(130, 590, 161, 31))
+        self.label_17.setText(_fromUtf8(""))
+        self.label_17.setPixmap(QtGui.QPixmap(_fromUtf8(":/plugins/HistoricalMap/img/ut2j.png")))
+        self.label_17.setScaledContents(True)
+        self.label_17.setObjectName(_fromUtf8("label_17"))
 
         self.retranslateUi(HistoricalMap)
         self.tabWidget.setCurrentIndex(0)
@@ -470,7 +487,6 @@ class Ui_HistoricalMap(object):
         self.tiffImageLabel_3.setText(_translate("HistoricalMap", "Size of median filter :", None))
         self.tiffImageLabel.setText(_translate("HistoricalMap", "Image to filter :", None))
         self.tiffImageLabel_16.setText(_translate("HistoricalMap", "Save result as :", None))
-        self.tiffImageLabel_2.setToolTip(_translate("HistoricalMap", "<html><head/><body><p>Closing filter is a max then a min filter. Here you can see the difference between size 5 or 11 :</p><p><img src=\"img/grey5.png\" width=\"131\" height=\"65\"/><img src=\"img/grey11.png\" width=\"131\" height=\"65\"/></p></body></html>", None))
         self.tiffImageLabel_2.setText(_translate("HistoricalMap", "Size of closing filter :", None))
         self.outRaster.setPlaceholderText(_translate("HistoricalMap", "ex : map_filtered.tiff", None))
         self.selectRaster.setText(_translate("HistoricalMap", "...", None))

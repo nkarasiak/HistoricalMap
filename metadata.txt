@@ -10,7 +10,7 @@
 name=Historical Map
 qgisMinimumVersion=2.0
 description=Automatic vectorization of old forests from historical maps
-version=1.0
+version=1.0.1
 author=Nicolas Karasiak (aka Nicolaï Van Lennepkade), Antoine Lomellini
 email=karasiak.nicolas@gmail.com
 
@@ -23,7 +23,7 @@ repository=https://github.com/lennepkade/HistoricalMap/
 # Recommended items:
 
 # Uncomment the following line and add your changelog:
-changelog=Now working on Windows !<br>+ Correct some classification problem<br>
+changelog=Save last save directory in file dialog<br>Add logo of university & education
 
 # Tags are comma separated with spaces allowed
 tags=historicalmap,classify,filter,old map,forest

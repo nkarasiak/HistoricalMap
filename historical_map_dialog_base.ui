@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>590</width>
-    <height>588</height>
+    <height>630</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -25,7 +25,7 @@
   <property name="maximumSize">
    <size>
     <width>590</width>
-    <height>588</height>
+    <height>630</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -143,7 +143,7 @@
       </font>
      </property>
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Closing filter is a max then a min filter. Here you can see the difference between size 5 or 11 :&lt;/p&gt;&lt;p&gt;&lt;img src=&quot;img/grey5.png&quot; width=&quot;131&quot; height=&quot;65&quot;/&gt;&lt;img src=&quot;img/grey11.png&quot; width=&quot;131&quot; height=&quot;65&quot;/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string/>
      </property>
      <property name="text">
       <string>Size of closing filter :</string>
@@ -192,8 +192,8 @@
       <rect>
        <x>190</x>
        <y>100</y>
-       <width>98</width>
-       <height>30</height>
+       <width>104</width>
+       <height>33</height>
       </rect>
      </property>
      <property name="font">
@@ -344,8 +344,8 @@
       <rect>
        <x>190</x>
        <y>170</y>
-       <width>98</width>
-       <height>25</height>
+       <width>104</width>
+       <height>33</height>
       </rect>
      </property>
      <property name="maximumSize">
@@ -1359,8 +1359,65 @@ SVM : Support Vector Machine</string>
     <bool>false</bool>
    </property>
   </widget>
+  <widget class="QLabel" name="label_15">
+   <property name="geometry">
+    <rect>
+     <x>420</x>
+     <y>595</y>
+     <width>161</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="pixmap">
+    <pixmap resource="resources.qrc">:/plugins/HistoricalMap/img/ensat.gif</pixmap>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_16">
+   <property name="geometry">
+    <rect>
+     <x>300</x>
+     <y>588</y>
+     <width>111</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="pixmap">
+    <pixmap resource="resources.qrc">:/plugins/HistoricalMap/img/sigma.gif</pixmap>
+   </property>
+   <property name="scaledContents">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_17">
+   <property name="geometry">
+    <rect>
+     <x>130</x>
+     <y>590</y>
+     <width>161</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="pixmap">
+    <pixmap resource="resources.qrc">:/plugins/HistoricalMap/img/ut2j.png</pixmap>
+   </property>
+   <property name="scaledContents">
+    <bool>true</bool>
+   </property>
+  </widget>
   <zorder>label</zorder>
   <zorder>tabWidget</zorder>
+  <zorder>label_15</zorder>
+  <zorder>label_16</zorder>
+  <zorder>label_17</zorder>
  </widget>
  <customwidgets>
   <customwidget>

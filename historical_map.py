@@ -218,7 +218,7 @@ class HistoricalMap( QDialog ):
     def initGui(self):
         """!@brief Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/HistoricalMap/icon.png'
+        icon_path = ':/plugins/HistoricalMap/img/icon.png'
         self.add_action(
             icon_path,
             text=self.tr(u'Select historical map'),
@@ -239,35 +239,42 @@ class HistoricalMap( QDialog ):
     def select_output_file(self):
         """!@brief Select file to save, and gives the right extension if the user don't put it"""
         sender = self.sender()
+        #QFD for QFileDialog
+        QFD=QFileDialog(self.dlg)
+        QFD.setWindowTitle("Select file to save")
+        QFD.setFileMode(QFD.AnyFile)
         
-        fileName = QFileDialog.getSaveFileName(self.dlg, "Select output file")
-        
+
+        fileName=QFD.selectedFiles()[0]     
         if not fileName:
-            return
+                return
+
             
         # If user give right file extension, we don't add it
+        if QFD.exec_() == QtGui.QDialog.Accepted:
+            fileName=QFD.selectedFiles()[0]     
+            fileName,fileExtension=os.path.splitext(fileName)
             
-        fileName,fileExtension=os.path.splitext(fileName)
-        if sender == self.dlg.selectRaster: 
-            if fileExtension!='.tif':
-                self.dlg.outRaster.setText(fileName+'.tif')
-            else:
-                self.dlg.outRaster.setText(fileName+fileExtension)
-        elif sender == self.dlg.selectModel: 
-            self.dlg.outModel.setText(fileName+fileExtension)            
-        elif sender == self.dlg.selectMatrix: 
-            if fileExtension!='.csv':
-                self.dlg.outMatrix.setText(fileName+'.csv')
-            else:
-                self.dlg.outMatrix.setText(fileName+fileExtension)
-        elif sender == self.dlg.selectOutShp:
-            if fileExtension!='.shp':
-                self.dlg.outShp.setText(fileName+'.shp')
-            else:
-                self.dlg.outShp.setText(fileName+fileExtension)
-        elif sender == self.dlg.selectModelStep3:
-            self.dlg.inModel.setText(fileName)
-     
+            if sender == self.dlg.selectRaster: 
+                if fileExtension!='.tif':
+                    self.dlg.outRaster.setText(fileName+'.tif')
+                else:
+                    self.dlg.outRaster.setText(fileName+fileExtension)
+            elif sender == self.dlg.selectModel: 
+                self.dlg.outModel.setText(fileName+fileExtension)            
+            elif sender == self.dlg.selectMatrix: 
+                if fileExtension!='.csv':
+                    self.dlg.outMatrix.setText(fileName+'.csv')
+                else:
+                    self.dlg.outMatrix.setText(fileName+fileExtension)
+            elif sender == self.dlg.selectOutShp:
+                if fileExtension!='.shp':
+                    self.dlg.outShp.setText(fileName+'.shp')
+                else:
+                    self.dlg.outShp.setText(fileName+fileExtension)
+            elif sender == self.dlg.selectModelStep3:
+                self.dlg.inModel.setText(fileName)
+         
     def select_load_file(self):
         """!@brief Select file to load in the field"""
         sender=self.sender()
