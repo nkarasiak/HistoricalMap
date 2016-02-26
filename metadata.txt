@@ -23,7 +23,7 @@ repository=https://github.com/lennepkade/HistoricalMap/
 # Recommended items:
 
 # Uncomment the following line and add your changelog:
-changelog=Add university logo
+changelog=Add university logo.
 
 # Tags are comma separated with spaces allowed
 tags=historicalmap,classify,filter,old map,forest
