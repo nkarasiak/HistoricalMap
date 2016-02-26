@@ -20,8 +20,6 @@ To go further you could have a look at our <a href="https://rawgit.com/lennepkad
 
 # To go further
 ## In english :
-Herrault, P.-A., Sheeren, D., Fauvel, M., Monteil M., & Paegelow, M. (2013). A comparative study of geometric transformation models for the historical ‘Map of France‘ registration. *Geographia Technica*, 17(1), pp. 34-46. http://www.technicalgeography.org/pdf/1_2013/05_1_2013.pdf
-
 Herrault, P.-A., Sheeren, D., Fauvel, M., Monteil M., & Paegelow, M. Automatic extraction of forests from historical maps based on unsupervised classification in the CIELab color space. *16th AGILE Conference on Geographic Information Science*, Lecture Notes in Geographic Information at the Heart of the Europe, pp 95-112, Springer series. http://link.springer.com/chapter/10.1007%2F978-3-319-00615-4_6#page-1
 
 
