@@ -68,48 +68,53 @@ class historicalFilter():
             filterProgress=progressBar(' Filtering...',maxStep)
         except:
             print 'Failed loading progress Bar'
-            
-        # create empty geotiff with d dimension, geotransform & projection
-        try:
-            outFile=dataraster.create_empty_tiff(outName,im,d,geo,proj)
-        except:
-            print 'Cannot write empty image '+outName
         
-        # fill outFile with filtered band
-        for i in range(d):
-            # Read data from the right band
+        # Try all, if error close filterProgress        
+        try:            
+            # create empty geotiff with d dimension, geotransform & projection
+            
             try:
-                filterProgress.addStep()
-                temp = data.GetRasterBand(i+1).ReadAsArray()
-                
+                outFile=dataraster.create_empty_tiff(outName,im,d,geo,proj)
             except:
-                print 'Cannot get rasterband'+i
-                QgsMessageLog.logMessage("Problem reading band "+str(i)+" from image "+inImage)
-            # Filter with greyclosing, then with median filter
-            try:
-                temp = ndimage.morphology.grey_closing(temp,size=(inShapeGrey,inShapeGrey))
-            except:
-                print 'Cannot filter with Grey_Closing'
-                QgsMessageLog.logMessage("Problem with Grey Closing")
-
-            for j in range(iterMedian):
+                print 'Cannot write empty image '+outName
+            
+            # fill outFile with filtered band
+            for i in range(d):
+                # Read data from the right band
                 try:
                     filterProgress.addStep()
-                    temp = ndimage.filters.median_filter(temp,size=(inShapeMedian,inShapeMedian))
+                    temp = data.GetRasterBand(i+1).ReadAsArray()
+                    
                 except:
-                    print 'Cannot filter with Median'
-                    QgsMessageLog.logMessage("Problem with median filter")
-                
-            # Save bandand outFile
-            try:
-                out=outFile.GetRasterBand(i+1)
-                out.WriteArray(temp)
-                out.FlushCache()
-                temp = None
-            except:
-                QgsMessageLog.logMessage("Cannot save band"+str(i)+" on image" + outName)
-                
-        filterProgress.reset()
+                    print 'Cannot get rasterband'+i
+                    QgsMessageLog.logMessage("Problem reading band "+str(i)+" from image "+inImage)
+                # Filter with greyclosing, then with median filter
+                try:
+                    temp = ndimage.morphology.grey_closing(temp,size=(inShapeGrey,inShapeGrey))
+                except:
+                    print 'Cannot filter with Grey_Closing'
+                    QgsMessageLog.logMessage("Problem with Grey Closing")
+    
+                for j in range(iterMedian):
+                    try:
+                        filterProgress.addStep()
+                        temp = ndimage.filters.median_filter(temp,size=(inShapeMedian,inShapeMedian))
+                    except:
+                        print 'Cannot filter with Median'
+                        QgsMessageLog.logMessage("Problem with median filter")
+                    
+                # Save bandand outFile
+                try:
+                    out=outFile.GetRasterBand(i+1)
+                    out.WriteArray(temp)
+                    out.FlushCache()
+                    temp = None
+                except:
+                    QgsMessageLog.logMessage("Cannot save band"+str(i)+" on image" + outName)
+                    
+            filterProgress.reset()
+        except:
+            filterProgress.reset()
                 
 class learnModel():
     """!@brief Learn model with a shp file and a raster image.
@@ -135,150 +140,153 @@ class learnModel():
         learningProgress=progressBar('Learning model...',6)
  
         # Convert vector to raster
-
         try:
-            temp_folder = tempfile.mkdtemp()
-            filename = os.path.join(temp_folder, 'temp.tif')
-            
-            data = gdal.Open(inRaster,gdal.GA_ReadOnly)
-            shp = ogr.Open(inVector)
-            
-            lyr = shp.GetLayer()
-        except:
-            QgsMessageLog.logMessage("Problem with making tempfile or opening raster or vector")
-        
-        # Create temporary data set
-        try:
-            driver = gdal.GetDriverByName('GTiff')
-            dst_ds = driver.Create(filename,data.RasterXSize,data.RasterYSize, 1,gdal.GDT_Byte)
-            dst_ds.SetGeoTransform(data.GetGeoTransform())
-            dst_ds.SetProjection(data.GetProjection())
-            OPTIONS = 'ATTRIBUTE='+inField
-            gdal.RasterizeLayer(dst_ds, [1], lyr, None,options=[OPTIONS])
-            data,dst_ds,shp,lyr=None,None,None,None
-        except:
-            QgsMessageLog.logMessage("Cannot create temporary data set")
-        
-        # Load Training set
-        try:
-            X,Y =  dataraster.get_samples_from_roi(inRaster,filename)
-        except:
-            QgsMessageLog.logMessage("Problem while getting samples from ROI with"+inRaster)
-        
-        [n,d] = X.shape
-        C = int(Y.max())
-        SPLIT = inSplit
-        os.remove(filename)
-        os.rmdir(temp_folder)
-        
-        # Scale the data
-        X,M,m = self.scale(X)
-        
-        
-        learningProgress.addStep() # Add Step to ProgressBar
-
-        # Learning process take split of groundthruth pixels for training and the remaining for testing
-        try:
-            if SPLIT < 1:
-                # progressBar, set Max to C
+            try:
+                temp_folder = tempfile.mkdtemp()
+                filename = os.path.join(temp_folder, 'temp.tif')
                 
-                # Random selection of the sample
-                x = sp.array([]).reshape(0,d)
-                y = sp.array([]).reshape(0,1)
-                xt = sp.array([]).reshape(0,d)
-                yt = sp.array([]).reshape(0,1)
+                data = gdal.Open(inRaster,gdal.GA_ReadOnly)
+                shp = ogr.Open(inVector)
                 
-                sp.random.seed(inSeed) # Set the random generator state
-                for i in range(C):            
-                    t = sp.where((i+1)==Y)[0]
-                    nc = t.size
-                    ns = int(nc*SPLIT)
-                    rp =  sp.random.permutation(nc)
-                    x = sp.concatenate((X[t[rp[0:ns]],:],x))
-                    xt = sp.concatenate((X[t[rp[ns:]],:],xt))
-                    y = sp.concatenate((Y[t[rp[0:ns]]],y))
-                    yt = sp.concatenate((Y[t[rp[ns:]]],yt))
-                    #Add Pb
-        except:
-            QgsMessageLog.logMessage("Problem while learning if SPLIT <1")
-                
-        else:
-            x,y=X,Y
-        
-        learningProgress.addStep() # Add Step to ProgressBar
-        # Train Classifier
-        try:
-            if inClassifier == 'GMM':
-                # tau=10.0**sp.arange(-8,8,0.5)
-                model = gmmr.GMMR()
-                model.learn(x,y)
-                # htau,err = model.cross_validation(x,y,tau)
-                # model.tau = htau
-        except:
-            QgsMessageLog.logMessage("Cannot train with GMMM")
-        else:
-            try:                    
-                from sklearn import neighbors
-                from sklearn.svm import SVC
-                from sklearn.ensemble import RandomForestClassifier
-                from sklearn.cross_validation import StratifiedKFold
-                from sklearn.grid_search import GridSearchCV
+                lyr = shp.GetLayer()
             except:
-                QgsMessageLog.logMessage("You must have sklearn dependencies on your computer. Please consult the documentation")
-            try:    
-                if inClassifier == 'RF':
-                    param_grid_rf = dict(n_estimators=5**sp.arange(1,5),max_features=sp.arange(1,4))
-                    y.shape=(y.size,)    
-                    cv = StratifiedKFold(y, n_folds=5)
-                    grid = GridSearchCV(RandomForestClassifier(), param_grid=param_grid_rf, cv=cv,n_jobs=-1)
-                    grid.fit(x, y)
-                    model = grid.best_estimator_
-                    model.fit(x,y)        
-                elif inClassifier == 'SVM':
-                    param_grid_svm = dict(gamma=2.0**sp.arange(-4,4), C=10.0**sp.arange(-2,5))
-                    y.shape=(y.size,)    
-                    cv = StratifiedKFold(y, n_folds=5)
-                    grid = GridSearchCV(SVC(), param_grid=param_grid_svm, cv=cv,n_jobs=-1)
-                    grid.fit(x, y)
-                    model = grid.best_estimator_
-                    model.fit(x,y)
-                elif inClassifier == 'KNN':
-                    param_grid_knn = dict(n_neighbors = sp.arange(1,50,5))
-                    y.shape=(y.size,)    
-                    cv = StratifiedKFold(y, n_folds=5)
-                    grid = GridSearchCV(neighbors.KNeighborsClassifier(), param_grid=param_grid_knn, cv=cv,n_jobs=-1)
-                    grid.fit(x, y)
-                    model = grid.best_estimator_
-                    model.fit(x,y)
-            except:
-                print 'Cannot train with Classifier '+inClassifier
-                QgsMessageLog.logMessage("Cannot train with Classifier"+inClassifier)
-
-                
-        
-        learningProgress.prgBar.setValue(5) # Add Step to ProgressBar
-        # Assess the quality of the model
-        if SPLIT < 1 :
-            # if  inClassifier == 'GMM':
-            #     yp = model.predict(xt)[0]
-            # else:
-            yp = model.predict(xt)
-            CONF = ai.CONFUSION_MATRIX()
-            CONF.compute_confusion_matrix(yp,yt)
-            sp.savetxt(outMatrix,CONF.confusion_matrix,delimiter=',',fmt='%1.4d')
+                QgsMessageLog.logMessage("Problem with making tempfile or opening raster or vector")
             
+            # Create temporary data set
+            try:
+                driver = gdal.GetDriverByName('GTiff')
+                dst_ds = driver.Create(filename,data.RasterXSize,data.RasterYSize, 1,gdal.GDT_Byte)
+                dst_ds.SetGeoTransform(data.GetGeoTransform())
+                dst_ds.SetProjection(data.GetProjection())
+                OPTIONS = 'ATTRIBUTE='+inField
+                gdal.RasterizeLayer(dst_ds, [1], lyr, None,options=[OPTIONS])
+                data,dst_ds,shp,lyr=None,None,None,None
+            except:
+                QgsMessageLog.logMessage("Cannot create temporary data set")
+            
+            # Load Training set
+            try:
+                X,Y =  dataraster.get_samples_from_roi(inRaster,filename)
+            except:
+                QgsMessageLog.logMessage("Problem while getting samples from ROI with"+inRaster)
+            
+            [n,d] = X.shape
+            C = int(Y.max())
+            SPLIT = inSplit
+            os.remove(filename)
+            os.rmdir(temp_folder)
+            
+            # Scale the data
+            X,M,m = self.scale(X)
+            
+            
+            learningProgress.addStep() # Add Step to ProgressBar
     
-        # Save Tree model
-        if outModel is not None:
-            output = open(outModel, 'wb')
-            pickle.dump([model,M,m], output)
-            output.close()
+            # Learning process take split of groundthruth pixels for training and the remaining for testing
+            try:
+                if SPLIT < 1:
+                    # progressBar, set Max to C
+                    
+                    # Random selection of the sample
+                    x = sp.array([]).reshape(0,d)
+                    y = sp.array([]).reshape(0,1)
+                    xt = sp.array([]).reshape(0,d)
+                    yt = sp.array([]).reshape(0,1)
+                    
+                    sp.random.seed(inSeed) # Set the random generator state
+                    for i in range(C):            
+                        t = sp.where((i+1)==Y)[0]
+                        nc = t.size
+                        ns = int(nc*SPLIT)
+                        rp =  sp.random.permutation(nc)
+                        x = sp.concatenate((X[t[rp[0:ns]],:],x))
+                        xt = sp.concatenate((X[t[rp[ns:]],:],xt))
+                        y = sp.concatenate((Y[t[rp[0:ns]]],y))
+                        yt = sp.concatenate((Y[t[rp[ns:]]],yt))
+                        #Add Pb
+            except:
+                QgsMessageLog.logMessage("Problem while learning if SPLIT <1")
+                    
+            else:
+                x,y=X,Y
+            
+            learningProgress.addStep() # Add Step to ProgressBar
+            # Train Classifier
+            try:
+                if inClassifier == 'GMM':
+                    # tau=10.0**sp.arange(-8,8,0.5)
+                    model = gmmr.GMMR()
+                    model.learn(x,y)
+                    # htau,err = model.cross_validation(x,y,tau)
+                    # model.tau = htau
+            except:
+                QgsMessageLog.logMessage("Cannot train with GMMM")
+            else:
+                try:                    
+                    from sklearn import neighbors
+                    from sklearn.svm import SVC
+                    from sklearn.ensemble import RandomForestClassifier
+                    from sklearn.cross_validation import StratifiedKFold
+                    from sklearn.grid_search import GridSearchCV
+                except:
+                    QgsMessageLog.logMessage("You must have sklearn dependencies on your computer. Please consult the documentation")
+                try:    
+                    if inClassifier == 'RF':
+                        param_grid_rf = dict(n_estimators=5**sp.arange(1,5),max_features=sp.arange(1,4))
+                        y.shape=(y.size,)    
+                        cv = StratifiedKFold(y, n_folds=5)
+                        grid = GridSearchCV(RandomForestClassifier(), param_grid=param_grid_rf, cv=cv,n_jobs=-1)
+                        grid.fit(x, y)
+                        model = grid.best_estimator_
+                        model.fit(x,y)        
+                    elif inClassifier == 'SVM':
+                        param_grid_svm = dict(gamma=2.0**sp.arange(-4,4), C=10.0**sp.arange(-2,5))
+                        y.shape=(y.size,)    
+                        cv = StratifiedKFold(y, n_folds=5)
+                        grid = GridSearchCV(SVC(), param_grid=param_grid_svm, cv=cv,n_jobs=-1)
+                        grid.fit(x, y)
+                        model = grid.best_estimator_
+                        model.fit(x,y)
+                    elif inClassifier == 'KNN':
+                        param_grid_knn = dict(n_neighbors = sp.arange(1,50,5))
+                        y.shape=(y.size,)    
+                        cv = StratifiedKFold(y, n_folds=5)
+                        grid = GridSearchCV(neighbors.KNeighborsClassifier(), param_grid=param_grid_knn, cv=cv,n_jobs=-1)
+                        grid.fit(x, y)
+                        model = grid.best_estimator_
+                        model.fit(x,y)
+                except:
+                    print 'Cannot train with Classifier '+inClassifier
+                    QgsMessageLog.logMessage("Cannot train with Classifier"+inClassifier)
+    
+                    
+            
+            learningProgress.prgBar.setValue(5) # Add Step to ProgressBar
+            # Assess the quality of the model
+            if SPLIT < 1 :
+                # if  inClassifier == 'GMM':
+                #     yp = model.predict(xt)[0]
+                # else:
+                yp = model.predict(xt)
+                CONF = ai.CONFUSION_MATRIX()
+                CONF.compute_confusion_matrix(yp,yt)
+                sp.savetxt(outMatrix,CONF.confusion_matrix,delimiter=',',fmt='%1.4d')
+                
         
-        learningProgress.addStep() # Add Step to ProgressBar   
-        
-        # Close progressBar
-        learningProgress.reset()
-        learningProgress=None
+            # Save Tree model
+            if outModel is not None:
+                output = open(outModel, 'wb')
+                pickle.dump([model,M,m], output)
+                output.close()
+            
+            learningProgress.addStep() # Add Step to ProgressBar   
+            
+            # Close progressBar
+            learningProgress.reset()
+            learningProgress=None
+        except:
+            learningProgress.reset()
+            
     def scale(self,x,M=None,m=None):
         """!@brief Function that standardize the data.
         
