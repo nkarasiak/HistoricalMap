@@ -90,6 +90,7 @@ class CV:
 
             self.it.append(tempit)
             self.iT.append(tempiT)
+            
 
 
 class GMMR:
@@ -100,6 +101,7 @@ class GMMR:
         self.cov =[]
         self.Q = []
         self.L = []
+        self.classnum = [] # to keep right labels
         self.tau = 0.0
 
     def learn(self,x,y):
@@ -113,7 +115,8 @@ class GMMR:
         '''
 
         ## Get information from the data
-        C = int(y.max(0))   # Number of classes
+        C = sp.unique(y).shape[0]
+        #C = int(y.max(0))  # Number of classes
         n = x.shape[0]  # Number of samples
         d = x.shape[1]  # Number of variables
         eps = sp.finfo(sp.float64).eps
@@ -125,10 +128,13 @@ class GMMR:
         self.cov = sp.empty((C,d,d)) # Matrix of covariance
         self.Q = sp.empty((C,d,d)) # Matrix of eigenvectors
         self.L = sp.empty((C,d)) # Vector of eigenvalues
-
+        self.classnum = sp.empty(C).astype('uint8')
         ## Learn the parameter of the model for each class
         for c in range(C):
-            j = sp.where(y==(c+1))[0]
+            cR = int(sp.unique(y)[c]) # Get right label
+            j = sp.where(y==(cR))[0]
+            
+            self.classnum[c] = cR # Save the right label
             self.ni[c] = float(j.size)    
             self.prop[c] = self.ni[c]/n
             self.mean[c,:] = sp.mean(x[j,:],axis=0)
@@ -152,9 +158,10 @@ class GMMR:
         ## Get information from the data
         nt = xt.shape[0]        # Number of testing samples
         C = self.ni.shape[0]    # Number of classes
-        
+
         ## Initialization
         K = sp.empty((nt,C))
+        
         if tau is None:
             TAU=self.tau
         else:
@@ -169,8 +176,13 @@ class GMMR:
             K[:,c] = sp.sum(xtc*temp,axis=1)+cst
             del temp,xtc
 
-        ## Assign the label to the minimum value of K 
-        yp = sp.argmin(K,1)+1
+        ##
+            
+        ## Assign the label save in classnum to the minimum value of K 
+        yp = self.classnum[sp.argmin(K,1)]
+        
+        ## Reassign label with real value
+        
         if proba is None:
             return yp
         else:
@@ -252,7 +264,7 @@ class GMMR:
         ## Free memory        
         for model in model_cv:
             del model
-        
+        elf
         del processes,pool,model_cv
 
         return tau[err.argmax()],err
