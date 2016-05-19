@@ -129,9 +129,10 @@ class GMMR:
         self.Q = sp.empty((C,d,d)) # Matrix of eigenvectors
         self.L = sp.empty((C,d)) # Vector of eigenvalues
         self.classnum = sp.empty(C).astype('uint8')
+        
         ## Learn the parameter of the model for each class
-        for c in range(C):
-            cR = int(sp.unique(y)[c]) # Get right label
+        for c,cR in enumerate(sp.unique(y)):
+            
             j = sp.where(y==(cR))[0]
             
             self.classnum[c] = cR # Save the right label

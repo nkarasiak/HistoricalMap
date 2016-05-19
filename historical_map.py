@@ -218,7 +218,7 @@ class HistoricalMap( QDialog ):
     def initGui(self):
         """!@brief Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/HistoricalMap/icon.png'
+        icon_path = ':/plugins/HistoricalMap/img/icon.png'
         self.add_action(
             icon_path,
             text=self.tr(u'Select historical map'),
@@ -239,7 +239,7 @@ class HistoricalMap( QDialog ):
     def select_output_file(self):
         """!@brief Select file to save, and gives the right extension if the user don't put it"""
         sender = self.sender()
-        
+
         fileName = QFileDialog.getSaveFileName(self.dlg, "Select output file")
         
         if not fileName:
@@ -304,22 +304,26 @@ class HistoricalMap( QDialog ):
             """
             PROCESS IF ALL OK
             """
-            # Get args
-            # inRaster=self.dlg.inRaster.currentLayer()
-            # inRaster=inRaster.dataProvider().dataSourceUri()
-            inShapeGrey=self.dlg.inShapeGrey.value()
-            inShapeMedian=self.dlg.inShapeMedian.value()
-            outRaster=self.dlg.outRaster.text()
-            iterMedian=self.dlg.inShapeMedianIter.value()
-            
-            # Do the job
-            
-            fhm.historicalFilter(inRaster,outRaster,inShapeGrey,inShapeMedian,iterMedian)
+            try:
+                # Get args
+                # inRaster=self.dlg.inRaster.currentLayer()
+                # inRaster=inRaster.dataProvider().dataSourceUri()
+                inShapeGrey=self.dlg.inShapeGrey.value()
+                inShapeMedian=self.dlg.inShapeMedian.value()
+                outRaster=self.dlg.outRaster.text()
+                iterMedian=self.dlg.inShapeMedianIter.value()
+                
+                # Do the job
+                
+                fhm.historicalFilter(inRaster,outRaster,inShapeGrey,inShapeMedian,iterMedian)
+    
+                # Show what's done
+                self.iface.messageBar().pushMessage("New image", "Filter with "+str(inShapeGrey)+' closing size and '+str(inShapeMedian)+ ' median size', 3, 10)
+                self.iface.addRasterLayer(outRaster)
+            except:
+                QtGui.QMessageBox.warning(self, 'Problem while filtering', 'Please show log', QtGui.QMessageBox.Ok)
 
-            # Show what's done
-            self.iface.messageBar().pushMessage("New image", "Filter with "+str(inShapeGrey)+' closing size and '+str(inShapeMedian)+ ' median size', 3, 10)
-            self.iface.addRasterLayer(outRaster)
-
+                
 
     def runTrain(self):
         """!@brief Performs the training by calling function_historical_map.py
@@ -348,35 +352,39 @@ class HistoricalMap( QDialog ):
             QtGui.QMessageBox.warning(self, 'Information missing or invalid', message, QtGui.QMessageBox.Ok)
    
         else:
-            
-            # Getting variables from UI            
-            inFiltered=self.dlg.inFiltered.currentLayer()
-            inFiltered=inFiltered.dataProvider().dataSourceUri()
-            inTraining=self.dlg.inTraining.currentLayer()
-            
-            # Remove layerid=0 from SHP Path
-            inTraining=inTraining.dataProvider().dataSourceUri().split('|')[0]
-            
-            
-            inClassifier=self.dlg.inClassifier.currentText()
-            outModel=self.dlg.outModel.text()
-            outMatrix=self.dlg.outMatrix.text()
-            #> Optional inField
-            inField=self.dlg.inField.currentText()            
-            inSeed=self.dlg.inSeed.value()
-            inSeed=int(inSeed)
-            inSplit=self.dlg.inSplit.value()
-            
-            # add model to step 3
-            self.dlg.inModel.setText(outModel)
-            # Do the job
-            fhm.learnModel(inFiltered,inTraining,inField,inSplit,inSeed,outModel,outMatrix,inClassifier)
-            
-            # show where it is saved
-            if self.dlg.outMatrix.text()!='':
-                QtGui.QMessageBox.information(self, "Information", "Training is done!<br>Confusion matrix saved at "+str(outMatrix)+".")         
-            else:
-                QtGui.QMessageBox.information(self, "Information", "Model is done!<br>Model saved at "+str(outModel)+", and matrix at"+str(outMatrix)+".")
+            try:
+                
+                # Getting variables from UI            
+                inFiltered=self.dlg.inFiltered.currentLayer()
+                inFiltered=inFiltered.dataProvider().dataSourceUri()
+                inTraining=self.dlg.inTraining.currentLayer()
+                
+                # Remove layerid=0 from SHP Path
+                inTraining=inTraining.dataProvider().dataSourceUri().split('|')[0]
+                
+                
+                inClassifier=self.dlg.inClassifier.currentText()
+                outModel=self.dlg.outModel.text()
+                outMatrix=self.dlg.outMatrix.text()
+                #> Optional inField
+                inField=self.dlg.inField.currentText()            
+                inSeed=self.dlg.inSeed.value()
+                inSeed=int(inSeed)
+                inSplit=self.dlg.inSplit.value()
+                
+                # add model to step 3
+                self.dlg.inModel.setText(outModel)
+                # Do the job
+                fhm.learnModel(inFiltered,inTraining,inField,inSplit,inSeed,outModel,outMatrix,inClassifier)
+                
+                # show where it is saved
+                if self.dlg.outMatrix.text()!='':
+                    QtGui.QMessageBox.information(self, "Information", "Training is done!<br>Confusion matrix saved at "+str(outMatrix)+".")         
+                else:
+                    QtGui.QMessageBox.information(self, "Information", "Model is done!<br>Model saved at "+str(outModel)+", and matrix at"+str(outMatrix)+".")
+            except:
+                QtGui.QMessageBox.warning(self, 'Problem while training', 'Something went wrong, sorry. Please report this issue with four files and settings.', QtGui.QMessageBox.Ok)
+
 
             
     def runClassify(self):
@@ -448,7 +456,7 @@ class HistoricalMap( QDialog ):
 
                 except:
                     QgsMessageLog.logMessage("Problem while classifying "+inFilteredStep3+" with model "+inModel)         
-                    QtGui.QMessageBox.warning(self, 'Problem while classifying', 'Something went wrong, please show log. If your system is Windows, we\'re working on it', QtGui.QMessageBox.Ok)
+                    QtGui.QMessageBox.warning(self, 'Problem while classifying', 'Something went wrong, please show log.', QtGui.QMessageBox.Ok)
                     classifyProgress.reset()  
                
          
