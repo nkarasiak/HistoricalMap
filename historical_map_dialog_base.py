@@ -699,6 +699,6 @@ class Ui_HistoricalMap(object):
         self.tiffImageLabel_18.setText(_translate("HistoricalMap", "Min parcel size :", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("HistoricalMap", "Classify (Step 3)", None))
         self.label_14.setToolTip(_translate("HistoricalMap", "Go to our online wiki", None))
-        self.label_14.setText(_translate("HistoricalMap", "<html><head/><body><p>Need help ? You can consult our <a href=\"https://github.com/lennepkade/HistoricalMap/wiki\"><span style=\" text-decoration: underline; color:#000000;\">online wiki </span></a><span style=\" color:#000000;\"> | </span> or our <a href=\"https://github.com/lennepkade/HistoricalMap\"><span style=\" text-decoration: underline; color:#000000;\">github page</span></a></p></body></html>", None))
+        self.label_14.setText(_translate("HistoricalMap", "<html><head/><body><p>Need help ? You can consult our <a href=\"https://github.com/lennepkade/HistoricalMap/wiki\"><span style=\" text-decoration: underline; color:#000000;\">online wiki </span></a> or our <a href=\"https://github.com/lennepkade/HistoricalMap\"><span style=\" text-decoration: underline; color:#000000;\">github page</span></a></p></body></html>", None))
 
 from qgis import gui

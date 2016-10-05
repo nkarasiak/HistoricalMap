@@ -1910,7 +1910,7 @@ For example 0,5 means that we use 50% of your parcel for making the model.</stri
     <string>Go to our online wiki</string>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Need help ? You can consult our &lt;a href=&quot;https://github.com/lennepkade/HistoricalMap/wiki&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#000000;&quot;&gt;online wiki &lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; color:#000000;&quot;&gt; | &lt;/span&gt; or our &lt;a href=&quot;https://github.com/lennepkade/HistoricalMap&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#000000;&quot;&gt;github page&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Need help ? You can consult our &lt;a href=&quot;https://github.com/lennepkade/HistoricalMap/wiki&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#000000;&quot;&gt;online wiki &lt;/span&gt;&lt;/a&gt; or our &lt;a href=&quot;https://github.com/lennepkade/HistoricalMap&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#000000;&quot;&gt;github page&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
    <property name="pixmap">
     <pixmap resource="resources.qrc">:/plugins/HistoricalMap/img/help/information.png</pixmap>
