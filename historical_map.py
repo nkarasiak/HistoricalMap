@@ -110,7 +110,24 @@ class HistoricalMap( QDialog ):
             fields = provider.fields()
             listFieldNames = [field.name() for field in fields]
             self.dlg.inField.addItems(listFieldNames)
-        
+            
+        ## Connect to change values if change post treatment value
+        self.dlg.filterByArea.clicked.connect(self.choosePostTreatment)
+        self.dlg.filterByPixel.clicked.connect(self.choosePostTreatment)
+            
+    def choosePostTreatment(self,index):
+        """!@brief Change post treatmen values if raster or vector """
+        if self.dlg.filterByArea.isChecked(): #if vector mod
+            self.dlg.inMinSize.setDecimals(2)
+            self.dlg.inMinSize.setValue(0.5)
+            self.dlg.inMinSize.setSingleStep(0.1)
+            self.dlg.inMinSize.setSuffix(' ha')
+        else: # if raster mod
+            self.dlg.inMinSize.setDecimals(0)
+            self.dlg.inMinSize.setValue(5)
+            self.dlg.inMinSize.setSingleStep(1)
+            self.dlg.inMinSize.setSuffix(' pixels')
+            
             
     def onChangedLayer(self,index):
         """!@brief If active layer is changed, change column combobox"""
@@ -415,50 +432,29 @@ class HistoricalMap( QDialog ):
                 # Get min size for polygons
                 # Multipied by 10 000 to have figure in hectare
                 # Input of 0,6 (0,6 hectare) will be converted to 6000 m2
-                inMinSize=int(self.dlg.inMinSize.value()*10000)
+                
+                inMinSize=self.dlg.inMinSize.value()
                 
                 outShp=str(self.dlg.outShp.text())
                 inClassForest=int(self.dlg.inClassForest.value())
                 
                 # do the job
-                try:
-                    classify=fhm.classifyImage()
-                    classifyProgress=fhm.progressBar('Classifying image...',3) # Add progressBar
-                    
-                    # Predicting image
-                    try:
-                        temp=classify.initPredict(inFilteredStep3,inModel)
-                    except:
-                        QgsMessageLog.logMessage("Problem while predicting image")
-                    
-                    classifyProgress.addStep()
-
-                    # Rastering and filtering image
-                    try:
-                        temp=classify.rasterMod(temp,int(inClassForest))
-                    except:
-                        QgsMessageLog.logMessage("Problem while rastering filtering")
-                        
-                    classifyProgress.addStep()
-                    
-                    # Vectorizing and filtering image
-                    try:
-                        temp=classify.vectorMod(temp,inMinSize,outShp)
-                    except:
-                        QgsMessageLog.logMessage("Problem while vectorizing filtering")
-
-                    classifyProgress.addStep()
-                    
-                    # Add layer
-                    self.iface.addVectorLayer(temp,'Vectorized class','ogr')
-                    self.iface.messageBar().pushMessage("New vector : ",outShp, 3, duration=10)
-                    classifyProgress.reset()  
-
-                except:
-                    QgsMessageLog.logMessage("Problem while classifying "+inFilteredStep3+" with model "+inModel)         
-                    QtGui.QMessageBox.warning(self, 'Problem while classifying', 'Something went wrong, please show log.', QtGui.QMessageBox.Ok)
-                    classifyProgress.reset()  
-               
-         
+            
+                classify=fhm.classifyImage()
                 
-
+                try:
+                    temp=classify.initPredict(inFilteredStep3,inModel)
+                except:
+                    QgsMessageLog.logMessage("Problem while predicting image")
+                    
+                
+        
+                if self.dlg.filterByPixel.isChecked():  # sieve by pixel number (raster)
+                    temp=classify.postClassRaster(temp,int(inMinSize),inClassForest,outShp)
+                else :                                  # sieve by area (vector)
+                    inMinSize = inMinSize*10000 # convert ha to m squared
+                    temp=classify.postClassVector(temp,inMinSize,inClassForest,outShp)
+                
+                # Add layer
+                self.iface.addVectorLayer(outShp,'Vectorized class','ogr')
+                self.iface.messageBar().pushMessage("New vector : ",outShp, 3, duration=10)

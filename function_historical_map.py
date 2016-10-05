@@ -231,11 +231,20 @@ class learnModel():
                 except:
                     QgsMessageLog.logMessage("You must have sklearn dependencies on your computer. Please consult the documentation")
                 try:    
+                    
+                     # AS Qgis in Windows doensn't manage multiprocessing, force to use 1 thread for not linux system
+                    if os.name == 'posix':
+                        n_jobs=-1
+                    else:
+                        n_jobs=1
+                        
+                    #
+                    
                     if inClassifier == 'RF':
-                        param_grid_rf = dict(n_estimators=5**sp.arange(1,5),max_features=sp.arange(1,4))
+                        param_grid_rf = dict(n_estimators=3**sp.arange(1,5),max_features=sp.arange(1,4))
                         y.shape=(y.size,)    
-                        cv = StratifiedKFold(y, n_folds=5)
-                        grid = GridSearchCV(RandomForestClassifier(), param_grid=param_grid_rf, cv=cv,n_jobs=-1)
+                        cv = StratifiedKFold(y, n_folds=3)
+                        grid = GridSearchCV(RandomForestClassifier(), param_grid=param_grid_rf, cv=cv,n_jobs=n_jobs)
                         grid.fit(x, y)
                         model = grid.best_estimator_
                         model.fit(x,y)        
@@ -243,15 +252,15 @@ class learnModel():
                         param_grid_svm = dict(gamma=2.0**sp.arange(-4,4), C=10.0**sp.arange(-2,5))
                         y.shape=(y.size,)    
                         cv = StratifiedKFold(y, n_folds=5)
-                        grid = GridSearchCV(SVC(), param_grid=param_grid_svm, cv=cv,n_jobs=-1)
+                        grid = GridSearchCV(SVC(), param_grid=param_grid_svm, cv=cv,n_jobs=n_jobs)
                         grid.fit(x, y)
                         model = grid.best_estimator_
                         model.fit(x,y)
                     elif inClassifier == 'KNN':
-                        param_grid_knn = dict(n_neighbors = sp.arange(1,50,5))
+                        param_grid_knn = dict(n_neighbors = sp.arange(1,20,4))
                         y.shape=(y.size,)    
-                        cv = StratifiedKFold(y, n_folds=5)
-                        grid = GridSearchCV(neighbors.KNeighborsClassifier(), param_grid=param_grid_knn, cv=cv,n_jobs=-1)
+                        cv = StratifiedKFold(y, n_folds=3)
+                        grid = GridSearchCV(neighbors.KNeighborsClassifier(), param_grid=param_grid_knn, cv=cv,n_jobs=n_jobs)
                         grid.fit(x, y)
                         model = grid.best_estimator_
                         model.fit(x,y)
@@ -363,70 +372,90 @@ class classifyImage():
             # Process the data
         try:
             predictedImage=self.predict_image(inRaster,rasterTemp,tree,None,-10000,SCALE=[M,m])
+            
         except:
             QgsMessageLog.logMessage("Problem while predicting "+inRaster+" in temp"+rasterTemp)
         
         return predictedImage
     
     
-    def rasterMod(self,rasterTemp,inClassForest):
-        try:
-            data,im=dataraster.open_data_band(rasterTemp)
-            # get proj,geo and dimension (d) from data
-            proj = data.GetProjection()
-            geo = data.GetGeoTransform()
-            d = data.RasterCount
+    def polygonize(self,rasterTemp,outShp):
             
-            rasterTemp=rasterTemp+'f'
-        except:
-            QgsMessageLog.logMessage("Cant opening band")
-        try:     
-            outFile=dataraster.create_empty_tiff(rasterTemp,im,1,geo,proj)
-        except:
-            QgsMessageLog.logMessage("Cannot create empty tif in "+rasterTemp)
-    
-        try:
-            temp = data.GetRasterBand(1).ReadAsArray()
-            # All data which is not forest is set to 0, so we fill all for the forest only, because it's a binary fill holes.            
-            # Set selected class as 1                   
-            temp[temp!=inClassForest]=0
-            temp[temp==inClassForest]=1
-            
-            temp = ndimage.morphology.binary_fill_holes(temp)
-            #temp = ndimage.median_filter(temp,size=(3,3)).astype(int)
-        except:
-            QgsMessageLog.logMessage("Cannot fill binary holes")
-
-        # All non forest, or non selected class is set to 2
-        #temp[temp==0]=2
-        
-        try :
-            out=outFile.GetRasterBand(1)
-            out.WriteArray(temp)
-            out.FlushCache()
-            temp = None
-            # Cleaning outFile or vectorizing doesn't work
-            outFile= None
-        except:
-                print 'Cannot save '+rasterTemp
-        return rasterTemp
-
-    def vectorMod(self,rasterTemp,inMinSize,outShpFile):
-        # Vectorizing with gdal.Polygonize
-        try:
             sourceRaster = gdal.Open(rasterTemp)
             band = sourceRaster.GetRasterBand(1)
             driver = ogr.GetDriverByName("ESRI Shapefile")
             # If shapefile already exist, delete it
-            if os.path.exists(outShpFile):
-                driver.DeleteDataSource(outShpFile)
+            if os.path.exists(outShp):
+                driver.DeleteDataSource(outShp)
                 
-            outDatasource = driver.CreateDataSource(outShpFile)            
+            outDatasource = driver.CreateDataSource(outShp)            
             # get proj from raster            
             srs = osr.SpatialReference()
             srs.ImportFromWkt( sourceRaster.GetProjectionRef() )
             # create layer with proj
-            outLayer = outDatasource.CreateLayer(outShpFile,srs)
+            outLayer = outDatasource.CreateLayer(outShp,srs)
+            # Add class column (1,2...) to shapefile
+      
+            newField = ogr.FieldDefn('Class', ogr.OFTInteger)
+            outLayer.CreateField(newField)
+            
+            gdal.Polygonize(band, None,outLayer, 0,[],callback=None)  
+            
+            outDatasource.Destroy()
+            sourceRaster=None
+            band=None
+                    
+            
+            ioShpFile = ogr.Open(outShp, update = 1)
+            
+            
+            lyr = ioShpFile.GetLayerByIndex(0)
+            
+            lyr.ResetReading()    
+
+            for i in lyr:
+                lyr.SetFeature(i)
+            # if area is less than inMinSize or if it isn't forest, remove polygon 
+                if i.GetField('Class')!=1:
+                    lyr.DeleteFeature(i.GetFID())        
+            ioShpFile.Destroy()
+            
+            #historicalProgress.reset()
+            
+            return outShp
+            
+    def reclassAndFillHole(self,rasterTemp,inClassNumber):
+        """ !@brief Reclass and file hole (with ndimage morphology binary fill hole) for last treatment (need raster and class number)"""
+        dst_ds = gdal.Open(rasterTemp,gdal.GA_Update)
+        srcband = dst_ds.GetRasterBand(1).ReadAsArray()
+        # All data which is not forest is set to 0, so we fill all for the forest only, because it's a binary fill holes.            
+        # Set selected class as 1                   
+        srcband[srcband != inClassNumber]=0
+        srcband[srcband == inClassNumber]=1
+        
+        srcband = ndimage.morphology.binary_fill_holes(srcband)
+        
+        dst_ds.GetRasterBand(1).WriteArray(srcband)
+        dst_ds.FlushCache()
+        return rasterTemp
+              
+    def postClassVector(self,inRaster,sieveSize,inClassNumber,outShp):
+        """ !@brief Sieve size with vector areas method, them reclass to delete unwanted labels """
+        # Vectorizing with gdal.Polygonize
+        try:
+            sourceRaster = gdal.Open(inRaster)
+            band = sourceRaster.GetRasterBand(1)
+            driver = ogr.GetDriverByName("ESRI Shapefile")
+            # If shapefile already exist, delete it
+            if os.path.exists(outShp):
+                driver.DeleteDataSource(outShp)
+                
+            outDatasource = driver.CreateDataSource(outShp)            
+            # get proj from raster            
+            srs = osr.SpatialReference()
+            srs.ImportFromWkt( sourceRaster.GetProjectionRef() )
+            # create layer with proj
+            outLayer = outDatasource.CreateLayer(outShp,srs)
             # Add class column (1,2...) to shapefile
       
             newField = ogr.FieldDefn('Class', ogr.OFTInteger)
@@ -436,11 +465,11 @@ class classifyImage():
             sourceRaster=None
             
         except:
-            QgsMessageLog.logMessage("Cannot vectorize "+rasterTemp)
+            QgsMessageLog.logMessage("Cannot vectorize "+inRaster)
         
         try:        
             # Add area for each feature
-            ioShpFile = ogr.Open(outShpFile, update = 1)
+            ioShpFile = ogr.Open(outShp, update = 1)
             
             lyr = ioShpFile.GetLayerByIndex(0)
             lyr.ResetReading()
@@ -458,13 +487,61 @@ class classifyImage():
                 i.SetField( "Area", area )
                 lyr.SetFeature(i)
             # if area is less than inMinSize or if it isn't forest, remove polygon 
-                if area<inMinSize or i.GetField('Class')!=1:
+                if area<sieveSize or i.GetField('Class')!=inClassNumber:
                     lyr.DeleteFeature(i.GetFID())        
             ioShpFile.Destroy()
         except:
-            QgsMessageLog.logMessage("Cannot add area and remove it if size under"+inMinSize)
-        return outShpFile
-                
+            QgsMessageLog.logMessage("Cannot add area and remove it if size under"+sieveSize)
+        return outShp
+        
+    def postClassRaster(self,inRaster,sieveSize,inClassNumber,outShp):        
+        """ !@brief Sieve size with gdal.Sieve() fiunction, them reclass to delete unwanted labels """
+        Progress=progressBar(' Post-classification...',3)
+        
+        try:
+            rasterTemp = tempfile.mktemp('.tif')
+                    
+            datasrc = gdal.Open(inRaster)
+            srcband = datasrc.GetRasterBand(1)
+            data,im=dataraster.open_data_band(inRaster)        
+            
+            drv = gdal.GetDriverByName('GTiff')
+            dst_ds = drv.Create(rasterTemp,datasrc.RasterXSize,datasrc.RasterXSize,1,gdal.GDT_Byte)
+            
+            dst_ds.SetGeoTransform(datasrc.GetGeoTransform())
+            dst_ds.SetProjection(datasrc.GetProjection())
+        
+            dstband=dst_ds.GetRasterBand(1)
+            
+            
+            
+            def sieve(srcband,dstband,sieveSize):
+                gdal.SieveFilter(srcband,None,dstband,sieveSize,4)
+            
+
+            sieve(srcband,dstband,sieveSize)
+            
+            dst_ds = None # close destination band
+            
+            Progress.addStep()
+            
+            rasterTemp = self.reclassAndFillHole(rasterTemp,inClassNumber)
+            
+            
+            Progress.addStep()
+            
+            
+            
+        except:
+            QgsMessageLog.logMessage("Cannot sieve with raster function")
+        
+        outShp = self.polygonize(rasterTemp,outShp) # vectorize raster
+        
+        Progress.addStep()        
+        
+        Progress.reset()
+        return outShp
+
     def scale(self,x,M=None,m=None):  # TODO:  DO IN PLACE SCALING
         """!@brief Function that standardize the data
         
@@ -644,36 +721,3 @@ class progressBar():
         self.iface.mapCanvas().refresh()
         QApplication.restoreOverrideCursor()
             
-#if __name__=='__main__':
-    
-
-    
-    # Image to work on
-#
-#    inImage='img/samples/map.tif'
-#        
-#    inFile,inExtension = os.path.splitext(inImage) # Split filename and extension
-#    outFilter=inFile+'_filtered'+inExtension 
-#    
-#    # Filtering....
-#    filtered=historicalFilter(inImage,outFilter,inShapeGrey=11,inShapeMedian=11, iterMedian=1)
-#    print 'Image saved as : '+outFilter
-#    
-##    #Learn Model...
-##    inVector='img/samples/train.shp'
-##    inClassifier='GMM'
-#    outModel='/home/sigma/test/modelGMM'
-##    inSeed=0
-##    
-##    model=learnModel('img/samples/map_filtered.tif','img/samples/train.shp',inField='Class',inSplit=0.5,inSeed=0,outModel='img/samples/model',outMatrix='img/samples/matrix.csv',inClassifier=inClassifier)   
-##    print 'Model saved as : '+outModel
-##    print 'Confusion matrix saved as : '+str(inFile)+'_'+str(inClassifier)+'_'+str(inSeed)+'_confu.csv'
-    
-    #Classify image...
-    
-#    outShpFile='img/samples/SHP/vectorized.shp'
-#    classifyImage('/home/sigma/test/map_fltr.tif','/home/sigma/test/modelGMM','/home/sigma/test/vec.shp',None,5000,-10000,1)
-    #classified=classifyImage(outFilter,outModel,outShpFile,None,6000,-10000,1)
-    
-#    inFilteredStep3,inTrainingStep3,outRasterClass,None,inMinSize,None,'Class',inNODATA=-10000
-#    inRaster,inModel,outRaster,inMask=None,inMinSize=6,outShpFolder='img/samples/outSHP/',inField='Class',inNODATA=-10000
