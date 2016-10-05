@@ -8,7 +8,7 @@
 
 Qgis Plugin for automatic extraction of forest from Historical Map, especially for [general staff maps (Carte de l'Etat-Major in French)](https://fr.wikipedia.org/wiki/Carte_d%27%C3%89tat-Major)
 
-Made By Nicolas Karasiak (aka <a href="http://www.lennepka.de" target="_blank">Nicolaï Van Lennepkade</a>) and Antoine Lomellini.
+Made By [Nicolas Karasiak](http://www.karasiak.net) and Antoine Lomellini.
 
 Based on the work of Pierre-Alexis Herrault, with the help of <a href="http://fauvel.mathieu.free.fr/" target="_blank">Mathieu Fauvel</a>.
 
