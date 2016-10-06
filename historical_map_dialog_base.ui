@@ -1297,12 +1297,6 @@ For example 0,5 means that we use 50% of your parcel for making the model.</stri
      <property name="value">
       <number>3</number>
      </property>
-	 <property name="maximum">
-      <number>999</number>
-     </property>
-	 <property name="minimum">
-      <number>3</number>
-     </property>
     </widget>
    </widget>
    <widget class="QWidget" name="tab_3">
@@ -1690,19 +1684,22 @@ For example 0,5 means that we use 50% of your parcel for making the model.</stri
        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
       </property>
       <property name="suffix">
-       <string> pixels</string>
+       <string> ha</string>
       </property>
       <property name="decimals">
-       <number>0</number>
+       <number>2</number>
+      </property>
+      <property name="minimum">
+       <double>0.100000000000000</double>
       </property>
       <property name="maximum">
        <double>1000.000000000000000</double>
       </property>
       <property name="singleStep">
-       <double>1.000000000000000</double>
+       <double>0.100000000000000</double>
       </property>
       <property name="value">
-       <double>10.000000000000000</double>
+       <double>0.500000000000000</double>
       </property>
      </widget>
      <widget class="QLabel" name="tiffImageLabel_18">
@@ -1935,10 +1932,7 @@ For example 0,5 means that we use 50% of your parcel for making the model.</stri
     <string>Go to our online wiki</string>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Need help ? You can consult our &lt;a href=&quot;https://github.com/lennepkade/HistoricalMap/wiki&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;online wiki&lt;/span&gt;&lt;/a&gt; or our &lt;a href=&quot;https://github.com/lennepkade/HistoricalMap&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;github page&lt;/span&gt;&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-   </property>
-   <property name="pixmap">
-    <pixmap resource="resources.qrc">:/plugins/HistoricalMap/img/help/information.png</pixmap>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Need help ? You can consult our &lt;a href=&quot;https://github.com/lennepkade/HistoricalMap/wiki&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;wiki&lt;/span&gt;&lt;/a&gt; or our &lt;a href=&quot;https://github.com/lennepkade/HistoricalMap/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;github page&lt;/span&gt;&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
    <property name="scaledContents">
     <bool>true</bool>

@@ -522,13 +522,16 @@ class classifyImage():
             def sieve(srcband,dstband,sieveSize):
                 gdal.SieveFilter(srcband,None,dstband,sieveSize,4)
             
-
-            sieve(srcband,dstband,sieveSize)
+            pixelSize = datasrc.GetGeoTransform()[1] #get pixel size
+            pixelSieve = int(sieveSize/(pixelSize*pixelSize)) #get number of pixel to sieve
+            
+            sieve(srcband,dstband,pixelSieve)
             
             dst_ds = None # close destination band
             
             Progress.addStep()
             
+
             rasterTemp = self.reclassAndFillHole(rasterTemp,inClassNumber)
             
             
@@ -538,6 +541,7 @@ class classifyImage():
             
         except:
             QgsMessageLog.logMessage("Cannot sieve with raster function")
+
         
         outShp = self.polygonize(rasterTemp,outShp) # vectorize raster
         
