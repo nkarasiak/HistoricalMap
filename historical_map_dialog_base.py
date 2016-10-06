@@ -424,6 +424,8 @@ class Ui_HistoricalMap(object):
         self.nFolds.setGeometry(QtCore.QRect(350, 79, 111, 27))
         self.nFolds.setProperty("value", 3)
         self.nFolds.setObjectName(_fromUtf8("nFolds"))
+        self.nFolds.setMaximum(999)
+        self.nFolds.setMinimum(3)
         self.tabWidget.addTab(self.tab_2, _fromUtf8(""))
         self.tab_3 = QtGui.QWidget()
         self.tab_3.setObjectName(_fromUtf8("tab_3"))
