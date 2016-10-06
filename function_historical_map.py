@@ -520,7 +520,7 @@ class classifyImage():
             
             
             def sieve(srcband,dstband,sieveSize):
-                gdal.SieveFilter(srcband,None,dstband,sieveSize,4)
+                gdal.SieveFilter(srcband,None,dstband,sieveSize,8)
             
             pixelSize = datasrc.GetGeoTransform()[1] #get pixel size
             pixelSieve = int(sieveSize/(pixelSize*pixelSize)) #get number of pixel to sieve
