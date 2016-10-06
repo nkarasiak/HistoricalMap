@@ -114,7 +114,18 @@ class HistoricalMap( QDialog ):
         ## Connect to change values if change post treatment value
         self.dlg.filterByArea.clicked.connect(self.choosePostTreatment)
         self.dlg.filterByPixel.clicked.connect(self.choosePostTreatment)
-            
+        
+        ## hide/show nfolds spinbox
+        self.dlg.nFolds.hide()
+        self.dlg.inClassifier.currentIndexChanged[int].connect(self.nfolds)
+        
+    def nfolds(self,index):
+        """!@brief hide nfold spinbox if classifier is GMM"""
+        if self.dlg.inClassifier.currentText() == "GMM":
+            self.dlg.nFolds.hide()
+        else :
+            self.dlg.nFolds.show()
+                
     def choosePostTreatment(self,index):
         """!@brief Change post treatmen values if raster or vector """
         if self.dlg.filterByArea.isChecked(): #if vector mod
@@ -124,7 +135,7 @@ class HistoricalMap( QDialog ):
             self.dlg.inMinSize.setSuffix(' ha')
         else: # if raster mod
             self.dlg.inMinSize.setDecimals(0)
-            self.dlg.inMinSize.setValue(10)
+            self.dlg.inMinSize.setValue(5)
             self.dlg.inMinSize.setSingleStep(1)
             self.dlg.inMinSize.setSuffix(' pixels')
             
@@ -383,16 +394,17 @@ class HistoricalMap( QDialog ):
                 inClassifier=self.dlg.inClassifier.currentText()
                 outModel=self.dlg.outModel.text()
                 outMatrix=self.dlg.outMatrix.text()
+                
                 #> Optional inField
                 inField=self.dlg.inField.currentText()            
                 inSeed=self.dlg.inSeed.value()
                 inSeed=int(inSeed)
                 inSplit=self.dlg.inSplit.value()
-                
+                nFolds=self.dlg.nFolds.value()
                 # add model to step 3
                 self.dlg.inModel.setText(outModel)
                 # Do the job
-                fhm.learnModel(inFiltered,inTraining,inField,inSplit,inSeed,outModel,outMatrix,inClassifier)
+                fhm.learnModel(inFiltered,inTraining,inField,inSplit,inSeed,outModel,outMatrix,inClassifier,nFolds)
                 
                 # show where it is saved
                 if self.dlg.outMatrix.text()!='':

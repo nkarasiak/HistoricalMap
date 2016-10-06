@@ -134,7 +134,7 @@ class learnModel():
         Confusion Matrix.
         
     """
-    def __init__(self,inRaster,inVector,inField='Class',inSplit=0.5,inSeed=0,outModel=None,outMatrix=None,inClassifier='GMM'):
+    def __init__(self,inRaster,inVector,inField='Class',inSplit=0.5,inSeed=0,outModel=None,outMatrix=None,inClassifier='GMM',nFolds='3'):
           
           
         learningProgress=progressBar('Learning model...',6)
@@ -243,7 +243,7 @@ class learnModel():
                     if inClassifier == 'RF':
                         param_grid_rf = dict(n_estimators=3**sp.arange(1,5),max_features=sp.arange(1,4))
                         y.shape=(y.size,)    
-                        cv = StratifiedKFold(y, n_folds=3)
+                        cv = StratifiedKFold(y, nFolds)
                         grid = GridSearchCV(RandomForestClassifier(), param_grid=param_grid_rf, cv=cv,n_jobs=n_jobs)
                         grid.fit(x, y)
                         model = grid.best_estimator_
@@ -251,7 +251,7 @@ class learnModel():
                     elif inClassifier == 'SVM':
                         param_grid_svm = dict(gamma=2.0**sp.arange(-4,4), C=10.0**sp.arange(-2,5))
                         y.shape=(y.size,)    
-                        cv = StratifiedKFold(y, n_folds=5)
+                        cv = StratifiedKFold(y, nFolds)
                         grid = GridSearchCV(SVC(), param_grid=param_grid_svm, cv=cv,n_jobs=n_jobs)
                         grid.fit(x, y)
                         model = grid.best_estimator_
@@ -259,7 +259,7 @@ class learnModel():
                     elif inClassifier == 'KNN':
                         param_grid_knn = dict(n_neighbors = sp.arange(1,20,4))
                         y.shape=(y.size,)    
-                        cv = StratifiedKFold(y, n_folds=3)
+                        cv = StratifiedKFold(y, nFolds)
                         grid = GridSearchCV(neighbors.KNeighborsClassifier(), param_grid=param_grid_knn, cv=cv,n_jobs=n_jobs)
                         grid.fit(x, y)
                         model = grid.best_estimator_

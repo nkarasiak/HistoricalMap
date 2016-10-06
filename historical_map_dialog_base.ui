@@ -1282,6 +1282,28 @@ For example 0,5 means that we use 50% of your parcel for making the model.</stri
       <bool>false</bool>
      </property>
     </widget>
+    <widget class="QSpinBox" name="nFolds">
+     <property name="geometry">
+      <rect>
+       <x>350</x>
+       <y>79</y>
+       <width>111</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="suffix">
+      <string> folds</string>
+     </property>
+     <property name="value">
+      <number>3</number>
+     </property>
+	 <property name="maximum">
+      <number>999</number>
+     </property>
+	 <property name="minimum">
+      <number>3</number>
+     </property>
+    </widget>
    </widget>
    <widget class="QWidget" name="tab_3">
     <attribute name="title">
@@ -1881,6 +1903,9 @@ For example 0,5 means that we use 50% of your parcel for making the model.</stri
    </property>
   </widget>
   <widget class="QLabel" name="label_14">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>217</x>
@@ -1910,7 +1935,7 @@ For example 0,5 means that we use 50% of your parcel for making the model.</stri
     <string>Go to our online wiki</string>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Need help ? You can consult our &lt;a href=&quot;https://github.com/lennepkade/HistoricalMap/wiki&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#000000;&quot;&gt;online wiki &lt;/span&gt;&lt;/a&gt; or our &lt;a href=&quot;https://github.com/lennepkade/HistoricalMap&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#000000;&quot;&gt;github page&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Need help ? You can consult our &lt;a href=&quot;https://github.com/lennepkade/HistoricalMap/wiki&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;online wiki&lt;/span&gt;&lt;/a&gt; or our &lt;a href=&quot;https://github.com/lennepkade/HistoricalMap&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;github page&lt;/span&gt;&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
    <property name="pixmap">
     <pixmap resource="resources.qrc">:/plugins/HistoricalMap/img/help/information.png</pixmap>
