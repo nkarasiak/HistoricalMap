@@ -134,7 +134,7 @@ class learnModel():
         Confusion Matrix.
         
     """
-    def __init__(self,inRaster,inVector,inField='Class',inSplit=0.5,inSeed=0,outModel=None,outMatrix=None,inClassifier='GMM',nFolds='3'):
+    def __init__(self,inRaster,inVector,inField='Class',inSplit=0.5,inSeed=0,outModel=None,outMatrix=None,inClassifier='GMM',nFolds=3):
           
           
         learningProgress=progressBar('Learning model...',6)
