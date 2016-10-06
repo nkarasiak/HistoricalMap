@@ -441,6 +441,10 @@ class classifyImage():
               
     def postClassVector(self,inRaster,sieveSize,inClassNumber,outShp):
         """ !@brief Sieve size with vector areas method, them reclass to delete unwanted labels """
+        
+        # reclass and fill hole
+        inRaster = self.reclassAndFillHole(inRaster,inClassNumber)
+        
         # Vectorizing with gdal.Polygonize
         try:
             sourceRaster = gdal.Open(inRaster)
@@ -487,11 +491,11 @@ class classifyImage():
                 i.SetField( "Area", area )
                 lyr.SetFeature(i)
             # if area is less than inMinSize or if it isn't forest, remove polygon 
-                if area<sieveSize or i.GetField('Class')!=inClassNumber:
+                if area<sieveSize or i.GetField('Class')!=1:
                     lyr.DeleteFeature(i.GetFID())        
             ioShpFile.Destroy()
         except:
-            QgsMessageLog.logMessage("Cannot add area and remove it if size under"+sieveSize)
+            QgsMessageLog.logMessage("Cannot add area and remove it if size under"+str(sieveSize))
         return outShp
         
     def postClassRaster(self,inRaster,sieveSize,inClassNumber,outShp):        

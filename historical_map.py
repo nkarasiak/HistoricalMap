@@ -124,7 +124,7 @@ class HistoricalMap( QDialog ):
             self.dlg.inMinSize.setSuffix(' ha')
         else: # if raster mod
             self.dlg.inMinSize.setDecimals(0)
-            self.dlg.inMinSize.setValue(5)
+            self.dlg.inMinSize.setValue(10)
             self.dlg.inMinSize.setSingleStep(1)
             self.dlg.inMinSize.setSuffix(' pixels')
             
