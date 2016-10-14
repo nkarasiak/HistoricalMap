@@ -115,15 +115,17 @@ class HistoricalMap( QDialog ):
         
         ## hide/show nfolds spinbox
         self.dlg.nFolds.hide()
-        self.dlg.inClassifier.currentIndexChanged[int].connect(self.nfolds)
+    """ uncomment for nfold support
+    self.dlg.inClassifier.currentIndexChanged[int].connect(self.nfolds)
         
     def nfolds(self,index):
-        """!@brief hide nfold spinbox if classifier is GMM"""
+        #!@brief hide nfold spinbox if classifier is GMM#
         if self.dlg.inClassifier.currentText() == "GMM":
             self.dlg.nFolds.hide()
         else :
             self.dlg.nFolds.show()         
-            
+    """
+        
     def onChangedLayer(self,index):
         """!@brief If active layer is changed, change column combobox"""
         # We clear combobox
@@ -384,11 +386,11 @@ class HistoricalMap( QDialog ):
                 inSeed=self.dlg.inSeed.value()
                 inSeed=int(inSeed)
                 inSplit=self.dlg.inSplit.value()
-                nFolds=self.dlg.nFolds.value()
+                #nFolds=self.dlg.nFolds.value()
                 # add model to step 3
                 self.dlg.inModel.setText(outModel)
                 # Do the job
-                fhm.learnModel(inFiltered,inTraining,inField,inSplit,inSeed,outModel,outMatrix,inClassifier,nFolds)
+                fhm.learnModel(inFiltered,inTraining,inField,inSplit,inSeed,outModel,outMatrix,inClassifier)
                 
                 # show where it is saved
                 if self.dlg.outMatrix.text()!='':
