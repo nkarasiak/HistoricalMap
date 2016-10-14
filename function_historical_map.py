@@ -473,6 +473,7 @@ class classifyImage():
             
         except:
             QgsMessageLog.logMessage("Cannot vectorize "+inRaster)
+            self.Progress.reset()
         
         try:        
             # Add area for each feature
@@ -499,7 +500,9 @@ class classifyImage():
             ioShpFile.Destroy()
         except:
             QgsMessageLog.logMessage("Cannot add area and remove it if size under"+str(sieveSize))
+            self.Progress.reset()
         self.Progress.addStep()
+        self.Progress.reset()
         return outShp
         
     def postClassRaster(self,inRaster,sieveSize,inClassNumber,outShp):        
