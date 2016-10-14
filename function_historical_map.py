@@ -134,7 +134,7 @@ class learnModel():
         Confusion Matrix.
         
     """
-    def __init__(self,inRaster,inVector,inField='Class',inSplit=0.5,inSeed=0,outModel=None,outMatrix=None,inClassifier='GMM',nFolds=3):
+    def __init__(self,inRaster,inVector,inField='Class',inSplit=0.5,inSeed=0,outModel=None,outMatrix=None,inClassifier='GMM'):
           
           
         learningProgress=progressBar('Learning model...',6)
@@ -243,7 +243,7 @@ class learnModel():
                     if inClassifier == 'RF':
                         param_grid_rf = dict(n_estimators=3**sp.arange(1,5),max_features=sp.arange(1,4))
                         y.shape=(y.size,)    
-                        cv = StratifiedKFold(y, nFolds)
+                        cv = StratifiedKFold(y, n_folds=3)
                         grid = GridSearchCV(RandomForestClassifier(), param_grid=param_grid_rf, cv=cv,n_jobs=n_jobs)
                         grid.fit(x, y)
                         model = grid.best_estimator_
@@ -251,7 +251,7 @@ class learnModel():
                     elif inClassifier == 'SVM':
                         param_grid_svm = dict(gamma=2.0**sp.arange(-4,4), C=10.0**sp.arange(-2,5))
                         y.shape=(y.size,)    
-                        cv = StratifiedKFold(y, nFolds)
+                        cv = StratifiedKFold(y, n_folds=5)
                         grid = GridSearchCV(SVC(), param_grid=param_grid_svm, cv=cv,n_jobs=n_jobs)
                         grid.fit(x, y)
                         model = grid.best_estimator_
@@ -259,7 +259,7 @@ class learnModel():
                     elif inClassifier == 'KNN':
                         param_grid_knn = dict(n_neighbors = sp.arange(1,20,4))
                         y.shape=(y.size,)    
-                        cv = StratifiedKFold(y, nFolds)
+                        cv = StratifiedKFold(y, n_folds=3)
                         grid = GridSearchCV(neighbors.KNeighborsClassifier(), param_grid=param_grid_knn, cv=cv,n_jobs=n_jobs)
                         grid.fit(x, y)
                         model = grid.best_estimator_
@@ -352,6 +352,7 @@ class classifyImage():
         
 
         # Load model
+        self.Progress=progressBar(' Classification ',3)
         try:
             model = open(inModel,'rb') # TODO: Update to scale the data 
             if model is None:
@@ -375,6 +376,7 @@ class classifyImage():
             
         except:
             QgsMessageLog.logMessage("Problem while predicting "+inRaster+" in temp"+rasterTemp)
+        self.Progress.addStep()
         
         return predictedImage
     
@@ -419,9 +421,7 @@ class classifyImage():
                 if i.GetField('Class')!=1:
                     lyr.DeleteFeature(i.GetFID())        
             ioShpFile.Destroy()
-            
-            #historicalProgress.reset()
-            
+                        
             return outShp
             
     def reclassAndFillHole(self,rasterTemp,inClassNumber):
@@ -444,6 +444,9 @@ class classifyImage():
         
         # reclass and fill hole
         inRaster = self.reclassAndFillHole(inRaster,inClassNumber)
+        self.Progress.addStep()
+            
+
         
         # Vectorizing with gdal.Polygonize
         try:
@@ -496,11 +499,11 @@ class classifyImage():
             ioShpFile.Destroy()
         except:
             QgsMessageLog.logMessage("Cannot add area and remove it if size under"+str(sieveSize))
+        self.Progress.addStep()
         return outShp
         
     def postClassRaster(self,inRaster,sieveSize,inClassNumber,outShp):        
         """ !@brief Sieve size with gdal.Sieve() fiunction, them reclass to delete unwanted labels """
-        Progress=progressBar(' Post-classification...',3)
         
         try:
             rasterTemp = tempfile.mktemp('.tif')
@@ -529,13 +532,13 @@ class classifyImage():
             
             dst_ds = None # close destination band
             
-            Progress.addStep()
+            self.Progress.addStep()
             
 
             rasterTemp = self.reclassAndFillHole(rasterTemp,inClassNumber)
             
             
-            Progress.addStep()
+            self.Progress.addStep()
             
             
             
@@ -543,11 +546,14 @@ class classifyImage():
             QgsMessageLog.logMessage("Cannot sieve with raster function")
 
         
-        outShp = self.polygonize(rasterTemp,outShp) # vectorize raster
+        try :
+            outShp = self.polygonize(rasterTemp,outShp) # vectorize raster
+        except :
+            self.Progress.reset()    
         
-        Progress.addStep()        
+        self.Progress.addStep()        
         
-        Progress.reset()
+        self.Progress.reset()
         return outShp
 
     def scale(self,x,M=None,m=None):  # TODO:  DO IN PLACE SCALING
